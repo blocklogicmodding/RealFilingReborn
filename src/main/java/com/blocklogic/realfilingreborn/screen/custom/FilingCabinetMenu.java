@@ -34,7 +34,7 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
 
         for (int row = 0; row < 2; row++) {
             for (int col = 0; col < 5; col++) {
-                int x = 8 + col * 18;
+                int x = 80 + col * 18;
                 int y = 26 + row * 18;
                 this.addSlot(new SlotItemHandler(this.blockEntity.inventory, col + row * 5, x, y) {
                     @Override
@@ -45,7 +45,7 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
             }
         }
 
-        this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 10, 152, 44) {
+        this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 10, 53, 35) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return stack.getItem() instanceof IndexCardItem;
