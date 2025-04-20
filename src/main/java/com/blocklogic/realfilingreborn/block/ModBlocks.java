@@ -2,6 +2,7 @@ package com.blocklogic.realfilingreborn.block;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
 import com.blocklogic.realfilingreborn.block.custom.FilingCabinetBlock;
+import com.blocklogic.realfilingreborn.block.custom.FilingIndexBlock;
 import com.blocklogic.realfilingreborn.item.ModItems;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -25,7 +26,7 @@ public class ModBlocks {
             ));
 
     public static final DeferredBlock<Block> FILING_INDEX = registerBlock("filing_index",
-            () -> new Block(BlockBehaviour.Properties.of()
+            () -> new FilingIndexBlock(BlockBehaviour.Properties.of()
                     .strength(3.0F)
                     .requiresCorrectToolForDrops()
                     .sound(SoundType.STONE)
