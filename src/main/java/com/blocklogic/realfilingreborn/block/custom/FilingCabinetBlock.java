@@ -80,14 +80,20 @@ public class FilingCabinetBlock extends BaseEntityBlock {
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
+    private void openFilingCabinetMenu(FilingCabinetBlockEntity blockEntity, ServerPlayer player, BlockPos pos) {
+        player.openMenu(new SimpleMenuProvider(blockEntity, Component.translatable("menu.realfilingreborn.menu_title")), pos);
+    }
+
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (level.getBlockEntity(pos) instanceof FilingCabinetBlockEntity filingCabinetBlockEntity) {
-            if (player.isCrouching() && !level.isClientSide()) {
-                ((ServerPlayer) player).openMenu(new SimpleMenuProvider(filingCabinetBlockEntity, Component.translatable("menu.realfilingreborn.menu_title")), pos);
-                return ItemInteractionResult.SUCCESS;
+        if (level.getBlockEntity(pos) instanceof FilingCabinetBlockEntity filingCabinetBlockEntity && player.isCrouching()) {
+            if (!level.isClientSide()) {
+                openFilingCabinetMenu(filingCabinetBlockEntity, (ServerPlayer) player, pos);
             }
+            return ItemInteractionResult.SUCCESS;
+        }
 
+        if (level.getBlockEntity(pos) instanceof FilingCabinetBlockEntity filingCabinetBlockEntity) {
             ItemStack heldItem = player.getItemInHand(hand);
 
             if (heldItem.getItem() instanceof FilingFolderItem) {
@@ -129,7 +135,6 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                         return ItemInteractionResult.SUCCESS;
                     }
                 }
-
                 if (!level.isClientSide()) {
                     player.displayClientMessage(Component.translatable("message.realfilingreborn.no_folders"), true);
                 }
@@ -137,6 +142,6 @@ public class FilingCabinetBlock extends BaseEntityBlock {
             }
         }
 
-        return ItemInteractionResult.SUCCESS;
+        return ItemInteractionResult.FAIL;
     }
 }
