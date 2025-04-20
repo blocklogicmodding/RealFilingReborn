@@ -1,3 +1,9 @@
 {
+  "item.realfilingreborn.filing_folder": "Folder",
+  "item.realfilingreborn.index_card": "Index Card",
 
+  "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
+  "block.realfilingreborn.filing_index": "Filing Index",
+
+  "creativetab.realfilingreborn.real_filing_reborn": "Real Filing Reborn"
 }

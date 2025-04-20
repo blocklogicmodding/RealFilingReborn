@@ -1,5 +1,8 @@
 package com.blocklogic.realfilingreborn;
 
+import com.blocklogic.realfilingreborn.block.ModBlocks;
+import com.blocklogic.realfilingreborn.item.ModCreativeModTab;
+import com.blocklogic.realfilingreborn.item.ModItems;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -47,6 +50,10 @@ public class RealFilingReborn
 
         NeoForge.EVENT_BUS.register(this);
 
+        ModItems.register(modEventBus);
+        ModBlocks.register(modEventBus);
+        ModCreativeModTab.register(modEventBus);
+
         modEventBus.addListener(this::addCreative);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
@@ -59,7 +66,6 @@ public class RealFilingReborn
 
     private void addCreative(BuildCreativeModeTabContentsEvent event)
     {
-
     }
 
     @SubscribeEvent
