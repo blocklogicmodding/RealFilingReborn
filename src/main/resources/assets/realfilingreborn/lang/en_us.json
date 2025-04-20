@@ -9,5 +9,9 @@
 
   "menu.realfilingreborn.menu_title": "Filing Cabinet",
 
-  "blockentity.realfilingreborn.name": "Filing Cabinet"
+  "blockentity.realfilingreborn.name": "Filing Cabinet",
+
+  "message.realfilingreborn.index_occupied": "The Filing Cabinet already has an Index Card",
+  "message.realfilingreborn.folders_full": "The Filing Cabinet is full (10)",
+  "message.realfilingreborn.no_folders": "The filing cabinets can only accept folders"
 }

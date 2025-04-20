@@ -2,6 +2,7 @@ package com.blocklogic.realfilingreborn.block.entity.renderer;
 
 import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -24,15 +25,45 @@ public class FilingCabinetBlockEntityRenderer implements BlockEntityRenderer<Fil
     @Override
     public void render(FilingCabinetBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-        ItemStack stack = blockEntity.inventory.getStackInSlot(0);
+
+        // Only render the index card slot (slot 10)
+        ItemStack stack = blockEntity.inventory.getStackInSlot(10);
 
         if (!stack.isEmpty()) {
             poseStack.pushPose();
-            poseStack.translate(0.96F, 0.03F, 0F);
+
+            // Get the block's facing direction
+            Direction facing = blockEntity.getBlockState().getValue(com.blocklogic.realfilingreborn.block.custom.FilingCabinetBlock.FACING);
+
+            // Apply rotation based on facing direction
+            switch (facing) {
+                case NORTH:
+                    poseStack.translate(0.96F, 0.03F, 0F);
+                    break;
+                case SOUTH:
+                    // Rotate 180 degrees around Y axis
+                    poseStack.translate(0.04F, 0.03F, 1.0F);
+                    break;
+                case EAST:
+                    // Rotate 90 degrees around Y axis
+                    poseStack.translate(1.0F, 0.03F, 0.96F);
+                    poseStack.mulPose(Axis.YP.rotationDegrees(270));
+                    break;
+                case WEST:
+                    // Rotate -90 degrees around Y axis
+                    poseStack.translate(0F, 0.03F, 0.04F);
+                    poseStack.mulPose(Axis.YP.rotationDegrees(90));
+                    break;
+                default:
+                    break;
+            }
+
+            // Keep your original translate values
+            //poseStack.translate(0.96F, 0.03F, 0F);
             poseStack.scale(0.08F, 0.08F, 0.08F);
 
-            Direction facing = blockEntity.getBlockState().getValue(com.blocklogic.realfilingreborn.block.custom.FilingCabinetBlock.FACING);
-            BlockPos lightSamplePos = blockEntity.getBlockPos().relative(facing);
+            Direction facingForLight = blockEntity.getBlockState().getValue(com.blocklogic.realfilingreborn.block.custom.FilingCabinetBlock.FACING);
+            BlockPos lightSamplePos = blockEntity.getBlockPos().relative(facingForLight);
             int light = getLightLevel(blockEntity.getLevel(), lightSamplePos);
 
             itemRenderer.renderStatic(

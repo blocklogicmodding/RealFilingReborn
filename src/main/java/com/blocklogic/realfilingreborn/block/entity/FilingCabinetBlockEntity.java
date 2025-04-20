@@ -1,5 +1,7 @@
 package com.blocklogic.realfilingreborn.block.entity;
 
+import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
+import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
 import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -21,7 +23,7 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 
 public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvider {
-    public final ItemStackHandler inventory = new ItemStackHandler(1) {
+    public final ItemStackHandler inventory = new ItemStackHandler(11) {
         @Override
         protected int getStackLimit(int slot, ItemStack stack) {
             return 1;
@@ -32,6 +34,17 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
             setChanged();
             if(!level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+            }
+        }
+
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            if (slot < 10) {
+                // Slots 0-9 can only accept folders
+                return stack.getItem() instanceof FilingFolderItem;
+            } else {
+                // Slot 10 can only accept index cards
+                return stack.getItem() instanceof IndexCardItem;
             }
         }
     };

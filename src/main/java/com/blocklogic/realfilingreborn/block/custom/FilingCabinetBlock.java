@@ -1,6 +1,8 @@
 package com.blocklogic.realfilingreborn.block.custom;
 
 import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
+import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
+import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -86,15 +88,52 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                 return ItemInteractionResult.SUCCESS;
             }
 
-            if (filingCabinetBlockEntity.inventory.getStackInSlot(0).isEmpty() && !stack.isEmpty()) {
-                filingCabinetBlockEntity.inventory.insertItem(0, stack.copy(), false);
-                stack.shrink(1);
-                level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
-            } else if (stack.isEmpty()) {
-                ItemStack stackOnPedestal = filingCabinetBlockEntity.inventory.extractItem(0, 1, false);
-                player.setItemInHand(InteractionHand.MAIN_HAND, stackOnPedestal);
-                filingCabinetBlockEntity.clearContents();
-                level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 1f);
+            ItemStack heldItem = player.getItemInHand(hand);
+
+            if (heldItem.getItem() instanceof FilingFolderItem) {
+                for (int i = 0; i < 10; i++) {
+                    if (filingCabinetBlockEntity.inventory.getStackInSlot(i).isEmpty()) {
+                        ItemStack folderStack = heldItem.copy();
+                        folderStack.setCount(1);
+                        filingCabinetBlockEntity.inventory.setStackInSlot(i, folderStack);
+                        heldItem.shrink(1);
+                        level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
+                        return ItemInteractionResult.SUCCESS;
+                    }
+                }
+
+                if (!level.isClientSide()) {
+                    player.displayClientMessage(Component.translatable("message.realfilingreborn.folders_full"), true);
+                }
+                return ItemInteractionResult.SUCCESS;
+            } else if (heldItem.getItem() instanceof IndexCardItem) {
+                if (filingCabinetBlockEntity.inventory.getStackInSlot(10).isEmpty()) {
+                    ItemStack cardStack = heldItem.copy();
+                    cardStack.setCount(1);
+                    filingCabinetBlockEntity.inventory.setStackInSlot(10, cardStack);
+                    heldItem.shrink(1);
+                    level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
+                } else {
+                    if (!level.isClientSide()) {
+                        player.displayClientMessage(Component.translatable("message.realfilingreborn.index_occupied"), true);
+                    }
+                }
+                return ItemInteractionResult.SUCCESS;
+            } else if (heldItem.isEmpty()) {
+                for (int i = 9; i >= 0; i--) {
+                    ItemStack slotStack = filingCabinetBlockEntity.inventory.getStackInSlot(i);
+                    if (!slotStack.isEmpty()) {
+                        player.setItemInHand(hand, slotStack.copy());
+                        filingCabinetBlockEntity.inventory.setStackInSlot(i, ItemStack.EMPTY);
+                        level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 1f);
+                        return ItemInteractionResult.SUCCESS;
+                    }
+                }
+
+                if (!level.isClientSide()) {
+                    player.displayClientMessage(Component.translatable("message.realfilingreborn.no_folders"), true);
+                }
+                return ItemInteractionResult.SUCCESS;
             }
         }
 

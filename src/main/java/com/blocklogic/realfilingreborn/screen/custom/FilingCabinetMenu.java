@@ -2,6 +2,8 @@ package com.blocklogic.realfilingreborn.screen.custom;
 
 import com.blocklogic.realfilingreborn.block.ModBlocks;
 import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
+import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
+import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -30,7 +32,25 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 0, 8, 26));
+        for (int row = 0; row < 2; row++) {
+            for (int col = 0; col < 5; col++) {
+                int x = 8 + col * 18;
+                int y = 26 + row * 18;
+                this.addSlot(new SlotItemHandler(this.blockEntity.inventory, col + row * 5, x, y) {
+                    @Override
+                    public boolean mayPlace(ItemStack stack) {
+                        return stack.getItem() instanceof FilingFolderItem;
+                    }
+                });
+            }
+        }
+
+        this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 10, 152, 44) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return stack.getItem() instanceof IndexCardItem;
+            }
+        });
     }
 
     private static final int HOTBAR_SLOT_COUNT = 9;
@@ -41,7 +61,7 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
-    private static final int TE_INVENTORY_SLOT_COUNT = 1;
+    private static final int TE_INVENTORY_SLOT_COUNT = 11;
 
     @Override
     public ItemStack quickMoveStack(Player playerIn, int pIndex) {
@@ -50,19 +70,34 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
         ItemStack sourceStack = sourceSlot.getItem();
         ItemStack copyOfSourceStack = sourceStack.copy();
 
+        // If the slot is in the player inventory, try to move item to cabinet inventory
         if (pIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
-            if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX, TE_INVENTORY_FIRST_SLOT_INDEX
-                    + TE_INVENTORY_SLOT_COUNT, false)) {
-                return ItemStack.EMPTY;
+            if (sourceStack.getItem() instanceof FilingFolderItem) {
+                // Try to move folder to folder slots (0-9)
+                if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX,
+                        TE_INVENTORY_FIRST_SLOT_INDEX + 10, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (sourceStack.getItem() instanceof IndexCardItem) {
+                // Try to move index card to index card slot (10)
+                if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX + 10,
+                        TE_INVENTORY_FIRST_SLOT_INDEX + 11, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else {
+                return ItemStack.EMPTY; // Can't move any other item type
             }
         } else if (pIndex < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
-            if (!moveItemStackTo(sourceStack, VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false)) {
+            // If the slot is in the cabinet inventory, try to move to player inventory
+            if (!moveItemStackTo(sourceStack, VANILLA_FIRST_SLOT_INDEX,
+                    VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false)) {
                 return ItemStack.EMPTY;
             }
         } else {
             System.out.println("Invalid slotIndex:" + pIndex);
             return ItemStack.EMPTY;
         }
+
         if (sourceStack.getCount() == 0) {
             sourceSlot.set(ItemStack.EMPTY);
         } else {
