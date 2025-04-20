@@ -1,8 +1,14 @@
 package com.blocklogic.realfilingreborn;
 
 import com.blocklogic.realfilingreborn.block.ModBlocks;
+import com.blocklogic.realfilingreborn.block.entity.ModBlockEntities;
+import com.blocklogic.realfilingreborn.block.entity.renderer.FilingCabinetBlockEntityRenderer;
 import com.blocklogic.realfilingreborn.item.ModCreativeModTab;
 import com.blocklogic.realfilingreborn.item.ModItems;
+import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
+import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetScreen;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
+import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
@@ -53,6 +59,8 @@ public class RealFilingReborn
         ModItems.register(modEventBus);
         ModBlocks.register(modEventBus);
         ModCreativeModTab.register(modEventBus);
+        ModBlockEntities.register(modEventBus);
+        ModMenuTypes.register(modEventBus);
 
         modEventBus.addListener(this::addCreative);
 
@@ -81,6 +89,16 @@ public class RealFilingReborn
         public static void onClientSetup(FMLClientSetupEvent event)
         {
 
+        }
+
+        @SubscribeEvent
+        public static void registerBER(EntityRenderersEvent.RegisterRenderers event) {
+            event.registerBlockEntityRenderer(ModBlockEntities.FILING_CABINET_BE.get(), FilingCabinetBlockEntityRenderer::new);
+        }
+
+        @SubscribeEvent
+        public static void registerScreens(RegisterMenuScreensEvent event) {
+            event.register(ModMenuTypes.FILING_CABINET_MENU.get(), FilingCabinetScreen::new);
         }
     }
 }

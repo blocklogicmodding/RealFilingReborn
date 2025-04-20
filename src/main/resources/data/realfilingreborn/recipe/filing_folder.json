@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": {
+      "item": "minecraft:glass_pane"
+    },
+    "P": {
+      "item": "minecraft:paper"
+    }
+  },
+  "pattern": [
+    "PPP",
+    "PG ",
+    "PPP"
+  ],
+  "result": {
+    "id": "realfilingreborn:filing_folder",
+    "count": 8
+  }
+}

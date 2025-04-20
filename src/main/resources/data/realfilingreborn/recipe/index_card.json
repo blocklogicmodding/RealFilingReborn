@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": {
+      "item": "realfilingreborn:filing_folder"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "P": {
+      "item": "minecraft:paper"
+    }
+  },
+  "pattern": [
+    "PRP",
+    "RFR",
+    "PRP"
+  ],
+  "result": {
+    "id": "realfilingreborn:index_card",
+    "count": 4
+  }
+}
