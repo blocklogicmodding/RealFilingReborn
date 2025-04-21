@@ -47,7 +47,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
-            if (slot == 10) { // Index card slot
+            if (slot == 10) {
                 updateIndexLinking();
             }
             if(!level.isClientSide()) {
@@ -73,11 +73,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         super(ModBlockEntities.FILING_CABINET_BE.get(), pos, blockState);
     }
 
-    /**
-     * Get the capability handler for the specified side
-     * @param side The side to get the handler for, or null for no specific side
-     * @return The appropriate item handler or null if no handler exists for that side
-     */
     @Nullable
     public IItemHandler getCapabilityHandler(@Nullable Direction side) {
         if (side != null && this.getBlockState().getValue(FilingCabinetBlock.FACING) == side) {
@@ -96,10 +91,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
     }
 
     public void updateIndexLinking() {
-        // No need to track or update connections actively
-        // The index will scan for cabinets when needed
         if (level != null && !level.isClientSide()) {
-            // Just notify the level that capabilities might have changed
             level.invalidateCapabilities(getBlockPos());
         }
     }
@@ -139,7 +131,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("inventory"));
 
-        // Load the previous index position
         if (tag.contains("PreviousIndexPos", Tag.TAG_COMPOUND)) {
             CompoundTag posTag = tag.getCompound("PreviousIndexPos");
             previousIndexPos = new BlockPos(
@@ -174,8 +165,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
     @Override
     public void setRemoved() {
-        // No need to notify any index blocks since we're now using dynamic scanning
-        // Just call the parent method
         super.setRemoved();
     }
 
@@ -185,10 +174,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         updateIndexLinking();
     }
 
-    /**
-     * Item handler implementation for filing cabinet automation
-     * This provides a view of the folder contents rather than the folders themselves
-     */
     private static class FilingCabinetItemHandler implements IItemHandler {
         private final FilingCabinetBlockEntity cabinet;
         private final Direction side;

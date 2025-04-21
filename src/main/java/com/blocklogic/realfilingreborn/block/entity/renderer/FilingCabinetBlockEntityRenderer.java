@@ -26,31 +26,25 @@ public class FilingCabinetBlockEntityRenderer implements BlockEntityRenderer<Fil
     public void render(FilingCabinetBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 
-        // Only render the index card slot (slot 10)
         ItemStack stack = blockEntity.inventory.getStackInSlot(10);
 
         if (!stack.isEmpty()) {
             poseStack.pushPose();
 
-            // Get the block's facing direction
             Direction facing = blockEntity.getBlockState().getValue(com.blocklogic.realfilingreborn.block.custom.FilingCabinetBlock.FACING);
 
-            // Apply rotation based on facing direction
             switch (facing) {
                 case NORTH:
                     poseStack.translate(0.96F, 0.03F, 0F);
                     break;
                 case SOUTH:
-                    // Rotate 180 degrees around Y axis
                     poseStack.translate(0.04F, 0.03F, 1.0F);
                     break;
                 case EAST:
-                    // Rotate 90 degrees around Y axis
                     poseStack.translate(1.0F, 0.03F, 0.96F);
                     poseStack.mulPose(Axis.YP.rotationDegrees(270));
                     break;
                 case WEST:
-                    // Rotate -90 degrees around Y axis
                     poseStack.translate(0F, 0.03F, 0.04F);
                     poseStack.mulPose(Axis.YP.rotationDegrees(90));
                     break;
@@ -58,8 +52,6 @@ public class FilingCabinetBlockEntityRenderer implements BlockEntityRenderer<Fil
                     break;
             }
 
-            // Keep your original translate values
-            //poseStack.translate(0.96F, 0.03F, 0F);
             poseStack.scale(0.08F, 0.08F, 0.08F);
 
             Direction facingForLight = blockEntity.getBlockState().getValue(com.blocklogic.realfilingreborn.block.custom.FilingCabinetBlock.FACING);

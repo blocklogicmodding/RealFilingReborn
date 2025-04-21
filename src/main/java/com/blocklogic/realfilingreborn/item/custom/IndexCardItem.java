@@ -38,14 +38,11 @@ public class IndexCardItem extends Item {
 
         ItemStack heldStack = context.getItemInHand();
 
-        // Create new linked card
         ItemStack linkedCard = new ItemStack(this);
         linkedCard.set(ModDataComponents.COORDINATES, context.getClickedPos());
 
-        // Reduce original stack first (important!)
         heldStack.shrink(1);
 
-        // Handle new card placement
         if (player != null) {
             if (!player.getInventory().add(linkedCard)) {
                 player.drop(linkedCard, false);

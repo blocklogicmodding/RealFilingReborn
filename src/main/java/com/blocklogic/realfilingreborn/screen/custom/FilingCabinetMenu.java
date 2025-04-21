@@ -70,25 +70,21 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
         ItemStack sourceStack = sourceSlot.getItem();
         ItemStack copyOfSourceStack = sourceStack.copy();
 
-        // If the slot is in the player inventory, try to move item to cabinet inventory
         if (pIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
             if (sourceStack.getItem() instanceof FilingFolderItem) {
-                // Try to move folder to folder slots (0-9)
                 if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX,
                         TE_INVENTORY_FIRST_SLOT_INDEX + 10, false)) {
                     return ItemStack.EMPTY;
                 }
             } else if (sourceStack.getItem() instanceof IndexCardItem) {
-                // Try to move index card to index card slot (10)
                 if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX + 10,
                         TE_INVENTORY_FIRST_SLOT_INDEX + 11, false)) {
                     return ItemStack.EMPTY;
                 }
             } else {
-                return ItemStack.EMPTY; // Can't move any other item type
+                return ItemStack.EMPTY;
             }
         } else if (pIndex < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
-            // If the slot is in the cabinet inventory, try to move to player inventory
             if (!moveItemStackTo(sourceStack, VANILLA_FIRST_SLOT_INDEX,
                     VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false)) {
                 return ItemStack.EMPTY;
