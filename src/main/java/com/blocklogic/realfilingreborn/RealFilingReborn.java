@@ -1,8 +1,10 @@
 package com.blocklogic.realfilingreborn;
 
 import com.blocklogic.realfilingreborn.block.ModBlocks;
+import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
 import com.blocklogic.realfilingreborn.block.entity.ModBlockEntities;
 import com.blocklogic.realfilingreborn.block.entity.renderer.FilingCabinetBlockEntityRenderer;
+import com.blocklogic.realfilingreborn.capability.CombinedItemHandler;
 import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.ModCreativeModTab;
 import com.blocklogic.realfilingreborn.item.ModItems;
@@ -72,6 +74,12 @@ public class RealFilingReborn
                 Capabilities.ItemHandler.BLOCK,
                 ModBlockEntities.FILING_CABINET_BE.get(),
                 (filingCabinetBE, side) -> filingCabinetBE.getCapabilityHandler(side)
+        );
+
+        event.registerBlockEntity(
+                Capabilities.ItemHandler.BLOCK,
+                ModBlockEntities.FILING_INDEX_BE.get(),
+                (filingIndexBE, side) -> new CombinedItemHandler((FilingIndexBlockEntity) filingIndexBE)
         );
     }
 

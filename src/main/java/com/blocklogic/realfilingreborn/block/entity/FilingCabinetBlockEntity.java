@@ -1,6 +1,7 @@
 package com.blocklogic.realfilingreborn.block.entity;
 
 import com.blocklogic.realfilingreborn.block.custom.FilingCabinetBlock;
+import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
 import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetMenu;
@@ -43,6 +44,9 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
+            if (slot == 10) { // Index card slot
+                updateIndexLinking();
+            }
             if(!level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
                 level.invalidateCapabilities(getBlockPos());
@@ -80,8 +84,32 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         return handlers.computeIfAbsent(side != null ? side : Direction.UP, s -> new FilingCabinetItemHandler(this, s));
     }
 
+    private BlockPos getLinkedIndexPos() {
+        ItemStack indexCardStack = inventory.getStackInSlot(10);
+        if (!indexCardStack.isEmpty() && indexCardStack.get(ModDataComponents.COORDINATES) != null) {
+            return indexCardStack.get(ModDataComponents.COORDINATES);
+        }
+        return null;
+    }
+
+    public void updateIndexLinking() {
+        if (level == null || level.isClientSide()) {
+            return;
+        }
+
+        BlockPos indexPos = getLinkedIndexPos();
+        if (indexPos != null) {
+            // Check if the index block is still a valid Filing Index
+            if (level.getBlockEntity(indexPos) instanceof FilingIndexBlockEntity indexEntity) {
+                indexEntity.addCabinet(this.getBlockPos());
+            }
+        }
+    }
+
     public void clearContents() {
-        inventory.setStackInSlot(0, ItemStack.EMPTY);
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            inventory.setStackInSlot(i, ItemStack.EMPTY);
+        }
     }
 
     public void drops() {
@@ -125,6 +153,25 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
         return saveWithoutMetadata(pRegistries);
+    }
+
+    @Override
+    public void setRemoved() {
+        if (level != null && !level.isClientSide()) {
+            BlockPos indexPos = getLinkedIndexPos();
+            if (indexPos != null) {
+                if (level.getBlockEntity(indexPos) instanceof FilingIndexBlockEntity indexEntity) {
+                    indexEntity.removeCabinet(this.getBlockPos());
+                }
+            }
+        }
+        super.setRemoved();
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        updateIndexLinking();
     }
 
     /**
