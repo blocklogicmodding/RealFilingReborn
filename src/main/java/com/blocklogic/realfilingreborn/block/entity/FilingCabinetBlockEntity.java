@@ -10,6 +10,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -35,6 +36,8 @@ import java.util.Map;
 import java.util.Optional;
 
 public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvider {
+    private BlockPos previousIndexPos = null;
+
     public final ItemStackHandler inventory = new ItemStackHandler(11) {
         @Override
         protected int getStackLimit(int slot, ItemStack stack) {
@@ -93,16 +96,11 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
     }
 
     public void updateIndexLinking() {
-        if (level == null || level.isClientSide()) {
-            return;
-        }
-
-        BlockPos indexPos = getLinkedIndexPos();
-        if (indexPos != null) {
-            // Check if the index block is still a valid Filing Index
-            if (level.getBlockEntity(indexPos) instanceof FilingIndexBlockEntity indexEntity) {
-                indexEntity.addCabinet(this.getBlockPos());
-            }
+        // No need to track or update connections actively
+        // The index will scan for cabinets when needed
+        if (level != null && !level.isClientSide()) {
+            // Just notify the level that capabilities might have changed
+            level.invalidateCapabilities(getBlockPos());
         }
     }
 
@@ -125,12 +123,31 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", inventory.serializeNBT(registries));
+
+        // Save the previous index position
+        if (previousIndexPos != null) {
+            CompoundTag posTag = new CompoundTag();
+            posTag.putInt("X", previousIndexPos.getX());
+            posTag.putInt("Y", previousIndexPos.getY());
+            posTag.putInt("Z", previousIndexPos.getZ());
+            tag.put("PreviousIndexPos", posTag);
+        }
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("inventory"));
+
+        // Load the previous index position
+        if (tag.contains("PreviousIndexPos", Tag.TAG_COMPOUND)) {
+            CompoundTag posTag = tag.getCompound("PreviousIndexPos");
+            previousIndexPos = new BlockPos(
+                    posTag.getInt("X"),
+                    posTag.getInt("Y"),
+                    posTag.getInt("Z")
+            );
+        }
     }
 
     @Override
@@ -157,14 +174,8 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
     @Override
     public void setRemoved() {
-        if (level != null && !level.isClientSide()) {
-            BlockPos indexPos = getLinkedIndexPos();
-            if (indexPos != null) {
-                if (level.getBlockEntity(indexPos) instanceof FilingIndexBlockEntity indexEntity) {
-                    indexEntity.removeCabinet(this.getBlockPos());
-                }
-            }
-        }
+        // No need to notify any index blocks since we're now using dynamic scanning
+        // Just call the parent method
         super.setRemoved();
     }
 

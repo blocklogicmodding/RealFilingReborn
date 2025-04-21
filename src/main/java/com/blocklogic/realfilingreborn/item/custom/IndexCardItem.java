@@ -4,7 +4,10 @@ import com.blocklogic.realfilingreborn.block.ModBlocks;
 import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -20,31 +23,49 @@ public class IndexCardItem extends Item {
 
     @Override
     public InteractionResult useOn(UseOnContext context) {
-        // Check if the block is a Filing Index
-        if (context.getLevel().getBlockState(context.getClickedPos()).is(ModBlocks.FILING_INDEX.get())) {
-            // Store the position
-            context.getItemInHand().set(ModDataComponents.COORDINATES, context.getClickedPos());
+        Level level = context.getLevel();
+        Player player = context.getPlayer();
 
-            // Add feedback message to the player
-            if (!context.getLevel().isClientSide()) {
-                context.getPlayer().displayClientMessage(
-                        Component.translatable("message.realfilingreborn.index_card_linked")
-                                .withStyle(ChatFormatting.GREEN),
-                        true);
-            }
-
-            return InteractionResult.SUCCESS;
-        } else {
-            // If not a Filing Index, provide feedback
-            if (!context.getLevel().isClientSide()) {
-                context.getPlayer().displayClientMessage(
+        if (!level.getBlockState(context.getClickedPos()).is(ModBlocks.FILING_INDEX.get())) {
+            if (!level.isClientSide() && player != null) {
+                player.displayClientMessage(
                         Component.translatable("message.realfilingreborn.index_card_needs_index")
                                 .withStyle(ChatFormatting.RED),
                         true);
             }
-
             return InteractionResult.FAIL;
         }
+
+        ItemStack heldStack = context.getItemInHand();
+
+        // Create new linked card
+        ItemStack linkedCard = new ItemStack(this);
+        linkedCard.set(ModDataComponents.COORDINATES, context.getClickedPos());
+
+        // Reduce original stack first (important!)
+        heldStack.shrink(1);
+
+        // Handle new card placement
+        if (player != null) {
+            if (!player.getInventory().add(linkedCard)) {
+                player.drop(linkedCard, false);
+            }
+
+            if (!level.isClientSide()) {
+                player.displayClientMessage(
+                        Component.translatable("message.realfilingreborn.index_card_linked")
+                                .withStyle(ChatFormatting.GREEN),
+                        true);
+            }
+        }
+
+        if (!level.isClientSide()) {
+            level.playSound(null, context.getClickedPos(),
+                    SoundEvents.ITEM_FRAME_ADD_ITEM,
+                    SoundSource.BLOCKS, 0.8f, 1.2f);
+        }
+
+        return InteractionResult.SUCCESS;
     }
 
     @Override
