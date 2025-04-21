@@ -208,11 +208,8 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
             ResourceLocation itemId = contents.storedItemId().get();
             Item item = BuiltInRegistries.ITEM.get(itemId);
 
-            ItemStack tempStack = new ItemStack(item, 1);
-            int maxStackSize = item.getMaxStackSize(tempStack);
-            int stackSize = Math.min(contents.count(), maxStackSize);
-
-            return new ItemStack(item, stackSize);
+            // Instead of limiting to stack size, return the full item count
+            return new ItemStack(item, contents.count());
         }
 
         @Override

@@ -1,6 +1,7 @@
 package com.blocklogic.realfilingreborn.block.entity;
 
 import com.blocklogic.realfilingreborn.component.ModDataComponents;
+import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -17,34 +18,41 @@ import java.util.List;
 
 public class FilingIndexBlockEntity extends BlockEntity {
 
+    private List<IItemHandler> cachedHandlers = new ArrayList<>();
+    private long lastCacheUpdate = -1;
+    private static final long CACHE_INTERVAL = 100;
+
     public FilingIndexBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FILING_INDEX_BE.get(), pos, blockState);
     }
 
     public List<IItemHandler> getCabinetItemHandlers() {
-        List<IItemHandler> handlers = new ArrayList<>();
+        if (level == null || level.isClientSide()) return List.of();
 
-        if (level != null && !level.isClientSide()) {
+        long gameTime = level.getGameTime();
+        if (gameTime - lastCacheUpdate >= CACHE_INTERVAL) {
+            lastCacheUpdate = gameTime;
+            cachedHandlers.clear();
+
             int radius = 16;
+            BlockPos origin = getBlockPos();
 
             for (int x = -radius; x <= radius; x++) {
                 for (int y = -radius; y <= radius; y++) {
                     for (int z = -radius; z <= radius; z++) {
-                        BlockPos cabinetPos = getBlockPos().offset(x, y, z);
-
+                        BlockPos cabinetPos = origin.offset(x, y, z);
                         if (level.isLoaded(cabinetPos)) {
                             BlockEntity be = level.getBlockEntity(cabinetPos);
                             if (be instanceof FilingCabinetBlockEntity cabinet) {
                                 ItemStack indexCardStack = cabinet.inventory.getStackInSlot(10);
-                                if (!indexCardStack.isEmpty() &&
-                                        indexCardStack.get(ModDataComponents.COORDINATES) != null) {
+                                if (!indexCardStack.isEmpty()
+                                        && indexCardStack.getItem() instanceof IndexCardItem
+                                        && indexCardStack.get(ModDataComponents.COORDINATES) != null
+                                        && indexCardStack.get(ModDataComponents.COORDINATES).equals(getBlockPos())) {
 
-                                    BlockPos linkedPos = indexCardStack.get(ModDataComponents.COORDINATES);
-                                    if (linkedPos.equals(getBlockPos())) {
-                                        IItemHandler handler = cabinet.getCapabilityHandler(null);
-                                        if (handler != null) {
-                                            handlers.add(handler);
-                                        }
+                                    IItemHandler handler = cabinet.getCapabilityHandler(null);
+                                    if (handler != null) {
+                                        cachedHandlers.add(handler);
                                     }
                                 }
                             }
@@ -54,7 +62,7 @@ public class FilingIndexBlockEntity extends BlockEntity {
             }
         }
 
-        return handlers;
+        return cachedHandlers;
     }
 
     public int getCabinetCount() {
