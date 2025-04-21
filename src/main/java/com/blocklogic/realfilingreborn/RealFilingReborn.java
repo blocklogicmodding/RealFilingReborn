@@ -8,25 +8,14 @@ import com.blocklogic.realfilingreborn.item.ModItems;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
 import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetScreen;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterMenuScreensEvent;
 import org.slf4j.Logger;
 
 import com.mojang.logging.LogUtils;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.network.chat.Component;
-import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.CreativeModeTabs;
-import net.minecraft.world.item.Item;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockBehaviour;
-import net.minecraft.world.level.material.MapColor;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -39,10 +28,6 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.registries.DeferredBlock;
-import net.neoforged.neoforge.registries.DeferredHolder;
-import net.neoforged.neoforge.registries.DeferredItem;
-import net.neoforged.neoforge.registries.DeferredRegister;
 
 @Mod(RealFilingReborn.MODID)
 public class RealFilingReborn
@@ -64,6 +49,7 @@ public class RealFilingReborn
         ModMenuTypes.register(modEventBus);
 
         FilingFolderItem.DATA_COMPONENTS.register(modEventBus);
+        modEventBus.addListener(this::registerCapabilities);
 
         modEventBus.addListener(this::addCreative);
 
@@ -77,6 +63,14 @@ public class RealFilingReborn
 
     private void addCreative(BuildCreativeModeTabContentsEvent event)
     {
+    }
+
+    private void registerCapabilities(RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(
+                Capabilities.ItemHandler.BLOCK,
+                ModBlockEntities.FILING_CABINET_BE.get(),
+                (filingCabinetBE, side) -> filingCabinetBE.getCapabilityHandler(side)
+        );
     }
 
     @SubscribeEvent
@@ -102,6 +96,15 @@ public class RealFilingReborn
         @SubscribeEvent
         public static void registerScreens(RegisterMenuScreensEvent event) {
             event.register(ModMenuTypes.FILING_CABINET_MENU.get(), FilingCabinetScreen::new);
+        }
+
+        @SubscribeEvent
+        public static void registerCapabilities(RegisterCapabilitiesEvent event) {
+            event.registerBlockEntity(
+                    Capabilities.ItemHandler.BLOCK,
+                    ModBlockEntities.FILING_CABINET_BE.get(),
+                    (filingCabinetBE, side) -> filingCabinetBE.getCapabilityHandler(side)
+            );
         }
     }
 }

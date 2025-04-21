@@ -36,7 +36,8 @@ public class FilingFolderItem extends Item {
     );
 
     public static final StreamCodec<ByteBuf, ResourceLocation> RESOURCE_LOCATION_STREAM_CODEC =
-            ByteBufCodecs.STRING_UTF8 .map(ResourceLocation::parse, ResourceLocation::toString);
+            ByteBufCodecs.STRING_UTF8
+                    .map(ResourceLocation::parse, ResourceLocation::toString);
 
     private static final StreamCodec<ByteBuf, FolderContents> FOLDER_CONTENTS_STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.optional(RESOURCE_LOCATION_STREAM_CODEC), FolderContents::storedItemId,
@@ -70,6 +71,11 @@ public class FilingFolderItem extends Item {
         ItemStack itemToStore = player.getItemInHand(InteractionHand.OFF_HAND);
 
         if (itemToStore.isEmpty() || itemToStore.getItem() instanceof FilingFolderItem) {
+            if (itemToStore.getItem() instanceof FilingFolderItem) {
+                player.displayClientMessage(Component.translatable("message.realfilingreborn.no_folder_ception"), true);
+                return InteractionResultHolder.pass(folderStack);
+            }
+
             FolderContents contents = folderStack.get(FOLDER_CONTENTS.value());
             if (contents == null) {
                 contents = new FolderContents(Optional.empty(), 0);
@@ -79,45 +85,40 @@ public class FilingFolderItem extends Item {
             if (player.isShiftKeyDown() && contents.storedItemId().isPresent()) {
                 return extractItems(level, player, folderStack, contents);
             } else {
-                if (itemToStore.getItem() instanceof FilingFolderItem) {
-                    player.displayClientMessage(Component.translatable("message.realfilingreborn.no_folder_ception"), true);
-                    return InteractionResultHolder.pass(folderStack);
-                }
-
-                return storeItems(level, player, folderStack, itemToStore, contents);
+                return InteractionResultHolder.pass(folderStack);
             }
         }
 
-        if (!player.isShiftKeyDown()) {
-            if (folderStack.getCount() > 1) {
-                ItemStack singleFolder = folderStack.copy();
-                singleFolder.setCount(1);
+        if (!player.isShiftKeyDown() && folderStack.getCount() > 1) {
+            ItemStack singleFolder = folderStack.copy();
+            singleFolder.setCount(1);
 
-                FolderContents contents = singleFolder.get(FOLDER_CONTENTS.value());
-                if (contents == null) {
-                    contents = new FolderContents(Optional.empty(), 0);
-                    singleFolder.set(FOLDER_CONTENTS.value(), contents);
-                }
-
-                InteractionResultHolder<ItemStack> result = storeItems(level, player, singleFolder, itemToStore, contents);
-                ItemStack modifiedFolder = result.getObject();
-
-                folderStack.shrink(1);
-
-                if (!player.getInventory().add(modifiedFolder)) {
-                    player.drop(modifiedFolder, false);
-                }
-
-                return InteractionResultHolder.success(folderStack);
-            } else {
-                FolderContents contents = folderStack.get(FOLDER_CONTENTS.value());
-                return storeItems(level, player, folderStack, itemToStore, contents);
+            FolderContents contents = singleFolder.get(FOLDER_CONTENTS.value());
+            if (contents == null) {
+                contents = new FolderContents(Optional.empty(), 0);
+                singleFolder.set(FOLDER_CONTENTS.value(), contents);
             }
-        }
 
-        return InteractionResultHolder.pass(folderStack);
+            InteractionResultHolder<ItemStack> result = storeItems(level, player, singleFolder, itemToStore, contents);
+            ItemStack modifiedFolder = result.getObject();
+
+            folderStack.shrink(1);
+
+            if (!player.getInventory().add(modifiedFolder)) {
+                player.drop(modifiedFolder, false);
+            }
+
+            return InteractionResultHolder.success(folderStack);
+        } else {
+            FolderContents contents = folderStack.get(FOLDER_CONTENTS.value());
+            if (contents == null) {
+                contents = new FolderContents(Optional.empty(), 0);
+                folderStack.set(FOLDER_CONTENTS.value(), contents);
+            }
+
+            return storeItems(level, player, folderStack, itemToStore, contents);
+        }
     }
-
 
     private InteractionResultHolder<ItemStack> extractItems(Level level, Player player, ItemStack folderStack, FolderContents contents) {
         if (contents == null || contents.storedItemId().isEmpty()) {
@@ -225,4 +226,6 @@ public class FilingFolderItem extends Item {
 
         super.appendHoverText(stack, context, tooltip, flag);
     }
+
+
 }
