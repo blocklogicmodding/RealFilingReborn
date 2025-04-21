@@ -13,5 +13,15 @@
 
   "message.realfilingreborn.index_occupied": "The Filing Cabinet already has an Index Card",
   "message.realfilingreborn.folders_full": "The Filing Cabinet is full (10)",
-  "message.realfilingreborn.no_folders": "The filing Cabinet can only accept folders"
+  "message.realfilingreborn.no_folders": "The filing Cabinet can only accept folders",
+
+  "message.realfilingreborn.folder_empty": "This folder is empty",
+  "message.realfilingreborn.wrong_item_type": "This folder is already registered for: %s",
+  "message.realfilingreborn.folder_full": "This folder cannot store any more items",
+
+  "tooltip.realfilingreborn.stored_item": "Contents: %s",
+  "tooltip.realfilingreborn.item_count": "Count: %s",
+  "tooltip.realfilingreborn.empty_folder": "Folder is empty",
+  "tooltip.realfilingreborn.unregistered_folder": "Folder is unregistered. Add items to register this folder.",
+  "message.realfilingreborn.no_folder_ception": "Folders cannot store other Folders!"
 }

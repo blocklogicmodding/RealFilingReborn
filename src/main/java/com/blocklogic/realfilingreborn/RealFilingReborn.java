@@ -5,6 +5,7 @@ import com.blocklogic.realfilingreborn.block.entity.ModBlockEntities;
 import com.blocklogic.realfilingreborn.block.entity.renderer.FilingCabinetBlockEntityRenderer;
 import com.blocklogic.realfilingreborn.item.ModCreativeModTab;
 import com.blocklogic.realfilingreborn.item.ModItems;
+import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
 import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetScreen;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -61,6 +62,8 @@ public class RealFilingReborn
         ModCreativeModTab.register(modEventBus);
         ModBlockEntities.register(modEventBus);
         ModMenuTypes.register(modEventBus);
+
+        FilingFolderItem.DATA_COMPONENTS.register(modEventBus);
 
         modEventBus.addListener(this::addCreative);
 
