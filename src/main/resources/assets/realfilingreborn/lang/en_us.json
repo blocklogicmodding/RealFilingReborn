@@ -28,7 +28,13 @@
   "tooltip.realfilingreborn.empty_folder": "Folder is empty",
   "tooltip.realfilingreborn.unregistered_folder": "Folder is unregistered. Add items to register this folder.",
   "tooltip.realfilingreborn.index_card_linked": "Linked to Filing Index at %s",
-  "tooltip.realfilingreborn.index_card_unlinked": "Right-click on a Filing Index to link"
+  "tooltip.realfilingreborn.index_card_unlinked": "Right-click on a Filing Index to link",
+
+  "message.realfilingreborn.nbt_folder_requires_nbt": "This folder can only store items with unique properties",
+  "tooltip.realfilingreborn.nbt_item_count": "Unique Items: %s",
+  "tooltip.realfilingreborn.nbt_items_stored": "Contains:",
+  "tooltip.realfilingreborn.and_x_more": "...and %s more",
+  "tooltip.realfilingreborn.nbt_unregistered_folder": "NBT Folder is unregistered. Add items with unique properties to register."
 
 
 

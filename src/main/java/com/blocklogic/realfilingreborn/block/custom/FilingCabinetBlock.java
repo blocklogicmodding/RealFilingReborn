@@ -4,6 +4,7 @@ import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
 import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
+import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -99,6 +100,22 @@ public class FilingCabinetBlock extends BaseEntityBlock {
             ItemStack heldItem = player.getItemInHand(hand);
 
             if (heldItem.getItem() instanceof FilingFolderItem) {
+                for (int i = 0; i < 12; i++) { // Updated to check 12 folder slots
+                    if (filingCabinetBlockEntity.inventory.getStackInSlot(i).isEmpty()) {
+                        ItemStack folderStack = heldItem.copy();
+                        folderStack.setCount(1);
+                        filingCabinetBlockEntity.inventory.setStackInSlot(i, folderStack);
+                        heldItem.shrink(1);
+                        level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
+                        return ItemInteractionResult.SUCCESS;
+                    }
+                }
+
+                if (!level.isClientSide()) {
+                    player.displayClientMessage(Component.translatable("message.realfilingreborn.folders_full"), true);
+                }
+                return ItemInteractionResult.SUCCESS;
+            } else if (heldItem.getItem() instanceof NBTFilingFolderItem) {
                 for (int i = 0; i < 12; i++) { // Updated to check 12 folder slots
                     if (filingCabinetBlockEntity.inventory.getStackInSlot(i).isEmpty()) {
                         ItemStack folderStack = heldItem.copy();

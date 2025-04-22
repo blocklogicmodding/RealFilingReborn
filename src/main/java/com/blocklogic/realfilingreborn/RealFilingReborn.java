@@ -9,6 +9,7 @@ import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.ModCreativeModTab;
 import com.blocklogic.realfilingreborn.item.ModItems;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
+import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
 import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetScreen;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -53,6 +54,7 @@ public class RealFilingReborn
         ModDataComponents.register(modEventBus);
 
         FilingFolderItem.DATA_COMPONENTS.register(modEventBus);
+        NBTFilingFolderItem.DATA_COMPONENTS.register(modEventBus);
         modEventBus.addListener(this::registerCapabilities);
 
         modEventBus.addListener(this::addCreative);
