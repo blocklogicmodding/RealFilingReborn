@@ -2,6 +2,7 @@ package com.blocklogic.realfilingreborn.screen.custom;
 
 import com.blocklogic.realfilingreborn.block.ModBlocks;
 import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
+import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
@@ -48,7 +49,8 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
         this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 10, 53, 35) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.getItem() instanceof IndexCardItem;
+                return stack.getItem() instanceof IndexCardItem &&
+                        stack.get(ModDataComponents.COORDINATES) != null;
             }
         });
     }

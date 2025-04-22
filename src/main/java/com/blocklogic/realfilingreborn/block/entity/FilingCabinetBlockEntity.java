@@ -324,24 +324,14 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         }
 
         @Override
-        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-            if (slot < 0 || slot >= getSlots() || stack.isEmpty()) {
-                return false;
+        public boolean isItemValid(int slot, ItemStack stack) {
+            if (slot < 10) {
+                return stack.getItem() instanceof FilingFolderItem;
+            } else {
+                // This is the index card slot
+                return stack.getItem() instanceof IndexCardItem &&
+                        stack.get(ModDataComponents.COORDINATES) != null;
             }
-
-            ItemStack folderStack = cabinet.inventory.getStackInSlot(slot);
-            if (folderStack.isEmpty() || !(folderStack.getItem() instanceof FilingFolderItem)) {
-                return false;
-            }
-
-            FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
-            if (contents == null || contents.storedItemId().isEmpty()) {
-                return true;
-            }
-
-            ResourceLocation itemId = contents.storedItemId().get();
-            ResourceLocation stackItemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
-            return itemId.equals(stackItemId);
         }
     }
 }

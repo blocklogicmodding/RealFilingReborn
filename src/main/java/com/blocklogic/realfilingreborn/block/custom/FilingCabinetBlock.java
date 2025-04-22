@@ -1,9 +1,11 @@
 package com.blocklogic.realfilingreborn.block.custom;
 
 import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
+import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
 import com.mojang.serialization.MapCodec;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -70,7 +72,7 @@ public class FilingCabinetBlock extends BaseEntityBlock {
     }
 
     @Override
-    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.getBlock() != newState.getBlock()) {
             if (level.getBlockEntity(pos) instanceof FilingCabinetBlockEntity filingCabinetBlockEntity) {
                 filingCabinetBlockEntity.drops();
@@ -113,6 +115,16 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                 }
                 return ItemInteractionResult.SUCCESS;
             } else if (heldItem.getItem() instanceof IndexCardItem) {
+                if (heldItem.get(ModDataComponents.COORDINATES) == null) {
+                    if (!level.isClientSide()) {
+                        player.displayClientMessage(
+                                Component.translatable("message.realfilingreborn.index_card_not_linked")
+                                        .withStyle(ChatFormatting.RED),
+                                true);
+                    }
+                    return ItemInteractionResult.FAIL;
+                }
+
                 if (filingCabinetBlockEntity.inventory.getStackInSlot(10).isEmpty()) {
                     ItemStack cardStack = heldItem.copy();
                     cardStack.setCount(1);

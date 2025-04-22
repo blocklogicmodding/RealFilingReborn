@@ -66,15 +66,20 @@ public class IndexCardItem extends Item {
     }
 
     @Override
+    public boolean isFoil(ItemStack stack) {
+        return stack.get(ModDataComponents.COORDINATES) != null;
+    }
+
+    @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
         if (stack.get(ModDataComponents.COORDINATES) != null) {
             tooltipComponents.add(Component.translatable("tooltip.realfilingreborn.index_card_linked",
                             Component.literal(stack.get(ModDataComponents.COORDINATES).toShortString())
                                     .withStyle(ChatFormatting.YELLOW))
-                    .withStyle(ChatFormatting.GRAY));
+                    .withStyle(ChatFormatting.GREEN, ChatFormatting.BOLD));
         } else {
             tooltipComponents.add(Component.translatable("tooltip.realfilingreborn.index_card_unlinked")
-                    .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
+                    .withStyle(ChatFormatting.RED, ChatFormatting.ITALIC));
         }
 
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
