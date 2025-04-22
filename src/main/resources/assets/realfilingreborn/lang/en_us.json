@@ -36,5 +36,26 @@
   "tooltip.realfilingreborn.nbt_item_count": "Unique Items: %s",
   "tooltip.realfilingreborn.nbt_items_stored": "Contains:",
   "tooltip.realfilingreborn.and_x_more": "...and %s more",
-  "tooltip.realfilingreborn.nbt_unregistered_folder": "NBT Folder is unregistered. Add items with unique properties to register."
+  "tooltip.realfilingreborn.nbt_unregistered_folder": "NBT Folder is unregistered. Add items with unique properties to register.",
+
+  "tooltip.realfilingreborn.jade.cabinet_title": "Filing Cabinet Contents",
+  "tooltip.realfilingreborn.jade.empty_cabinet": "Cabinet is empty. Insert folders with right-click.",
+  "tooltip.realfilingreborn.jade.folder_summary": "Folders: %d/%d filled",
+  "tooltip.realfilingreborn.jade.folder_content": "Folder %d: %s (%s items, %s full)",
+  "tooltip.realfilingreborn.jade.nbt_folder_content": "NBT Folder %d: %s (%d unique items)",
+  "tooltip.realfilingreborn.jade.folder_short": "F%d: %s (%s, %s)",
+  "tooltip.realfilingreborn.jade.nbt_folder_short": "NF%d: %s (%d items)",
+  "tooltip.realfilingreborn.jade.empty_folder": "Folder %d: Empty",
+  "tooltip.realfilingreborn.jade.index_linked": "Linked to Filing Index",
+  "tooltip.realfilingreborn.jade.index_pos": "at %s",
+
+  "tooltip.realfilingreborn.jade.index_title": "Filing Index",
+  "tooltip.realfilingreborn.jade.connected_cabinets": "Connected Cabinets: %d",
+  "tooltip.realfilingreborn.jade.no_cabinets": "No Cabinets Connected",
+  "tooltip.realfilingreborn.jade.total_folders": "Total Folders: %d",
+  "tooltip.realfilingreborn.jade.total_items": "Total Items: %s",
+  "tooltip.realfilingreborn.jade.index_help": "Link cabinets with Index Cards",
+
+  "config.jade.plugin_realfilingreborn.filing_cabinet_info": "Filing Cabinet Information",
+  "config.jade.plugin_realfilingreborn.filing_index_info": "Filing Index Information"
 }
