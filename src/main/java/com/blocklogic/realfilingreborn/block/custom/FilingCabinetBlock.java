@@ -100,7 +100,7 @@ public class FilingCabinetBlock extends BaseEntityBlock {
             ItemStack heldItem = player.getItemInHand(hand);
 
             if (heldItem.getItem() instanceof FilingFolderItem) {
-                for (int i = 0; i < 12; i++) { // Updated to check 12 folder slots
+                for (int i = 0; i < 12; i++) {
                     if (filingCabinetBlockEntity.inventory.getStackInSlot(i).isEmpty()) {
                         ItemStack folderStack = heldItem.copy();
                         folderStack.setCount(1);
@@ -116,7 +116,7 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                 }
                 return ItemInteractionResult.SUCCESS;
             } else if (heldItem.getItem() instanceof NBTFilingFolderItem) {
-                for (int i = 0; i < 12; i++) { // Updated to check 12 folder slots
+                for (int i = 0; i < 12; i++) {
                     if (filingCabinetBlockEntity.inventory.getStackInSlot(i).isEmpty()) {
                         ItemStack folderStack = heldItem.copy();
                         folderStack.setCount(1);
@@ -142,7 +142,7 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                     return ItemInteractionResult.FAIL;
                 }
 
-                if (filingCabinetBlockEntity.inventory.getStackInSlot(12).isEmpty()) { // Updated index card slot
+                if (filingCabinetBlockEntity.inventory.getStackInSlot(12).isEmpty()) {
                     ItemStack cardStack = heldItem.copy();
                     cardStack.setCount(1);
                     filingCabinetBlockEntity.inventory.setStackInSlot(12, cardStack);
@@ -155,7 +155,7 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                 }
                 return ItemInteractionResult.SUCCESS;
             } else if (heldItem.isEmpty()) {
-                for (int i = 11; i >= 0; i--) { // Updated to check 12 folder slots in reverse order
+                for (int i = 11; i >= 0; i--) {
                     ItemStack slotStack = filingCabinetBlockEntity.inventory.getStackInSlot(i);
                     if (!slotStack.isEmpty()) {
                         player.setItemInHand(hand, slotStack.copy());

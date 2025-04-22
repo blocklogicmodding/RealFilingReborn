@@ -267,6 +267,11 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
                         // Check if this folder is registered for the item we're trying to insert
                         if (folderItemId.equals(stackItemId)) {
+                            // Check if the item has NBT data - if it does, skip this regular folder
+                            if (FilingFolderItem.hasSignificantNBT(stack)) {
+                                continue;
+                            }
+
                             // We found a matching folder! Now we can insert the items.
                             int maxToAdd = Integer.MAX_VALUE - contents.count();
                             int toAdd = Math.min(stack.getCount(), maxToAdd);
@@ -356,12 +361,78 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                 return stack;
             }
 
-            // The rest of the code for GUI/direct player interaction remains the same
+            // The rest of the code for GUI/direct player interaction
             ItemStack folderStack = cabinet.inventory.getStackInSlot(slot);
 
             // The slot doesn't have a folder or is empty
             if (folderStack.isEmpty()) {
                 return stack;
+            }
+
+            // Handle regular filing folders
+            if (folderStack.getItem() instanceof FilingFolderItem && !(folderStack.getItem() instanceof NBTFilingFolderItem)) {
+                // Check if the item has NBT data - if it does, reject it
+                if (FilingFolderItem.hasSignificantNBT(stack)) {
+                    return stack; // Silent rejection in GUI mode
+                }
+
+                FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
+                if (contents == null) {
+                    contents = new FilingFolderItem.FolderContents(Optional.empty(), 0);
+                }
+
+                // Regular folder handling...
+                // If folder isn't registered for any item yet, register it for this item
+                if (contents.storedItemId().isEmpty()) {
+                    ResourceLocation newItemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+
+                    if (!simulate) {
+                        int toAdd = Math.min(stack.getCount(), Integer.MAX_VALUE);
+                        FilingFolderItem.FolderContents newContents = new FilingFolderItem.FolderContents(
+                                Optional.of(newItemId),
+                                toAdd
+                        );
+                        folderStack.set(FilingFolderItem.FOLDER_CONTENTS.value(), newContents);
+                        cabinet.setChanged();
+                    }
+
+                    ItemStack remaining = stack.copy();
+                    remaining.shrink(stack.getCount());
+                    return remaining;
+                }
+
+                // Folder is registered, check if it's registered for the right item
+                ResourceLocation itemId = contents.storedItemId().get();
+                ResourceLocation stackItemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+
+                if (!itemId.equals(stackItemId)) {
+                    // Wrong item type, reject
+                    return stack;
+                }
+
+                // Calculate how many items we can add
+                int maxToAdd = Integer.MAX_VALUE - contents.count();
+                int toAdd = Math.min(stack.getCount(), maxToAdd);
+
+                if (toAdd <= 0) {
+                    // Folder is full
+                    return stack;
+                }
+
+                // Update the folder contents if not simulating
+                if (!simulate) {
+                    FilingFolderItem.FolderContents newContents = new FilingFolderItem.FolderContents(
+                            contents.storedItemId(),
+                            contents.count() + toAdd
+                    );
+                    folderStack.set(FilingFolderItem.FOLDER_CONTENTS.value(), newContents);
+                    cabinet.setChanged();
+                }
+
+                // Return the remaining items that didn't fit
+                ItemStack remaining = stack.copy();
+                remaining.shrink(toAdd);
+                return remaining;
             }
 
             // Handle regular filing folders

@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -18,6 +19,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -60,6 +62,34 @@ public class FilingFolderItem extends Item {
         properties.component(FOLDER_CONTENTS.value(), new FolderContents(Optional.empty(), 0));
     }
 
+    /**
+     * Check if an item has any significant NBT data that would be lost if stored in a regular folder
+     * This method mirrors the one in NBTFilingFolderItem
+     */
+    public static boolean hasSignificantNBT(ItemStack stack) {
+        if (stack.isEmpty()) return false;
+
+        // Check for damage
+        if (stack.isDamaged()) return true;
+
+        // Check for enchantments
+        if (stack.get(DataComponents.ENCHANTMENTS) != null &&
+                !stack.get(DataComponents.ENCHANTMENTS).isEmpty()) return true;
+
+        // Check for custom name
+        if (stack.get(DataComponents.CUSTOM_NAME) != null) return true;
+
+        // Check for lore
+        ItemLore lore = stack.get(DataComponents.LORE);
+        if (lore != null && !lore.lines().isEmpty()) {
+            return true;
+        }
+
+        // Other checks for significant data components could be added here
+
+        return false;
+    }
+
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack folderStack = player.getItemInHand(hand);
@@ -87,6 +117,12 @@ public class FilingFolderItem extends Item {
             } else {
                 return InteractionResultHolder.pass(folderStack);
             }
+        }
+
+        // Check if the item has NBT data - reject if it does
+        if (hasSignificantNBT(itemToStore)) {
+            player.displayClientMessage(Component.translatable("message.realfilingreborn.standard_folder_no_nbt"), true);
+            return InteractionResultHolder.fail(folderStack);
         }
 
         if (!player.isShiftKeyDown() && folderStack.getCount() > 1) {
@@ -160,6 +196,12 @@ public class FilingFolderItem extends Item {
             return InteractionResultHolder.pass(folderStack);
         }
 
+        // Check again if the item has NBT data - this is a redundant check but ensures safety
+        if (hasSignificantNBT(itemToStore)) {
+            player.displayClientMessage(Component.translatable("message.realfilingreborn.standard_folder_no_nbt"), true);
+            return InteractionResultHolder.fail(folderStack);
+        }
+
         ResourceLocation newItemId = BuiltInRegistries.ITEM.getKey(itemToStore.getItem());
 
         Optional<ResourceLocation> currentItemIdOpt = contents.storedItemId();
@@ -224,8 +266,10 @@ public class FilingFolderItem extends Item {
                     .withStyle(ChatFormatting.GRAY));
         }
 
+        // Add info about NBT restriction
+        tooltip.add(Component.translatable("tooltip.realfilingreborn.standard_folder_info")
+                .withStyle(ChatFormatting.RED, ChatFormatting.ITALIC));
+
         super.appendHoverText(stack, context, tooltip, flag);
     }
-
-
 }
