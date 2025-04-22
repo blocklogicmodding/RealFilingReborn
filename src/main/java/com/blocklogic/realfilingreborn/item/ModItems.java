@@ -3,6 +3,7 @@ package com.blocklogic.realfilingreborn.item;
 import com.blocklogic.realfilingreborn.RealFilingReborn;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
+import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolder;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -13,6 +14,9 @@ public class ModItems {
 
     public static final DeferredItem<Item> FILING_FOLDER = ITEMS.register("filing_folder",
             () -> new FilingFolderItem(new Item.Properties()));
+
+    public static final DeferredItem<Item> NBT_FILING_FOLDER = ITEMS.register("nbt_filing_folder",
+            () -> new NBTFilingFolder(new Item.Properties()));
 
     public static final DeferredItem<Item> INDEX_CARD = ITEMS.register("index_card",
             () -> new IndexCardItem(new Item.Properties()));
