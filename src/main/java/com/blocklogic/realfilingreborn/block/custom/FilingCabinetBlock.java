@@ -99,7 +99,7 @@ public class FilingCabinetBlock extends BaseEntityBlock {
             ItemStack heldItem = player.getItemInHand(hand);
 
             if (heldItem.getItem() instanceof FilingFolderItem) {
-                for (int i = 0; i < 10; i++) {
+                for (int i = 0; i < 12; i++) { // Updated to check 12 folder slots
                     if (filingCabinetBlockEntity.inventory.getStackInSlot(i).isEmpty()) {
                         ItemStack folderStack = heldItem.copy();
                         folderStack.setCount(1);
@@ -125,10 +125,10 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                     return ItemInteractionResult.FAIL;
                 }
 
-                if (filingCabinetBlockEntity.inventory.getStackInSlot(10).isEmpty()) {
+                if (filingCabinetBlockEntity.inventory.getStackInSlot(12).isEmpty()) { // Updated index card slot
                     ItemStack cardStack = heldItem.copy();
                     cardStack.setCount(1);
-                    filingCabinetBlockEntity.inventory.setStackInSlot(10, cardStack);
+                    filingCabinetBlockEntity.inventory.setStackInSlot(12, cardStack);
                     heldItem.shrink(1);
                     level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
                 } else {
@@ -138,7 +138,7 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                 }
                 return ItemInteractionResult.SUCCESS;
             } else if (heldItem.isEmpty()) {
-                for (int i = 9; i >= 0; i--) {
+                for (int i = 11; i >= 0; i--) { // Updated to check 12 folder slots in reverse order
                     ItemStack slotStack = filingCabinetBlockEntity.inventory.getStackInSlot(i);
                     if (!slotStack.isEmpty()) {
                         player.setItemInHand(hand, slotStack.copy());

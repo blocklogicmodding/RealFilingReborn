@@ -33,11 +33,14 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
+        // First bank of folders (3x2)
+        // Starting coordinates: x7, y21
         for (int row = 0; row < 2; row++) {
-            for (int col = 0; col < 5; col++) {
-                int x = 80 + col * 18;
-                int y = 26 + row * 18;
-                this.addSlot(new SlotItemHandler(this.blockEntity.inventory, col + row * 5, x, y) {
+            for (int col = 0; col < 3; col++) {
+                int x = 8 + col * 18;
+                int y = 22 + row * 18;
+                int slotIndex = col + row * 3;
+                this.addSlot(new SlotItemHandler(this.blockEntity.inventory, slotIndex, x, y) {
                     @Override
                     public boolean mayPlace(ItemStack stack) {
                         return stack.getItem() instanceof FilingFolderItem;
@@ -46,7 +49,24 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
             }
         }
 
-        this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 10, 53, 35) {
+        // Second bank of folders (3x2)
+        // Starting coordinates: x115, y21
+        for (int row = 0; row < 2; row++) {
+            for (int col = 0; col < 3; col++) {
+                int x = 116 + col * 18;
+                int y = 22 + row * 18;
+                int slotIndex = 6 + col + row * 3; // Starting from slot 6
+                this.addSlot(new SlotItemHandler(this.blockEntity.inventory, slotIndex, x, y) {
+                    @Override
+                    public boolean mayPlace(ItemStack stack) {
+                        return stack.getItem() instanceof FilingFolderItem;
+                    }
+                });
+            }
+        }
+
+        // Index card slot at x79, y61
+        this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 12, 80, 62) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return stack.getItem() instanceof IndexCardItem &&
@@ -63,7 +83,7 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
-    private static final int TE_INVENTORY_SLOT_COUNT = 11;
+    private static final int TE_INVENTORY_SLOT_COUNT = 13; // Updated total slots
 
     @Override
     public ItemStack quickMoveStack(Player playerIn, int pIndex) {
@@ -75,12 +95,12 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
         if (pIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
             if (sourceStack.getItem() instanceof FilingFolderItem) {
                 if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX,
-                        TE_INVENTORY_FIRST_SLOT_INDEX + 10, false)) {
+                        TE_INVENTORY_FIRST_SLOT_INDEX + 12, false)) {
                     return ItemStack.EMPTY;
                 }
             } else if (sourceStack.getItem() instanceof IndexCardItem) {
-                if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX + 10,
-                        TE_INVENTORY_FIRST_SLOT_INDEX + 11, false)) {
+                if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX + 12,
+                        TE_INVENTORY_FIRST_SLOT_INDEX + 13, false)) {
                     return ItemStack.EMPTY;
                 }
             } else {

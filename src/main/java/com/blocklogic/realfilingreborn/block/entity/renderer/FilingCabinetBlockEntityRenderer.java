@@ -26,7 +26,7 @@ public class FilingCabinetBlockEntityRenderer implements BlockEntityRenderer<Fil
     public void render(FilingCabinetBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
         ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 
-        ItemStack stack = blockEntity.inventory.getStackInSlot(10);
+        ItemStack stack = blockEntity.inventory.getStackInSlot(12);
 
         if (!stack.isEmpty()) {
             poseStack.pushPose();

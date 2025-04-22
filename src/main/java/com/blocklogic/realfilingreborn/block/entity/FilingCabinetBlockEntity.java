@@ -38,7 +38,8 @@ import java.util.Optional;
 public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvider {
     private BlockPos previousIndexPos = null;
 
-    public final ItemStackHandler inventory = new ItemStackHandler(11) {
+    // Update to 13 slots: 12 for folders (0-11) and 1 for index card (12)
+    public final ItemStackHandler inventory = new ItemStackHandler(13) {
         @Override
         protected int getStackLimit(int slot, ItemStack stack) {
             return 1;
@@ -47,7 +48,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
-            if (slot == 10) {
+            if (slot == 12) { // Updated index card slot number
                 updateIndexLinking();
             }
             if(!level.isClientSide()) {
@@ -58,7 +59,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            if (slot < 10) {
+            if (slot < 12) { // Updated number of folder slots
                 return stack.getItem() instanceof FilingFolderItem;
             } else {
                 return stack.getItem() instanceof IndexCardItem;
@@ -83,7 +84,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
     }
 
     private BlockPos getLinkedIndexPos() {
-        ItemStack indexCardStack = inventory.getStackInSlot(10);
+        ItemStack indexCardStack = inventory.getStackInSlot(12); // Updated index card slot number
         if (!indexCardStack.isEmpty() && indexCardStack.get(ModDataComponents.COORDINATES) != null) {
             return indexCardStack.get(ModDataComponents.COORDINATES);
         }
@@ -185,7 +186,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
         @Override
         public int getSlots() {
-            return 10;
+            return 12; // Updated number of folder slots
         }
 
         @Override
@@ -325,7 +326,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            if (slot < 10) {
+            if (slot < 12) { // Updated number of folder slots
                 return stack.getItem() instanceof FilingFolderItem;
             } else {
                 // This is the index card slot

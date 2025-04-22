@@ -12,7 +12,7 @@
   "blockentity.realfilingreborn.name": "Filing Cabinet",
 
   "message.realfilingreborn.index_occupied": "The Filing Cabinet already has an Index Card",
-  "message.realfilingreborn.folders_full": "The Filing Cabinet is full (10)",
+  "message.realfilingreborn.folders_full": "The Filing Cabinet is full (12 folders)",
   "message.realfilingreborn.no_folders": "The filing Cabinet can only accept folders",
   "message.realfilingreborn.folder_empty": "This folder is empty",
   "message.realfilingreborn.wrong_item_type": "This folder is already registered for: %s",
