@@ -70,8 +70,8 @@ public class FilingFolderItem extends Item {
 
         ItemStack itemToStore = player.getItemInHand(InteractionHand.OFF_HAND);
 
-        if (itemToStore.isEmpty() || itemToStore.getItem() instanceof FilingFolderItem) {
-            if (itemToStore.getItem() instanceof FilingFolderItem) {
+        if (itemToStore.isEmpty() || itemToStore.getItem() instanceof FilingFolderItem || itemToStore.getItem() instanceof NBTFilingFolderItem) {
+            if (itemToStore.getItem() instanceof FilingFolderItem || itemToStore.getItem() instanceof NBTFilingFolderItem) {
                 player.displayClientMessage(Component.translatable("message.realfilingreborn.no_folder_ception"), true);
                 return InteractionResultHolder.pass(folderStack);
             }

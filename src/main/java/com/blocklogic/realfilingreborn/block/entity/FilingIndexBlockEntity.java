@@ -44,7 +44,7 @@ public class FilingIndexBlockEntity extends BlockEntity {
                         if (level.isLoaded(cabinetPos)) {
                             BlockEntity be = level.getBlockEntity(cabinetPos);
                             if (be instanceof FilingCabinetBlockEntity cabinet) {
-                                ItemStack indexCardStack = cabinet.inventory.getStackInSlot(10);
+                                ItemStack indexCardStack = cabinet.inventory.getStackInSlot(12);
                                 if (!indexCardStack.isEmpty()
                                         && indexCardStack.getItem() instanceof IndexCardItem
                                         && indexCardStack.get(ModDataComponents.COORDINATES) != null
