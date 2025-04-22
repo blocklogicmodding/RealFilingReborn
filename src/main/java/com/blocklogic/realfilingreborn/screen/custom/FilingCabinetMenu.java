@@ -5,6 +5,7 @@ import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
 import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
+import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -43,7 +44,7 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
                 this.addSlot(new SlotItemHandler(this.blockEntity.inventory, slotIndex, x, y) {
                     @Override
                     public boolean mayPlace(ItemStack stack) {
-                        return stack.getItem() instanceof FilingFolderItem;
+                        return stack.getItem() instanceof FilingFolderItem || stack.getItem() instanceof NBTFilingFolderItem;
                     }
                 });
             }
@@ -59,7 +60,7 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
                 this.addSlot(new SlotItemHandler(this.blockEntity.inventory, slotIndex, x, y) {
                     @Override
                     public boolean mayPlace(ItemStack stack) {
-                        return stack.getItem() instanceof FilingFolderItem;
+                        return stack.getItem() instanceof FilingFolderItem || stack.getItem() instanceof NBTFilingFolderItem;
                     }
                 });
             }
@@ -93,7 +94,7 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
         ItemStack copyOfSourceStack = sourceStack.copy();
 
         if (pIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
-            if (sourceStack.getItem() instanceof FilingFolderItem) {
+            if (sourceStack.getItem() instanceof FilingFolderItem || sourceStack.getItem() instanceof NBTFilingFolderItem) {
                 if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX,
                         TE_INVENTORY_FIRST_SLOT_INDEX + 12, false)) {
                     return ItemStack.EMPTY;
