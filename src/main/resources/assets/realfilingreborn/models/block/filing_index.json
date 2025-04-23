@@ -1,8 +1,8 @@
 {
   "texture_size": [64, 64],
   "textures": {
-    "0": "realfilingreborn:block/filing_index",
-    "particle": "realfilingreborn:block/filing_index"
+    "0": "realfilingreborn:block/filing_index_inactive",
+    "particle": "realfilingreborn:block/filing_index_inactive"
   },
   "elements": [
     {
