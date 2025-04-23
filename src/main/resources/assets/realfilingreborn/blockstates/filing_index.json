@@ -1,18 +1,48 @@
 {
   "variants": {
-    "facing=north": {
+    "facing=north,activation_level=0": {
       "model": "realfilingreborn:block/filing_index"
     },
-    "facing=south": {
+    "facing=south,activation_level=0": {
       "model": "realfilingreborn:block/filing_index",
       "y": 180
     },
-    "facing=east": {
+    "facing=east,activation_level=0": {
       "model": "realfilingreborn:block/filing_index",
       "y": 90
     },
-    "facing=west": {
+    "facing=west,activation_level=0": {
       "model": "realfilingreborn:block/filing_index",
+      "y": 270
+    },
+    "facing=north,activation_level=1": {
+      "model": "realfilingreborn:block/filing_index_one_active"
+    },
+    "facing=south,activation_level=1": {
+      "model": "realfilingreborn:block/filing_index_one_active",
+      "y": 180
+    },
+    "facing=east,activation_level=1": {
+      "model": "realfilingreborn:block/filing_index_one_active",
+      "y": 90
+    },
+    "facing=west,activation_level=1": {
+      "model": "realfilingreborn:block/filing_index_one_active",
+      "y": 270
+    },
+    "facing=north,activation_level=2": {
+      "model": "realfilingreborn:block/filing_index_two_active"
+    },
+    "facing=south,activation_level=2": {
+      "model": "realfilingreborn:block/filing_index_two_active",
+      "y": 180
+    },
+    "facing=east,activation_level=2": {
+      "model": "realfilingreborn:block/filing_index_two_active",
+      "y": 90
+    },
+    "facing=west,activation_level=2": {
+      "model": "realfilingreborn:block/filing_index_two_active",
       "y": 270
     }
   }

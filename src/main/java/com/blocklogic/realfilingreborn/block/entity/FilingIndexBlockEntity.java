@@ -1,5 +1,6 @@
 package com.blocklogic.realfilingreborn.block.entity;
 
+import com.blocklogic.realfilingreborn.block.custom.FilingIndexBlock;
 import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
 import net.minecraft.core.BlockPos;
@@ -9,6 +10,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -21,6 +23,7 @@ public class FilingIndexBlockEntity extends BlockEntity {
     private List<IItemHandler> cachedHandlers = new ArrayList<>();
     private long lastCacheUpdate = -1;
     private static final long CACHE_INTERVAL = 100;
+    private int previousCabinetCount = 0;
 
     public FilingIndexBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FILING_INDEX_BE.get(), pos, blockState);
@@ -60,9 +63,39 @@ public class FilingIndexBlockEntity extends BlockEntity {
                     }
                 }
             }
+
+            // Update the block state based on cabinet count
+            updateActivationLevel();
         }
 
         return cachedHandlers;
+    }
+
+    private void updateActivationLevel() {
+        int cabinetCount = cachedHandlers.size();
+
+        // Only update if the count changed
+        if (cabinetCount != previousCabinetCount) {
+            previousCabinetCount = cabinetCount;
+
+            int activationLevel;
+            if (cabinetCount == 0) {
+                activationLevel = 0; // inactive
+            } else if (cabinetCount >= 1 && cabinetCount <= 8) {
+                activationLevel = 1; // first active state
+            } else {
+                activationLevel = 2; // second active state (9+)
+            }
+
+            if (level != null && !level.isClientSide()) {
+                BlockState currentState = level.getBlockState(getBlockPos());
+                if (currentState.getValue(FilingIndexBlock.ACTIVATION_LEVEL) != activationLevel) {
+                    level.setBlock(getBlockPos(),
+                            currentState.setValue(FilingIndexBlock.ACTIVATION_LEVEL, activationLevel),
+                            Block.UPDATE_ALL);
+                }
+            }
+        }
     }
 
     public int getCabinetCount() {
@@ -72,11 +105,13 @@ public class FilingIndexBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
+        tag.putInt("PreviousCabinetCount", previousCabinetCount);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        previousCabinetCount = tag.getInt("PreviousCabinetCount");
     }
 
     @Override
@@ -87,5 +122,15 @@ public class FilingIndexBlockEntity extends BlockEntity {
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level != null && !level.isClientSide()) {
+            // Force an update when the block entity loads
+            lastCacheUpdate = -1;
+            getCabinetItemHandlers();
+        }
     }
 }

@@ -14,15 +14,17 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import org.jetbrains.annotations.Nullable;
 
 public class FilingIndexBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final IntegerProperty ACTIVATION_LEVEL = IntegerProperty.create("activation_level", 0, 2);
     public static final MapCodec<FilingIndexBlock> CODEC = simpleCodec(FilingIndexBlock::new);
 
     public FilingIndexBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(ACTIVATION_LEVEL, 0));
     }
 
     @Override
@@ -42,7 +44,7 @@ public class FilingIndexBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, ACTIVATION_LEVEL);
     }
 
     @Nullable
