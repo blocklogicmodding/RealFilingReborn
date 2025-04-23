@@ -19,9 +19,6 @@ public class ModItems {
     public static final DeferredItem<Item> INDEX_CARD = ITEMS.register("index_card",
             () -> new IndexCardItem(new Item.Properties()));
 
-    public static final DeferredItem<Item> ERASER = ITEMS.register("eraser",
-            () -> new EraserItem(new Item.Properties()));
-
     public static final DeferredItem<Item> CABINET_KEY = ITEMS.register("key",
             () -> new KeyItem(new Item.Properties()));
 
