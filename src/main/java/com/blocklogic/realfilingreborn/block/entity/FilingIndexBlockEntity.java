@@ -64,7 +64,6 @@ public class FilingIndexBlockEntity extends BlockEntity {
                 }
             }
 
-            // Update the block state based on cabinet count
             updateActivationLevel();
         }
 
@@ -80,11 +79,11 @@ public class FilingIndexBlockEntity extends BlockEntity {
 
             int activationLevel;
             if (cabinetCount == 0) {
-                activationLevel = 0; // inactive
+                activationLevel = 0;
             } else if (cabinetCount >= 1 && cabinetCount <= 8) {
-                activationLevel = 1; // first active state
+                activationLevel = 1;
             } else {
-                activationLevel = 2; // second active state (9+)
+                activationLevel = 2;
             }
 
             if (level != null && !level.isClientSide()) {
@@ -128,7 +127,6 @@ public class FilingIndexBlockEntity extends BlockEntity {
     public void onLoad() {
         super.onLoad();
         if (level != null && !level.isClientSide()) {
-            // Force an update when the block entity loads
             lastCacheUpdate = -1;
             getCabinetItemHandlers();
         }

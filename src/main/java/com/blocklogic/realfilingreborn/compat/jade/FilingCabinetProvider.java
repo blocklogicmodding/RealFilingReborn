@@ -17,7 +17,6 @@ import snownee.jade.api.IBlockComponentProvider;
 import snownee.jade.api.IServerDataProvider;
 import snownee.jade.api.ITooltip;
 import snownee.jade.api.config.IPluginConfig;
-import snownee.jade.api.ui.ProgressStyle;
 
 import java.text.NumberFormat;
 import java.util.Locale;
@@ -42,7 +41,6 @@ public enum FilingCabinetProvider implements IBlockComponentProvider, IServerDat
             return;
         }
 
-        // Process each folder
         for (int i = 0; i < folders.size(); i++) {
             CompoundTag folderTag = folders.getCompound(i);
 
@@ -87,7 +85,6 @@ public enum FilingCabinetProvider implements IBlockComponentProvider, IServerDat
 
         ListTag foldersList = new ListTag();
 
-        // Process each folder slot (0-11 for folders)
         for (int i = 0; i < 12; i++) {
             ItemStack stackInSlot = cabinetEntity.inventory.getStackInSlot(i);
             CompoundTag folderTag = new CompoundTag();
@@ -95,7 +92,6 @@ public enum FilingCabinetProvider implements IBlockComponentProvider, IServerDat
 
             if (!stackInSlot.isEmpty()) {
                 if (stackInSlot.getItem() instanceof FilingFolderItem && !(stackInSlot.getItem() instanceof NBTFilingFolderItem)) {
-                    // Regular Filing Folder
                     FilingFolderItem.FolderContents contents = stackInSlot.get(FilingFolderItem.FOLDER_CONTENTS.value());
 
                     if (contents != null && contents.storedItemId().isPresent()) {
@@ -107,7 +103,6 @@ public enum FilingCabinetProvider implements IBlockComponentProvider, IServerDat
                         folderTag.putBoolean("is_nbt", false);
                     }
                 } else if (stackInSlot.getItem() instanceof NBTFilingFolderItem) {
-                    // NBT Filing Folder
                     NBTFilingFolderItem.NBTFolderContents contents =
                             stackInSlot.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
 
@@ -127,12 +122,10 @@ public enum FilingCabinetProvider implements IBlockComponentProvider, IServerDat
 
         data.put("folders", foldersList);
 
-        // Check for index card
         ItemStack indexCardStack = cabinetEntity.inventory.getStackInSlot(12);
         if (!indexCardStack.isEmpty()) {
             data.putBoolean("index_linked", true);
 
-            // Get the position of the linked index if available
             var indexPos = indexCardStack.get(com.blocklogic.realfilingreborn.component.ModDataComponents.COORDINATES);
             if (indexPos != null) {
                 data.putString("index_pos", indexPos.toShortString());

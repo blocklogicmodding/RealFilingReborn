@@ -69,17 +69,13 @@ public class FilingFolderItem extends Item {
     public static boolean hasSignificantNBT(ItemStack stack) {
         if (stack.isEmpty()) return false;
 
-        // Check for damage
         if (stack.isDamaged()) return true;
 
-        // Check for enchantments
         if (stack.get(DataComponents.ENCHANTMENTS) != null &&
                 !stack.get(DataComponents.ENCHANTMENTS).isEmpty()) return true;
 
-        // Check for custom name
         if (stack.get(DataComponents.CUSTOM_NAME) != null) return true;
 
-        // Check for lore
         ItemLore lore = stack.get(DataComponents.LORE);
         if (lore != null && !lore.lines().isEmpty()) {
             return true;
@@ -119,7 +115,6 @@ public class FilingFolderItem extends Item {
             }
         }
 
-        // Check if the item has NBT data - reject if it does
         if (hasSignificantNBT(itemToStore)) {
             player.displayClientMessage(Component.translatable("message.realfilingreborn.standard_folder_no_nbt"), true);
             return InteractionResultHolder.fail(folderStack);
@@ -196,7 +191,6 @@ public class FilingFolderItem extends Item {
             return InteractionResultHolder.pass(folderStack);
         }
 
-        // Check again if the item has NBT data - this is a redundant check but ensures safety
         if (hasSignificantNBT(itemToStore)) {
             player.displayClientMessage(Component.translatable("message.realfilingreborn.standard_folder_no_nbt"), true);
             return InteractionResultHolder.fail(folderStack);
@@ -266,7 +260,6 @@ public class FilingFolderItem extends Item {
                     .withStyle(ChatFormatting.GRAY));
         }
 
-        // Add info about NBT restriction
         tooltip.add(Component.translatable("tooltip.realfilingreborn.standard_folder_info")
                 .withStyle(ChatFormatting.RED, ChatFormatting.ITALIC));
 

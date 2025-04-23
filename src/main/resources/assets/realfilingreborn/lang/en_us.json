@@ -5,8 +5,8 @@
 
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
   "block.realfilingreborn.filing_index": "Filing Index",
-  "block.realfilingreborn.eraser": "Eraser",
-  "block.realfilingreborn.key": "Cabinet Key",
+  "item.realfilingreborn.eraser": "Eraser",
+  "item.realfilingreborn.key": "Cabinet Key",
 
   "creativetab.realfilingreborn.real_filing_reborn": "Real Filing Reborn",
 
@@ -36,7 +36,7 @@
 
   "message.realfilingreborn.nbt_folder_requires_nbt": "This folder can only store items with unique properties",
   "tooltip.realfilingreborn.nbt_item_count": "Unique Items: %s",
-  "tooltip.realfilingreborn.nbt_items_stored": "Contains:",
+  "tooltip.realfilingreborn.nbt_items_stored": "Register for / Contains:",
   "tooltip.realfilingreborn.and_x_more": "...and %s more",
   "tooltip.realfilingreborn.nbt_unregistered_folder": "NBT Folder is unregistered. Add items with unique properties to register.",
 
@@ -59,5 +59,11 @@
   "tooltip.realfilingreborn.jade.index_help": "Link cabinets with Index Cards",
 
   "config.jade.plugin_realfilingreborn.filing_cabinet_info": "Filing Cabinet Information",
-  "config.jade.plugin_realfilingreborn.filing_index_info": "Filing Index Information"
+  "config.jade.plugin_realfilingreborn.filing_index_info": "Filing Index Information",
+
+  "message.realfilingreborn.eraser_success": "Folder has been erased and unregistered",
+  "message.realfilingreborn.eraser_no_folder": "Place a folder in your off-hand to erase it",
+  "message.realfilingreborn.eraser_not_empty": "Cannot erase a folder that still contains items",
+  "message.realfilingreborn.eraser_not_registered": "Folder is already unregistered",
+  "message.realfilingreborn.eraser_not_folder": "Only folders can be erased"
 }

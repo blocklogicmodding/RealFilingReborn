@@ -39,7 +39,6 @@ import java.util.*;
 public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvider {
     private BlockPos previousIndexPos = null;
 
-    // Update to 13 slots: 12 for folders (0-11) and 1 for index card (12)
     public final ItemStackHandler inventory = new ItemStackHandler(13) {
         @Override
         protected int getStackLimit(int slot, ItemStack stack) {
@@ -49,7 +48,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
-            if (slot == 12) { // Updated index card slot number
+            if (slot == 12) {
                 updateIndexLinking();
             }
             if(!level.isClientSide()) {
@@ -60,10 +59,9 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            if (slot < 12) { // Updated number of folder slots
+            if (slot < 12) {
                 return stack.getItem() instanceof FilingFolderItem || stack.getItem() instanceof NBTFilingFolderItem;
             } else {
-                // This is the index card slot
                 return stack.getItem() instanceof IndexCardItem &&
                         stack.get(ModDataComponents.COORDINATES) != null;
             }
@@ -87,7 +85,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
     }
 
     private BlockPos getLinkedIndexPos() {
-        ItemStack indexCardStack = inventory.getStackInSlot(12); // Updated index card slot number
+        ItemStack indexCardStack = inventory.getStackInSlot(12);
         if (!indexCardStack.isEmpty() && indexCardStack.get(ModDataComponents.COORDINATES) != null) {
             return indexCardStack.get(ModDataComponents.COORDINATES);
         }
@@ -120,7 +118,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         super.saveAdditional(tag, registries);
         tag.put("inventory", inventory.serializeNBT(registries));
 
-        // Save the previous index position
         if (previousIndexPos != null) {
             CompoundTag posTag = new CompoundTag();
             posTag.putInt("X", previousIndexPos.getX());
@@ -189,7 +186,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
         @Override
         public int getSlots() {
-            return 12; // Updated number of folder slots
+            return 12;
         }
 
         @Override
@@ -201,7 +198,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
             ItemStack folderStack = cabinet.inventory.getStackInSlot(slot);
 
-            // Handle regular filing folders
             if (folderStack.getItem() instanceof FilingFolderItem) {
                 FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
                 if (contents == null || contents.storedItemId().isEmpty() || contents.count() <= 0) {
@@ -211,21 +207,18 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                 ResourceLocation itemId = contents.storedItemId().get();
                 Item item = BuiltInRegistries.ITEM.get(itemId);
 
-                // Return the full item count
                 return new ItemStack(item, contents.count());
             }
-            // Handle NBT filing folders
             else if (folderStack.getItem() instanceof NBTFilingFolderItem) {
                 NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
                 if (contents == null || contents.storedItemId().isEmpty() || contents.storedItems().isEmpty()) {
                     return ItemStack.EMPTY;
                 }
 
-                // For NBT folders, let's provide the first stored item
                 if (!contents.storedItems().isEmpty()) {
                     NBTFilingFolderItem.SerializedItemStack serializedItem = contents.storedItems().get(0);
                     ItemStack firstItem = serializedItem.stack().copy();
-                    firstItem.setCount(contents.storedItems().size()); // Set count to total number of items
+                    firstItem.setCount(contents.storedItems().size());
                     return firstItem;
                 }
             }
@@ -236,52 +229,41 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         @Override
         @NotNull
         public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-            // Reject empty stacks, invalid slots, or if the slot doesn't exist
             if (slot < 0 || slot >= getSlots() || stack.isEmpty()) {
                 return stack;
             }
 
-            // When coming from automation (side is not null), we need to find a folder that matches this item type
             if (side != null) {
                 ResourceLocation stackItemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
 
-                // First check regular filing folders
                 for (int i = 0; i < 12; i++) {
                     ItemStack folderStack = cabinet.inventory.getStackInSlot(i);
 
-                    // Skip empty slots and non-folder items
                     if (folderStack.isEmpty()) {
                         continue;
                     }
 
-                    // Handle regular filing folders
                     if (folderStack.getItem() instanceof FilingFolderItem && !(folderStack.getItem() instanceof NBTFilingFolderItem)) {
                         FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
 
-                        // If folder is empty/uninitialized, skip it
                         if (contents == null || contents.storedItemId().isEmpty()) {
                             continue;
                         }
 
                         ResourceLocation folderItemId = contents.storedItemId().get();
 
-                        // Check if this folder is registered for the item we're trying to insert
                         if (folderItemId.equals(stackItemId)) {
-                            // Check if the item has NBT data - if it does, skip this regular folder
                             if (FilingFolderItem.hasSignificantNBT(stack)) {
                                 continue;
                             }
 
-                            // We found a matching folder! Now we can insert the items.
                             int maxToAdd = Integer.MAX_VALUE - contents.count();
                             int toAdd = Math.min(stack.getCount(), maxToAdd);
 
-                            // If folder is full, try the next folder
                             if (toAdd <= 0) {
                                 continue;
                             }
 
-                            // Update the folder contents if not simulating
                             if (!simulate) {
                                 FilingFolderItem.FolderContents newContents = new FilingFolderItem.FolderContents(
                                         contents.storedItemId(),
@@ -291,7 +273,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                                 cabinet.setChanged();
                             }
 
-                            // Return the remaining items that didn't fit
                             ItemStack remaining = stack.copy();
                             remaining.shrink(toAdd);
                             return remaining;
@@ -299,48 +280,37 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     }
                 }
 
-                // Then check NBT filing folders if regular folders didn't work
                 for (int i = 0; i < 12; i++) {
                     ItemStack folderStack = cabinet.inventory.getStackInSlot(i);
 
-                    // Skip empty slots
                     if (folderStack.isEmpty()) {
                         continue;
                     }
 
-                    // Check if it's an NBT filing folder
                     if (folderStack.getItem() instanceof NBTFilingFolderItem) {
                         NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
 
-                        // If folder is empty/uninitialized, skip it
                         if (contents == null || contents.storedItemId().isEmpty()) {
                             continue;
                         }
 
                         ResourceLocation folderItemId = contents.storedItemId().get();
 
-                        // Check if this folder is registered for the item we're trying to insert
                         if (folderItemId.equals(stackItemId)) {
-                            // Check if the item has significant NBT (this is the key part for NBT folders)
-                            // Use the same logic that NBTFilingFolderItem uses
                             boolean hasNBT = hasSignificantNBT(stack);
 
                             if (hasNBT) {
-                                // We found a matching NBT folder and the item has NBT!
 
                                 if (!simulate) {
-                                    // Get the current items
                                     List<NBTFilingFolderItem.SerializedItemStack> newItems =
                                             new ArrayList<>(contents.storedItems() != null ? contents.storedItems() : new ArrayList<>());
 
-                                    // Add each item from the stack individually (since each may have unique NBT)
                                     for (int count = 0; count < stack.getCount(); count++) {
                                         ItemStack singleItem = stack.copy();
                                         singleItem.setCount(1);
                                         newItems.add(new NBTFilingFolderItem.SerializedItemStack(singleItem));
                                     }
 
-                                    // Update the folder contents
                                     NBTFilingFolderItem.NBTFolderContents newContents = new NBTFilingFolderItem.NBTFolderContents(
                                             contents.storedItemId(),
                                             newItems
@@ -349,31 +319,24 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                                     cabinet.setChanged();
                                 }
 
-                                // All items consumed
                                 return ItemStack.EMPTY;
                             }
                         }
                     }
                 }
 
-                // If we got here, it means no matching folder was found.
-                // For automation, we reject the entire stack.
                 return stack;
             }
 
-            // The rest of the code for GUI/direct player interaction
             ItemStack folderStack = cabinet.inventory.getStackInSlot(slot);
 
-            // The slot doesn't have a folder or is empty
             if (folderStack.isEmpty()) {
                 return stack;
             }
 
-            // Handle regular filing folders
             if (folderStack.getItem() instanceof FilingFolderItem && !(folderStack.getItem() instanceof NBTFilingFolderItem)) {
-                // Check if the item has NBT data - if it does, reject it
                 if (FilingFolderItem.hasSignificantNBT(stack)) {
-                    return stack; // Silent rejection in GUI mode
+                    return stack;
                 }
 
                 FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
@@ -381,8 +344,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     contents = new FilingFolderItem.FolderContents(Optional.empty(), 0);
                 }
 
-                // Regular folder handling...
-                // If folder isn't registered for any item yet, register it for this item
                 if (contents.storedItemId().isEmpty()) {
                     ResourceLocation newItemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
 
@@ -401,25 +362,20 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     return remaining;
                 }
 
-                // Folder is registered, check if it's registered for the right item
                 ResourceLocation itemId = contents.storedItemId().get();
                 ResourceLocation stackItemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
 
                 if (!itemId.equals(stackItemId)) {
-                    // Wrong item type, reject
                     return stack;
                 }
 
-                // Calculate how many items we can add
                 int maxToAdd = Integer.MAX_VALUE - contents.count();
                 int toAdd = Math.min(stack.getCount(), maxToAdd);
 
                 if (toAdd <= 0) {
-                    // Folder is full
                     return stack;
                 }
 
-                // Update the folder contents if not simulating
                 if (!simulate) {
                     FilingFolderItem.FolderContents newContents = new FilingFolderItem.FolderContents(
                             contents.storedItemId(),
@@ -429,21 +385,17 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     cabinet.setChanged();
                 }
 
-                // Return the remaining items that didn't fit
                 ItemStack remaining = stack.copy();
                 remaining.shrink(toAdd);
                 return remaining;
             }
 
-            // Handle regular filing folders
             if (folderStack.getItem() instanceof FilingFolderItem && !(folderStack.getItem() instanceof NBTFilingFolderItem)) {
                 FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
                 if (contents == null) {
                     contents = new FilingFolderItem.FolderContents(Optional.empty(), 0);
                 }
 
-                // Regular folder handling...
-                // If folder isn't registered for any item yet, register it for this item
                 if (contents.storedItemId().isEmpty()) {
                     ResourceLocation newItemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
 
@@ -462,25 +414,20 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     return remaining;
                 }
 
-                // Folder is registered, check if it's registered for the right item
                 ResourceLocation itemId = contents.storedItemId().get();
                 ResourceLocation stackItemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
 
                 if (!itemId.equals(stackItemId)) {
-                    // Wrong item type, reject
                     return stack;
                 }
 
-                // Calculate how many items we can add
                 int maxToAdd = Integer.MAX_VALUE - contents.count();
                 int toAdd = Math.min(stack.getCount(), maxToAdd);
 
                 if (toAdd <= 0) {
-                    // Folder is full
                     return stack;
                 }
 
-                // Update the folder contents if not simulating
                 if (!simulate) {
                     FilingFolderItem.FolderContents newContents = new FilingFolderItem.FolderContents(
                             contents.storedItemId(),
@@ -490,23 +437,18 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     cabinet.setChanged();
                 }
 
-                // Return the remaining items that didn't fit
                 ItemStack remaining = stack.copy();
                 remaining.shrink(toAdd);
                 return remaining;
             }
-            // Handle NBT filing folders
             else if (folderStack.getItem() instanceof NBTFilingFolderItem) {
                 NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
                 if (contents == null) {
                     contents = new NBTFilingFolderItem.NBTFolderContents(Optional.empty(), new ArrayList<>());
                 }
 
-                // If folder isn't registered for any item yet, register it for this item if it has NBT
                 if (contents.storedItemId().isEmpty()) {
-                    // Check if the item has significant NBT
                     if (!hasSignificantNBT(stack)) {
-                        // Item doesn't have NBT, reject
                         return stack;
                     }
 
@@ -515,7 +457,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     if (!simulate) {
                         List<NBTFilingFolderItem.SerializedItemStack> newItems = new ArrayList<>();
 
-                        // Add each item from the stack individually
                         for (int count = 0; count < stack.getCount(); count++) {
                             ItemStack singleItem = stack.copy();
                             singleItem.setCount(1);
@@ -530,31 +471,24 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                         cabinet.setChanged();
                     }
 
-                    // All items consumed
                     return ItemStack.EMPTY;
                 }
 
-                // Folder is registered, check if it's registered for the right item
                 ResourceLocation itemId = contents.storedItemId().get();
                 ResourceLocation stackItemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
 
                 if (!itemId.equals(stackItemId)) {
-                    // Wrong item type, reject
                     return stack;
                 }
 
-                // Check if the item has significant NBT
                 if (!hasSignificantNBT(stack)) {
-                    // Item doesn't have NBT, reject
                     return stack;
                 }
 
-                // Item has NBT and matches the folder's item type
                 if (!simulate) {
                     List<NBTFilingFolderItem.SerializedItemStack> newItems =
                             new ArrayList<>(contents.storedItems() != null ? contents.storedItems() : new ArrayList<>());
 
-                    // Add each item from the stack individually
                     for (int count = 0; count < stack.getCount(); count++) {
                         ItemStack singleItem = stack.copy();
                         singleItem.setCount(1);
@@ -569,35 +503,26 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     cabinet.setChanged();
                 }
 
-                // All items consumed
                 return ItemStack.EMPTY;
             }
 
-            // If we got here, it means the slot doesn't contain a valid folder
             return stack;
         }
 
-        // Helper method to check if an item has significant NBT data (copied from NBTFilingFolderItem)
         private boolean hasSignificantNBT(ItemStack stack) {
             if (stack.isEmpty()) return false;
 
-            // Check for damage
             if (stack.isDamaged()) return true;
 
-            // Check for enchantments
             if (stack.get(DataComponents.ENCHANTMENTS) != null &&
                     !stack.get(DataComponents.ENCHANTMENTS).isEmpty()) return true;
 
-            // Check for custom name
             if (stack.get(DataComponents.CUSTOM_NAME) != null) return true;
 
-            // Check for lore
             ItemLore lore = stack.get(DataComponents.LORE);
             if (lore != null && !lore.lines().isEmpty()) {
                 return true;
             }
-
-            // Other checks for significant data components could be added here
 
             return false;
         }
@@ -611,7 +536,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
             ItemStack folderStack = cabinet.inventory.getStackInSlot(slot);
 
-            // Handle regular filing folders
             if (folderStack.getItem() instanceof FilingFolderItem) {
                 FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
                 if (contents == null || contents.storedItemId().isEmpty() || contents.count() <= 0) {
@@ -643,14 +567,12 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
                 return result;
             }
-            // Handle NBT filing folders
             else if (folderStack.getItem() instanceof NBTFilingFolderItem) {
                 NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
                 if (contents == null || contents.storedItemId().isEmpty() || contents.storedItems().isEmpty()) {
                     return ItemStack.EMPTY;
                 }
 
-                // Extract the last item for NBT folders (LIFO order)
                 List<NBTFilingFolderItem.SerializedItemStack> items = new ArrayList<>(contents.storedItems());
                 int extractAmount = Math.min(amount, items.size());
 
@@ -658,16 +580,13 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     return ItemStack.EMPTY;
                 }
 
-                // Get the first item to determine type
                 NBTFilingFolderItem.SerializedItemStack serializedItem = items.get(items.size() - 1);
                 ItemStack extracted = serializedItem.stack().copy();
 
-                // For non-stackable or NBT items, only extract one at a time
                 int actualExtract = extracted.isStackable() ? extractAmount : 1;
                 extracted.setCount(actualExtract);
 
                 if (!simulate) {
-                    // Remove the extracted items from the end of the list
                     for (int i = 0; i < actualExtract; i++) {
                         if (!items.isEmpty()) {
                             items.remove(items.size() - 1);
@@ -695,10 +614,9 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            if (slot < 12) { // Updated number of folder slots
+            if (slot < 12) {
                 return stack.getItem() instanceof FilingFolderItem;
             } else {
-                // This is the index card slot
                 return stack.getItem() instanceof IndexCardItem &&
                         stack.get(ModDataComponents.COORDINATES) != null;
             }

@@ -35,11 +35,9 @@ public enum FilingIndexProvider implements IBlockComponentProvider, IServerDataP
             return;
         }
 
-        // Title - make this a completely separate append call
         tooltip.append(Component.translatable("tooltip.realfilingreborn.jade.cabinet_title")
                 .withStyle(ChatFormatting.GOLD, ChatFormatting.BOLD));
 
-        // Process each folder in its own separate append call
         for (int i = 0; i < folders.size(); i++) {
             CompoundTag folderTag = folders.getCompound(i);
 
@@ -52,8 +50,7 @@ public enum FilingIndexProvider implements IBlockComponentProvider, IServerDataP
 
                 if (isNBT) {
                     int uniqueCount = folderTag.getInt("unique_count");
-                    // Each folder gets its own complete append call
-                    tooltip.append(Component.literal("") // Empty component to force line break
+                    tooltip.append(Component.literal("")
                             .append(Component.translatable("tooltip.realfilingreborn.jade.nbt_folder_short",
                                             slot + 1, itemName, uniqueCount)
                                     .withStyle(ChatFormatting.AQUA)));
@@ -63,8 +60,7 @@ public enum FilingIndexProvider implements IBlockComponentProvider, IServerDataP
                     double fillPercentage = ((double) count / Integer.MAX_VALUE) * 100.0;
                     String percentText = String.format("%.2f%%", fillPercentage);
 
-                    // Each folder gets its own complete append call
-                    tooltip.append(Component.literal("") // Empty component to force line break
+                    tooltip.append(Component.literal("")
                             .append(Component.translatable("tooltip.realfilingreborn.jade.folder_short",
                                             slot + 1, itemName, formattedCount, percentText)
                                     .withStyle(ChatFormatting.WHITE)));
@@ -72,15 +68,14 @@ public enum FilingIndexProvider implements IBlockComponentProvider, IServerDataP
             }
         }
 
-        // Index info on its own line
         if (data.contains("index_linked") && data.getBoolean("index_linked")) {
-            tooltip.append(Component.literal("") // Empty component to force line break
+            tooltip.append(Component.literal("")
                     .append(Component.translatable("tooltip.realfilingreborn.jade.index_linked")
                             .withStyle(ChatFormatting.GREEN)));
 
             if (data.contains("index_pos")) {
                 String pos = data.getString("index_pos");
-                tooltip.append(Component.literal("") // Empty component to force line break
+                tooltip.append(Component.literal("")
                         .append(Component.translatable("tooltip.realfilingreborn.jade.index_pos", pos)
                                 .withStyle(ChatFormatting.GRAY)));
             }
@@ -97,18 +92,14 @@ public enum FilingIndexProvider implements IBlockComponentProvider, IServerDataP
         data.putInt("cabinet_count", cabinetCount);
 
         if (cabinetCount > 0) {
-            // Count total folders and items across all connected cabinets
             int folderCount = 0;
             long totalItems = 0;
 
             var handlers = indexEntity.getCabinetItemHandlers();
             for (var handler : handlers) {
-                // Each handler represents a filing cabinet
-                // Count non-empty slots (which represent folders)
                 for (int i = 0; i < handler.getSlots(); i++) {
                     if (!handler.getStackInSlot(i).isEmpty()) {
                         folderCount++;
-                        // Add the count of items in this folder
                         totalItems += handler.getStackInSlot(i).getCount();
                     }
                 }

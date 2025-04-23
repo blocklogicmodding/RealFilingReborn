@@ -30,27 +30,23 @@ import java.util.List;
 import java.util.Optional;
 
 public class NBTFilingFolderItem extends Item {
-    // Define a record to store serialized ItemStacks
+
     public record SerializedItemStack(ItemStack stack) {}
 
-    // Define the folder contents record
     public record NBTFolderContents(
             Optional<ResourceLocation> storedItemId,
             List<SerializedItemStack> storedItems
     ) {}
 
-    // Create codec for SerializedItemStack
     private static final Codec<SerializedItemStack> SERIALIZED_STACK_CODEC =
             ItemStack.CODEC.xmap(SerializedItemStack::new, SerializedItemStack::stack);
 
-    // Stream codec for SerializedItemStack
     private static final StreamCodec<RegistryFriendlyByteBuf, SerializedItemStack> SERIALIZED_STACK_STREAM_CODEC =
             StreamCodec.composite(
                     ItemStack.STREAM_CODEC, SerializedItemStack::stack,
                     SerializedItemStack::new
             );
 
-    // Create a codec for persistent storage of folder contents
     private static final Codec<NBTFolderContents> NBT_FOLDER_CONTENTS_CODEC = RecordCodecBuilder.create(instance ->
             instance.group(
                     ResourceLocation.CODEC.optionalFieldOf("storedItemId").forGetter(NBTFolderContents::storedItemId),
@@ -58,12 +54,10 @@ public class NBTFilingFolderItem extends Item {
             ).apply(instance, NBTFolderContents::new)
     );
 
-    // Resource location stream codec (same as in FilingFolderItem)
     public static final StreamCodec<ByteBuf, ResourceLocation> RESOURCE_LOCATION_STREAM_CODEC =
             ByteBufCodecs.STRING_UTF8
                     .map(ResourceLocation::parse, ResourceLocation::toString);
 
-    // Stream codec for networking the folder contents
     private static final StreamCodec<RegistryFriendlyByteBuf, NBTFolderContents> NBT_FOLDER_CONTENTS_STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.optional(RESOURCE_LOCATION_STREAM_CODEC),
             NBTFolderContents::storedItemId,
@@ -72,7 +66,6 @@ public class NBTFilingFolderItem extends Item {
             NBTFolderContents::new
     );
 
-    // Register the data component
     public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS =
             DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, RealFilingReborn.MODID);
 
@@ -99,7 +92,6 @@ public class NBTFilingFolderItem extends Item {
 
         ItemStack itemToStore = player.getItemInHand(InteractionHand.OFF_HAND);
 
-        // Don't allow storing folders in folders
         if (itemToStore.isEmpty() || itemToStore.getItem() instanceof FilingFolderItem || itemToStore.getItem() instanceof NBTFilingFolderItem) {
             if (itemToStore.getItem() instanceof FilingFolderItem || itemToStore.getItem() instanceof NBTFilingFolderItem) {
                 player.displayClientMessage(Component.translatable("message.realfilingreborn.no_folder_ception"), true);
@@ -112,7 +104,6 @@ public class NBTFilingFolderItem extends Item {
                 folderStack.set(NBT_FOLDER_CONTENTS.value(), contents);
             }
 
-            // Extract item if shift-clicking with empty hand
             if (player.isShiftKeyDown() && contents.storedItemId().isPresent() && !contents.storedItems().isEmpty()) {
                 return extractItem(level, player, folderStack, contents);
             } else {
@@ -120,15 +111,12 @@ public class NBTFilingFolderItem extends Item {
             }
         }
 
-        // Only accept items with significant data components
         if (!hasSignificantNBT(itemToStore)) {
             player.displayClientMessage(Component.translatable("message.realfilingreborn.nbt_folder_requires_nbt"), true);
             return InteractionResultHolder.fail(folderStack);
         }
 
-        // Handle item insertion
         if (!player.isShiftKeyDown() && folderStack.getCount() > 1) {
-            // Create a new folder for a stack of folders
             ItemStack singleFolder = folderStack.copy();
             singleFolder.setCount(1);
 
@@ -162,17 +150,13 @@ public class NBTFilingFolderItem extends Item {
     private boolean hasSignificantNBT(ItemStack stack) {
         if (stack.isEmpty()) return false;
 
-        // Check for damage
         if (stack.isDamaged()) return true;
 
-        // Check for enchantments
         if (stack.get(DataComponents.ENCHANTMENTS) != null &&
                 !stack.get(DataComponents.ENCHANTMENTS).isEmpty()) return true;
 
-        // Check for custom name
         if (stack.get(DataComponents.CUSTOM_NAME) != null) return true;
 
-        // Check for lore
         ItemLore lore = stack.get(DataComponents.LORE);
         if (lore != null && !lore.lines().isEmpty()) {
             return true;
@@ -189,14 +173,11 @@ public class NBTFilingFolderItem extends Item {
             return InteractionResultHolder.fail(folderStack);
         }
 
-        // Extract the last item (for LIFO behavior)
         List<SerializedItemStack> items = new ArrayList<>(contents.storedItems());
         SerializedItemStack serializedItem = items.remove(items.size() - 1);
 
-        // Get the stored item with all its data
         ItemStack extracted = serializedItem.stack().copy();
 
-        // Update the folder contents
         NBTFolderContents newContents = new NBTFolderContents(
                 contents.storedItemId(),
                 items
@@ -204,7 +185,6 @@ public class NBTFilingFolderItem extends Item {
 
         folderStack.set(NBT_FOLDER_CONTENTS.value(), newContents);
 
-        // Give the item to the player
         if (player.getInventory().add(extracted)) {
             return InteractionResultHolder.success(folderStack);
         } else {
@@ -220,7 +200,6 @@ public class NBTFilingFolderItem extends Item {
 
         ResourceLocation newItemId = BuiltInRegistries.ITEM.getKey(itemToStore.getItem());
 
-        // Check if folder is already registered for a different item type
         Optional<ResourceLocation> currentItemIdOpt = contents.storedItemId();
         if (currentItemIdOpt.isPresent() && !currentItemIdOpt.get().equals(newItemId)) {
             Item storedItem = BuiltInRegistries.ITEM.get(currentItemIdOpt.get());
@@ -231,15 +210,12 @@ public class NBTFilingFolderItem extends Item {
             return InteractionResultHolder.fail(folderStack);
         }
 
-        // Create a new list with the existing items
         List<SerializedItemStack> newItems = new ArrayList<>(contents.storedItems() != null ? contents.storedItems() : new ArrayList<>());
 
-        // Store a copy of the item with all its data
         ItemStack itemCopy = itemToStore.copy();
-        itemCopy.setCount(1); // Store one at a time
+        itemCopy.setCount(1);
         newItems.add(new SerializedItemStack(itemCopy));
 
-        // Update the folder contents
         NBTFolderContents newContents = new NBTFolderContents(
                 Optional.of(newItemId),
                 newItems
@@ -247,7 +223,6 @@ public class NBTFilingFolderItem extends Item {
 
         folderStack.set(NBT_FOLDER_CONTENTS.value(), newContents);
 
-        // Remove the stored item from player's hand
         itemToStore.shrink(1);
 
         return InteractionResultHolder.success(folderStack);
@@ -269,12 +244,10 @@ public class NBTFilingFolderItem extends Item {
                                 Component.literal(String.valueOf(contents.storedItems().size())).withStyle(ChatFormatting.GREEN))
                         .withStyle(ChatFormatting.GRAY));
 
-                // Show additional info for advanced tooltips
                 if (flag.isAdvanced() && !contents.storedItems().isEmpty()) {
                     tooltip.add(Component.translatable("tooltip.realfilingreborn.nbt_items_stored")
                             .withStyle(ChatFormatting.GRAY, ChatFormatting.ITALIC));
 
-                    // Show some information about the first few items
                     int maxToShow = Math.min(3, contents.storedItems().size());
                     for (int i = 0; i < maxToShow; i++) {
                         ItemStack storedItem = contents.storedItems().get(i).stack();

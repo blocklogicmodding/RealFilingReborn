@@ -34,8 +34,6 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        // First bank of folders (3x2)
-        // Starting coordinates: x7, y21
         for (int row = 0; row < 2; row++) {
             for (int col = 0; col < 3; col++) {
                 int x = 8 + col * 18;
@@ -50,13 +48,11 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
             }
         }
 
-        // Second bank of folders (3x2)
-        // Starting coordinates: x115, y21
         for (int row = 0; row < 2; row++) {
             for (int col = 0; col < 3; col++) {
                 int x = 116 + col * 18;
                 int y = 22 + row * 18;
-                int slotIndex = 6 + col + row * 3; // Starting from slot 6
+                int slotIndex = 6 + col + row * 3;
                 this.addSlot(new SlotItemHandler(this.blockEntity.inventory, slotIndex, x, y) {
                     @Override
                     public boolean mayPlace(ItemStack stack) {
@@ -66,7 +62,6 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
             }
         }
 
-        // Index card slot at x79, y61
         this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 12, 80, 62) {
             @Override
             public boolean mayPlace(ItemStack stack) {
@@ -84,7 +79,7 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
-    private static final int TE_INVENTORY_SLOT_COUNT = 13; // Updated total slots
+    private static final int TE_INVENTORY_SLOT_COUNT = 13;
 
     @Override
     public ItemStack quickMoveStack(Player playerIn, int pIndex) {
