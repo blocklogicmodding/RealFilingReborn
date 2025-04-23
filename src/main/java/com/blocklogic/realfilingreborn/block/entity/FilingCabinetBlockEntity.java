@@ -60,6 +60,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                         BlockPos indexPos = stack.get(ModDataComponents.COORDINATES);
                         if (level.getBlockEntity(indexPos) instanceof FilingIndexBlockEntity indexBE) {
                             indexBE.invalidateCache();
+                            indexBE.getCabinetItemHandlers();
                         }
                     }
                 }
