@@ -48,14 +48,24 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
-            if (slot == 12) {
-                updateIndexLinking();
-            }
-            if(!level.isClientSide()) {
+
+            if (level != null && !level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
-                level.invalidateCapabilities(getBlockPos());
+
+                if (slot == 12) {
+                    updateIndexLinking(); // Your custom logic, which is great
+
+                    ItemStack stack = getStackInSlot(12);
+                    if (stack.getItem() instanceof IndexCardItem && stack.get(ModDataComponents.COORDINATES) != null) {
+                        BlockPos indexPos = stack.get(ModDataComponents.COORDINATES);
+                        if (level.getBlockEntity(indexPos) instanceof FilingIndexBlockEntity indexBE) {
+                            indexBE.invalidateCache();
+                        }
+                    }
+                }
             }
         }
+
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {

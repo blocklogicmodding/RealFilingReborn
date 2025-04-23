@@ -29,6 +29,10 @@ public class FilingIndexBlockEntity extends BlockEntity {
         super(ModBlockEntities.FILING_INDEX_BE.get(), pos, blockState);
     }
 
+    public void invalidateCache() {
+        lastCacheUpdate = -CACHE_INTERVAL; // Force cache refresh next tick
+    }
+
     public List<IItemHandler> getCabinetItemHandlers() {
         if (level == null || level.isClientSide()) return List.of();
 

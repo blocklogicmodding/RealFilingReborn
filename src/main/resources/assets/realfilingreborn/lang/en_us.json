@@ -26,7 +26,7 @@
   "message.realfilingreborn.index_card_needs_index": "Index Card can only be linked to a Filing Index",
   "message.realfilingreborn.standard_folder_no_nbt": "This folder cannot store items with special properties. Use an NBT Folder instead.",
 
-  "tooltip.realfilingreborn.stored_item": "Register for (Contents): %s",
+  "tooltip.realfilingreborn.stored_item": "Registered for (Contents): %s",
   "tooltip.realfilingreborn.item_count": "Count: %s",
   "tooltip.realfilingreborn.empty_folder": "Folder is empty",
   "tooltip.realfilingreborn.unregistered_folder": "Folder is unregistered. Add items to register this folder.",
@@ -59,5 +59,5 @@
   "tooltip.realfilingreborn.jade.index_help": "Link cabinets with Index Cards",
 
   "config.jade.plugin_realfilingreborn.filing_cabinet_info": "Filing Cabinet Information",
-  "config.jade.plugin_realfilingreborn.filing_index_info": "Filing Index Information",
+  "config.jade.plugin_realfilingreborn.filing_index_info": "Filing Index Information"
 }
