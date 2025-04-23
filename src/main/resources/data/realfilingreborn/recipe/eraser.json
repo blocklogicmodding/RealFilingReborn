@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "Q": {
+      "item": "minecraft:quartz"
+    },
+    "P": {
+      "item": "minecraft:paper"
+    }
+  },
+  "pattern": [
+    " Q ",
+    " PQ",
+    "Q  "
+  ],
+  "result": {
+    "id": "realfilingreborn:eraser",
+    "count": 1
+  }
+}
