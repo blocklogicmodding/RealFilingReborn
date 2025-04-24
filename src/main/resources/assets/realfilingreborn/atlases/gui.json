@@ -2,7 +2,7 @@
   "sources": [
     {
       "type": "directory",
-      "source": "gui/sprites",
+      "source": "realfilingreborn:gui/sprites",
       "prefix": ""
     }
   ]
