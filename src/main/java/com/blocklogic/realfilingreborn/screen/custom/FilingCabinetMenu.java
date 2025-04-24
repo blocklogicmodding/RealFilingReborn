@@ -91,7 +91,6 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
             } else if (sourceStack.getItem() instanceof RangeUpgradeTierOne ||
                     sourceStack.getItem() instanceof RangeUpgradeTierTwo ||
                     sourceStack.getItem() instanceof RangeUpgradeTierThree) {
-                // Try to move to upgrade slot
                 if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX + 13,
                         TE_INVENTORY_FIRST_SLOT_INDEX + 14, false)) {
                     return ItemStack.EMPTY;
