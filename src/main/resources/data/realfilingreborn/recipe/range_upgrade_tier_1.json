@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": {
+      "item": "realfilingreborn:filing_index"
+    },
+    "E": {
+      "item": "minecraft:ender_pearl"
+    },
+    "I": {
+      "item": "minecraft:iron_block"
+    }
+  },
+  "pattern": [
+    "IEI",
+    "EFE",
+    "IEI"
+  ],
+  "result": {
+    "id": "realfilingreborn:range_upgrade_tier_1",
+    "count": 1
+  }
+}

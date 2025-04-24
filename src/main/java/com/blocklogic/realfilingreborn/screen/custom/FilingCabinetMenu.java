@@ -6,6 +6,9 @@ import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
+import com.blocklogic.realfilingreborn.item.custom.RangeUpgradeTierOne;
+import com.blocklogic.realfilingreborn.item.custom.RangeUpgradeTierTwo;
+import com.blocklogic.realfilingreborn.item.custom.RangeUpgradeTierThree;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -34,11 +37,12 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
+        // Add two rows of 6 folder slots
         for (int row = 0; row < 2; row++) {
-            for (int col = 0; col < 3; col++) {
+            for (int col = 0; col < 6; col++) {
                 int x = 8 + col * 18;
                 int y = 22 + row * 18;
-                int slotIndex = col + row * 3;
+                int slotIndex = col + row * 6;
                 this.addSlot(new SlotItemHandler(this.blockEntity.inventory, slotIndex, x, y) {
                     @Override
                     public boolean mayPlace(ItemStack stack) {
@@ -48,25 +52,22 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
             }
         }
 
-        for (int row = 0; row < 2; row++) {
-            for (int col = 0; col < 3; col++) {
-                int x = 116 + col * 18;
-                int y = 22 + row * 18;
-                int slotIndex = 6 + col + row * 3;
-                this.addSlot(new SlotItemHandler(this.blockEntity.inventory, slotIndex, x, y) {
-                    @Override
-                    public boolean mayPlace(ItemStack stack) {
-                        return stack.getItem() instanceof FilingFolderItem || stack.getItem() instanceof NBTFilingFolderItem;
-                    }
-                });
-            }
-        }
-
-        this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 12, 80, 62) {
+        // Add index card slot at x152, y22
+        this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 12, 152, 22) {
             @Override
             public boolean mayPlace(ItemStack stack) {
                 return stack.getItem() instanceof IndexCardItem &&
                         stack.get(ModDataComponents.COORDINATES) != null;
+            }
+        });
+
+        // Add upgrade slot at x152, y40
+        this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 13, 152, 40) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return stack.getItem() instanceof RangeUpgradeTierOne ||
+                        stack.getItem() instanceof RangeUpgradeTierTwo ||
+                        stack.getItem() instanceof RangeUpgradeTierThree;
             }
         });
     }
@@ -79,7 +80,8 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
-    private static final int TE_INVENTORY_SLOT_COUNT = 13;
+    // Updated to 14 slots
+    private static final int TE_INVENTORY_SLOT_COUNT = 14;
 
     @Override
     public ItemStack quickMoveStack(Player playerIn, int pIndex) {
@@ -97,6 +99,14 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
             } else if (sourceStack.getItem() instanceof IndexCardItem) {
                 if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX + 12,
                         TE_INVENTORY_FIRST_SLOT_INDEX + 13, false)) {
+                    return ItemStack.EMPTY;
+                }
+            } else if (sourceStack.getItem() instanceof RangeUpgradeTierOne ||
+                    sourceStack.getItem() instanceof RangeUpgradeTierTwo ||
+                    sourceStack.getItem() instanceof RangeUpgradeTierThree) {
+                // Try to move to upgrade slot
+                if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX + 13,
+                        TE_INVENTORY_FIRST_SLOT_INDEX + 14, false)) {
                     return ItemStack.EMPTY;
                 }
             } else {

@@ -19,6 +19,15 @@ public class ModItems {
     public static final DeferredItem<Item> INDEX_CARD = ITEMS.register("index_card",
             () -> new IndexCardItem(new Item.Properties()));
 
+    public static final DeferredItem<Item> RANGE_UPGRADE_ONE = ITEMS.register("range_upgrade_tier_1",
+            () -> new RangeUpgradeTierOne(new Item.Properties()));
+
+    public static final DeferredItem<Item> RANGE_UPGRADE_TWO = ITEMS.register("range_upgrade_tier_2",
+            () -> new RangeUpgradeTierTwo(new Item.Properties()));
+
+    public static final DeferredItem<Item> RANGE_UPGRADE_THREE = ITEMS.register("range_upgrade_tier_3",
+            () -> new RangeUpgradeTierThree(new Item.Properties()));
+
     public static void register (IEventBus eventBus) {
         ITEMS.register(eventBus);
     }

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "F": {
+      "item": "realfilingreborn:range_upgrade_tier_1"
+    },
+    "E": {
+      "item": "minecraft:ender_eye"
+    },
+    "D": {
+      "item": "minecraft:diamond_block"
+    }
+  },
+  "pattern": [
+    "DED",
+    "EFE",
+    "DED"
+  ],
+  "result": {
+    "id": "realfilingreborn:range_upgrade_tier_2",
+    "count": 1
+  }
+}

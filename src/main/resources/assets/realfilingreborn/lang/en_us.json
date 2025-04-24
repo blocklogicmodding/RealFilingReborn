@@ -2,17 +2,20 @@
   "item.realfilingreborn.filing_folder": "Folder",
   "item.realfilingreborn.nbt_filing_folder": "NBT Folder",
   "item.realfilingreborn.index_card": "Index Card",
+  "item.realfilingreborn.range_upgrade_tier_1": "Filing Index Iron Upgrade (16 Blocks)",
+  "item.realfilingreborn.range_upgrade_tier_2": "Filing Index Diamond Upgrade (24 Blocks)",
+  "item.realfilingreborn.range_upgrade_tier_3": "Filing Index Netherite Upgrade (32 Blocks)",
 
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
   "block.realfilingreborn.filing_index": "Filing Index",
-  "item.realfilingreborn.eraser": "Eraser",
-  "item.realfilingreborn.key": "Cabinet Key",
 
   "creativetab.realfilingreborn.real_filing_reborn": "Real Filing Reborn",
 
   "menu.realfilingreborn.menu_title": "Filing Cabinet",
 
   "blockentity.realfilingreborn.name": "Filing Cabinet",
+
+  "message.realfilingreborn.upgrade_occupied": "Filing Cabinet already has an Upgrade",
 
   "message.realfilingreborn.index_occupied": "The Filing Cabinet already has an Index Card",
   "message.realfilingreborn.folders_full": "The Filing Cabinet is full (12 folders)",

@@ -21,6 +21,9 @@ public class ModCreativeModTab {
                         output.accept(ModItems.FILING_FOLDER);
                         output.accept(ModItems.NBT_FILING_FOLDER);
                         output.accept(ModItems.INDEX_CARD);
+                        output.accept(ModItems.RANGE_UPGRADE_ONE);
+                        output.accept(ModItems.RANGE_UPGRADE_TWO);
+                        output.accept(ModItems.RANGE_UPGRADE_THREE);
                         output.accept(ModBlocks.FILING_CABINET);
                         output.accept(ModBlocks.FILING_INDEX);
                     }).build());

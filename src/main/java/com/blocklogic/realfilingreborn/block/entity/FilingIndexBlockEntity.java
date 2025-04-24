@@ -31,8 +31,6 @@ public class FilingIndexBlockEntity extends BlockEntity {
     private static List<BlockPos> SPHERE_POSITIONS_CACHE = null;
     private static final int SPHERE_RADIUS = 16;
 
-
-    // Static sphere cache for radius 16
     private static List<BlockPos> getSpherePositionsCache() {
         if (SPHERE_POSITIONS_CACHE == null) {
             SPHERE_POSITIONS_CACHE = List.copyOf(getSpherePositions(BlockPos.ZERO, SPHERE_RADIUS));
@@ -58,15 +56,12 @@ public class FilingIndexBlockEntity extends BlockEntity {
 
         long gameTime = level.getGameTime();
 
-        // Early return if cache is still valid
         if (!cacheDirty && gameTime - lastCacheUpdate < CACHE_INTERVAL) {
             return List.copyOf(cachedHandlers);
         }
 
-        // Start performance monitoring
         long startTime = System.nanoTime();
 
-        // Rebuild cache
         cachedHandlers.clear();
         List<BlockPos> searchArea = getSpherePositionsCache().stream() // CORRECT
                 .map(pos -> pos.offset(getBlockPos()))
@@ -91,7 +86,6 @@ public class FilingIndexBlockEntity extends BlockEntity {
         lastCacheUpdate = gameTime;
         updateActivationLevel();
 
-        // Performance logging
         if (LOGGER.isDebugEnabled()) {
             double ms = (System.nanoTime() - startTime) / 1_000_000.0;
             LOGGER.debug("Cache rebuilt in {}ms ({} cabinets)", ms, cachedHandlers.size());

@@ -2,9 +2,7 @@ package com.blocklogic.realfilingreborn.block.entity;
 
 import com.blocklogic.realfilingreborn.block.custom.FilingCabinetBlock;
 import com.blocklogic.realfilingreborn.component.ModDataComponents;
-import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
-import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
-import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
+import com.blocklogic.realfilingreborn.item.custom.*;
 import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -39,7 +37,7 @@ import java.util.*;
 public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvider {
     private BlockPos previousIndexPos = null;
 
-    public final ItemStackHandler inventory = new ItemStackHandler(13) {
+    public final ItemStackHandler inventory = new ItemStackHandler(14) {
         @Override
         protected int getStackLimit(int slot, ItemStack stack) {
             return 1;
@@ -53,7 +51,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
 
                 if (slot == 12) {
-                    updateIndexLinking(); // Your custom logic, which is great
+                    updateIndexLinking();
 
                     ItemStack stack = getStackInSlot(12);
                     if (stack.getItem() instanceof IndexCardItem && stack.get(ModDataComponents.COORDINATES) != null) {
@@ -72,10 +70,16 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         public boolean isItemValid(int slot, ItemStack stack) {
             if (slot < 12) {
                 return stack.getItem() instanceof FilingFolderItem || stack.getItem() instanceof NBTFilingFolderItem;
-            } else {
+            } else if (slot == 12) {
                 return stack.getItem() instanceof IndexCardItem &&
                         stack.get(ModDataComponents.COORDINATES) != null;
+            } else if (slot == 13) {
+                // Slot 13 is for range upgrades
+                return stack.getItem() instanceof RangeUpgradeTierOne ||
+                        stack.getItem() instanceof RangeUpgradeTierTwo ||
+                        stack.getItem() instanceof RangeUpgradeTierThree;
             }
+            return false;
         }
     };
 
@@ -84,6 +88,27 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
     public FilingCabinetBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FILING_CABINET_BE.get(), pos, blockState);
+    }
+
+    public ItemStack getRangeUpgrade() {
+        return inventory.getStackInSlot(13);
+    }
+
+    public int getRangeModifier() {
+        ItemStack upgradeStack = getRangeUpgrade();
+        if (upgradeStack.isEmpty()) {
+            return 0;
+        }
+
+        if (upgradeStack.getItem() instanceof RangeUpgradeTierOne) {
+            return 16;
+        } else if (upgradeStack.getItem() instanceof RangeUpgradeTierTwo) {
+            return 24;
+        } else if (upgradeStack.getItem() instanceof RangeUpgradeTierThree) {
+            return 32;
+        }
+
+        return 0;
     }
 
     @Nullable
