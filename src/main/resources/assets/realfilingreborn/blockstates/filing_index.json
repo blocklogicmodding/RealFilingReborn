@@ -1,66 +1,66 @@
 {
   "variants": {
     "facing=north,activation_level=0,range_level=0": {
-      "model": "realfilingreborn:block/filing_index_inactive"
+      "model": "realfilingreborn:block/filing_index"
     },
     "facing=south,activation_level=0,range_level=0": {
-      "model": "realfilingreborn:block/filing_index_inactive",
+      "model": "realfilingreborn:block/filing_index",
       "y": 180
     },
     "facing=east,activation_level=0,range_level=0": {
-      "model": "realfilingreborn:block/filing_index_inactive",
+      "model": "realfilingreborn:block/filing_index",
       "y": 90
     },
     "facing=west,activation_level=0,range_level=0": {
-      "model": "realfilingreborn:block/filing_index_inactive",
+      "model": "realfilingreborn:block/filing_index",
       "y": 270
     },
 
     "facing=north,activation_level=0,range_level=1": {
-      "model": "realfilingreborn:block/filing_index_inactive_tier_1"
+      "model": "realfilingreborn:block/filing_index_tier_1"
     },
     "facing=south,activation_level=0,range_level=1": {
-      "model": "realfilingreborn:block/filing_index_inactive_tier_1",
+      "model": "realfilingreborn:block/filing_index_tier_1",
       "y": 180
     },
     "facing=east,activation_level=0,range_level=1": {
-      "model": "realfilingreborn:block/filing_index_inactive_tier_1",
+      "model": "realfilingreborn:block/filing_index_tier_1",
       "y": 90
     },
     "facing=west,activation_level=0,range_level=1": {
-      "model": "realfilingreborn:block/filing_index_inactive_tier_1",
+      "model": "realfilingreborn:block/filing_index_tier_1",
       "y": 270
     },
 
     "facing=north,activation_level=0,range_level=2": {
-      "model": "realfilingreborn:block/filing_index_inactive_tier_2"
+      "model": "realfilingreborn:block/filing_index_tier_2"
     },
     "facing=south,activation_level=0,range_level=2": {
-      "model": "realfilingreborn:block/filing_index_inactive_tier_2",
+      "model": "realfilingreborn:block/filing_index_tier_2",
       "y": 180
     },
     "facing=east,activation_level=0,range_level=2": {
-      "model": "realfilingreborn:block/filing_index_inactive_tier_2",
+      "model": "realfilingreborn:block/filing_index_tier_2",
       "y": 90
     },
     "facing=west,activation_level=0,range_level=2": {
-      "model": "realfilingreborn:block/filing_index_inactive_tier_2",
+      "model": "realfilingreborn:block/filing_index_tier_2",
       "y": 270
     },
 
     "facing=north,activation_level=0,range_level=3": {
-      "model": "realfilingreborn:block/filing_index_inactive_tier_3"
+      "model": "realfilingreborn:block/filing_index_tier_3"
     },
     "facing=south,activation_level=0,range_level=3": {
-      "model": "realfilingreborn:block/filing_index_inactive_tier_3",
+      "model": "realfilingreborn:block/filing_index_tier_3",
       "y": 180
     },
     "facing=east,activation_level=0,range_level=3": {
-      "model": "realfilingreborn:block/filing_index_inactive_tier_3",
+      "model": "realfilingreborn:block/filing_index_tier_3",
       "y": 90
     },
     "facing=west,activation_level=0,range_level=3": {
-      "model": "realfilingreborn:block/filing_index_inactive_tier_3",
+      "model": "realfilingreborn:block/filing_index_tier_3",
       "y": 270
     },
 

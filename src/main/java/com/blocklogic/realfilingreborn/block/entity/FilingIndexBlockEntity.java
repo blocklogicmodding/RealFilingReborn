@@ -147,6 +147,20 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         }
     }
 
+    public int getRangeFromUpgrade() {
+        ItemStack upgradeStack = inventory.getStackInSlot(0);
+        if (upgradeStack.isEmpty()) {
+            return 16; // Default range
+        } else if (upgradeStack.getItem() instanceof RangeUpgradeTierOne) {
+            return 16; // Tier 1 range
+        } else if (upgradeStack.getItem() instanceof RangeUpgradeTierTwo) {
+            return 24; // Tier 2 range
+        } else if (upgradeStack.getItem() instanceof RangeUpgradeTierThree) {
+            return 32; // Tier 3 range
+        }
+        return 16; // Default fallback
+    }
+
     public void updateRangeLevelVisual() {
         if (level == null || level.isClientSide()) return;
 
@@ -162,9 +176,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         }
 
         BlockState currentState = level.getBlockState(getBlockPos());
-        if (currentState.hasProperty(FilingIndexBlock.RANGE_LEVEL) &&
-                currentState.getValue(FilingIndexBlock.RANGE_LEVEL) != rangeLevel) {
-
+        if (currentState.getValue(FilingIndexBlock.RANGE_LEVEL) != rangeLevel) {
             level.setBlock(getBlockPos(),
                     currentState.setValue(FilingIndexBlock.RANGE_LEVEL, rangeLevel),
                     Block.UPDATE_CLIENTS | Block.UPDATE_INVISIBLE);
@@ -187,12 +199,14 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
+        tag.put("inventory", inventory.serializeNBT(registries));
         tag.putInt("PreviousCabinetCount", previousCabinetCount);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        inventory.deserializeNBT(registries, tag.getCompound("inventory"));
         previousCabinetCount = tag.getInt("PreviousCabinetCount");
     }
 
@@ -207,6 +221,15 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             return stack.getItem() instanceof RangeUpgradeTierOne ||
                     stack.getItem() instanceof RangeUpgradeTierTwo ||
                     stack.getItem() instanceof RangeUpgradeTierThree;
+        }
+
+        @Override
+        protected void onContentsChanged(int slot) {
+            setChanged();
+            if (level != null && !level.isClientSide()) {
+                updateRangeLevelVisual();
+                invalidateCache(); // Make sure to refresh connected cabinets when upgrades change
+            }
         }
     };
 
@@ -237,6 +260,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         if (level != null && !level.isClientSide()) {
             invalidateCache();
             getCabinetItemHandlers();
+            updateRangeLevelVisual();
         }
     }
 }
