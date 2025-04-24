@@ -240,7 +240,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             setChanged();
             if (level != null && !level.isClientSide()) {
                 updateRangeLevelVisual();
-                invalidateCache(); // Make sure to refresh connected cabinets when upgrades change
+                invalidateCache();
             }
         }
     };
