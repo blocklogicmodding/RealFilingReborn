@@ -147,6 +147,30 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         }
     }
 
+    public void updateRangeLevelVisual() {
+        if (level == null || level.isClientSide()) return;
+
+        int rangeLevel = 0;
+        ItemStack stack = inventory.getStackInSlot(0);
+
+        if (stack.getItem() instanceof RangeUpgradeTierThree) {
+            rangeLevel = 3;
+        } else if (stack.getItem() instanceof RangeUpgradeTierTwo) {
+            rangeLevel = 2;
+        } else if (stack.getItem() instanceof RangeUpgradeTierOne) {
+            rangeLevel = 1;
+        }
+
+        BlockState currentState = level.getBlockState(getBlockPos());
+        if (currentState.hasProperty(FilingIndexBlock.RANGE_LEVEL) &&
+                currentState.getValue(FilingIndexBlock.RANGE_LEVEL) != rangeLevel) {
+
+            level.setBlock(getBlockPos(),
+                    currentState.setValue(FilingIndexBlock.RANGE_LEVEL, rangeLevel),
+                    Block.UPDATE_CLIENTS | Block.UPDATE_INVISIBLE);
+        }
+    }
+
     public int getCabinetCount() {
         return getCabinetItemHandlers().size();
     }

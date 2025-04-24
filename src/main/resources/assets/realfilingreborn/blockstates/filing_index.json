@@ -1,193 +1,193 @@
 {
   "variants": {
-    "facing=north,activation_level=0,upgrade_level=none": {
+    "facing=north,activation_level=0,range_level=0": {
       "model": "realfilingreborn:block/filing_index_inactive"
     },
-    "facing=south,activation_level=0,upgrade_level=none": {
+    "facing=south,activation_level=0,range_level=0": {
       "model": "realfilingreborn:block/filing_index_inactive",
       "y": 180
     },
-    "facing=east,activation_level=0,upgrade_level=none": {
+    "facing=east,activation_level=0,range_level=0": {
       "model": "realfilingreborn:block/filing_index_inactive",
       "y": 90
     },
-    "facing=west,activation_level=0,upgrade_level=none": {
+    "facing=west,activation_level=0,range_level=0": {
       "model": "realfilingreborn:block/filing_index_inactive",
       "y": 270
     },
 
-    "facing=north,activation_level=0,upgrade_level=tier_one": {
+    "facing=north,activation_level=0,range_level=1": {
       "model": "realfilingreborn:block/filing_index_inactive_tier_1"
     },
-    "facing=south,activation_level=0,upgrade_level=tier_one": {
+    "facing=south,activation_level=0,range_level=1": {
       "model": "realfilingreborn:block/filing_index_inactive_tier_1",
       "y": 180
     },
-    "facing=east,activation_level=0,upgrade_level=tier_one": {
+    "facing=east,activation_level=0,range_level=1": {
       "model": "realfilingreborn:block/filing_index_inactive_tier_1",
       "y": 90
     },
-    "facing=west,activation_level=0,upgrade_level=tier_one": {
+    "facing=west,activation_level=0,range_level=1": {
       "model": "realfilingreborn:block/filing_index_inactive_tier_1",
       "y": 270
     },
 
-    "facing=north,activation_level=0,upgrade_level=tier_two": {
+    "facing=north,activation_level=0,range_level=2": {
       "model": "realfilingreborn:block/filing_index_inactive_tier_2"
     },
-    "facing=south,activation_level=0,upgrade_level=tier_two": {
+    "facing=south,activation_level=0,range_level=2": {
       "model": "realfilingreborn:block/filing_index_inactive_tier_2",
       "y": 180
     },
-    "facing=east,activation_level=0,upgrade_level=tier_two": {
+    "facing=east,activation_level=0,range_level=2": {
       "model": "realfilingreborn:block/filing_index_inactive_tier_2",
       "y": 90
     },
-    "facing=west,activation_level=0,upgrade_level=tier_two": {
+    "facing=west,activation_level=0,range_level=2": {
       "model": "realfilingreborn:block/filing_index_inactive_tier_2",
       "y": 270
     },
 
-    "facing=north,activation_level=0,upgrade_level=tier_three": {
+    "facing=north,activation_level=0,range_level=3": {
       "model": "realfilingreborn:block/filing_index_inactive_tier_3"
     },
-    "facing=south,activation_level=0,upgrade_level=tier_three": {
+    "facing=south,activation_level=0,range_level=3": {
       "model": "realfilingreborn:block/filing_index_inactive_tier_3",
       "y": 180
     },
-    "facing=east,activation_level=0,upgrade_level=tier_three": {
+    "facing=east,activation_level=0,range_level=3": {
       "model": "realfilingreborn:block/filing_index_inactive_tier_3",
       "y": 90
     },
-    "facing=west,activation_level=0,upgrade_level=tier_three": {
+    "facing=west,activation_level=0,range_level=3": {
       "model": "realfilingreborn:block/filing_index_inactive_tier_3",
       "y": 270
     },
 
-    "facing=north,activation_level=1,upgrade_level=none": {
+    "facing=north,activation_level=1,range_level=0": {
       "model": "realfilingreborn:block/filing_index_one_active"
     },
-    "facing=south,activation_level=1,upgrade_level=none": {
+    "facing=south,activation_level=1,range_level=0": {
       "model": "realfilingreborn:block/filing_index_one_active",
       "y": 180
     },
-    "facing=east,activation_level=1,upgrade_level=none": {
+    "facing=east,activation_level=1,range_level=0": {
       "model": "realfilingreborn:block/filing_index_one_active",
       "y": 90
     },
-    "facing=west,activation_level=1,upgrade_level=none": {
+    "facing=west,activation_level=1,range_level=0": {
       "model": "realfilingreborn:block/filing_index_one_active",
       "y": 270
     },
 
-    "facing=north,activation_level=1,upgrade_level=tier_one": {
+    "facing=north,activation_level=1,range_level=1": {
       "model": "realfilingreborn:block/filing_index_one_active_tier_1"
     },
-    "facing=south,activation_level=1,upgrade_level=tier_one": {
+    "facing=south,activation_level=1,range_level=1": {
       "model": "realfilingreborn:block/filing_index_one_active_tier_1",
       "y": 180
     },
-    "facing=east,activation_level=1,upgrade_level=tier_one": {
+    "facing=east,activation_level=1,range_level=1": {
       "model": "realfilingreborn:block/filing_index_one_active_tier_1",
       "y": 90
     },
-    "facing=west,activation_level=1,upgrade_level=tier_one": {
+    "facing=west,activation_level=1,range_level=1": {
       "model": "realfilingreborn:block/filing_index_one_active_tier_1",
       "y": 270
     },
 
-    "facing=north,activation_level=1,upgrade_level=tier_two": {
+    "facing=north,activation_level=1,range_level=2": {
       "model": "realfilingreborn:block/filing_index_one_active_tier_2"
     },
-    "facing=south,activation_level=1,upgrade_level=tier_two": {
+    "facing=south,activation_level=1,range_level=2": {
       "model": "realfilingreborn:block/filing_index_one_active_tier_2",
       "y": 180
     },
-    "facing=east,activation_level=1,upgrade_level=tier_two": {
+    "facing=east,activation_level=1,range_level=2": {
       "model": "realfilingreborn:block/filing_index_one_active_tier_2",
       "y": 90
     },
-    "facing=west,activation_level=1,upgrade_level=tier_two": {
+    "facing=west,activation_level=1,range_level=2": {
       "model": "realfilingreborn:block/filing_index_one_active_tier_2",
       "y": 270
     },
 
-    "facing=north,activation_level=1,upgrade_level=tier_three": {
+    "facing=north,activation_level=1,range_level=3": {
       "model": "realfilingreborn:block/filing_index_one_active_tier_3"
     },
-    "facing=south,activation_level=1,upgrade_level=tier_three": {
+    "facing=south,activation_level=1,range_level=3": {
       "model": "realfilingreborn:block/filing_index_one_active_tier_3",
       "y": 180
     },
-    "facing=east,activation_level=1,upgrade_level=tier_three": {
+    "facing=east,activation_level=1,range_level=3": {
       "model": "realfilingreborn:block/filing_index_one_active_tier_3",
       "y": 90
     },
-    "facing=west,activation_level=1,upgrade_level=tier_three": {
+    "facing=west,activation_level=1,range_level=3": {
       "model": "realfilingreborn:block/filing_index_one_active_tier_3",
       "y": 270
     },
 
-    "facing=north,activation_level=2,upgrade_level=none": {
+    "facing=north,activation_level=2,range_level=0": {
       "model": "realfilingreborn:block/filing_index_two_active"
     },
-    "facing=south,activation_level=2,upgrade_level=none": {
+    "facing=south,activation_level=2,range_level=0": {
       "model": "realfilingreborn:block/filing_index_two_active",
       "y": 180
     },
-    "facing=east,activation_level=2,upgrade_level=none": {
+    "facing=east,activation_level=2,range_level=0": {
       "model": "realfilingreborn:block/filing_index_two_active",
       "y": 90
     },
-    "facing=west,activation_level=2,upgrade_level=none": {
+    "facing=west,activation_level=2,range_level=0": {
       "model": "realfilingreborn:block/filing_index_two_active",
       "y": 270
     },
 
-    "facing=north,activation_level=2,upgrade_level=tier_one": {
+    "facing=north,activation_level=2,range_level=1": {
       "model": "realfilingreborn:block/filing_index_two_active_tier_1"
     },
-    "facing=south,activation_level=2,upgrade_level=tier_one": {
+    "facing=south,activation_level=2,range_level=1": {
       "model": "realfilingreborn:block/filing_index_two_active_tier_1",
       "y": 180
     },
-    "facing=east,activation_level=2,upgrade_level=tier_one": {
+    "facing=east,activation_level=2,range_level=1": {
       "model": "realfilingreborn:block/filing_index_two_active_tier_1",
       "y": 90
     },
-    "facing=west,activation_level=2,upgrade_level=tier_one": {
+    "facing=west,activation_level=2,range_level=1": {
       "model": "realfilingreborn:block/filing_index_two_active_tier_1",
       "y": 270
     },
 
-    "facing=north,activation_level=2,upgrade_level=tier_two": {
+    "facing=north,activation_level=2,range_level=2": {
       "model": "realfilingreborn:block/filing_index_two_active_tier_2"
     },
-    "facing=south,activation_level=2,upgrade_level=tier_two": {
+    "facing=south,activation_level=2,range_level=2": {
       "model": "realfilingreborn:block/filing_index_two_active_tier_2",
       "y": 180
     },
-    "facing=east,activation_level=2,upgrade_level=tier_two": {
+    "facing=east,activation_level=2,range_level=2": {
       "model": "realfilingreborn:block/filing_index_two_active_tier_2",
       "y": 90
     },
-    "facing=west,activation_level=2,upgrade_level=tier_two": {
+    "facing=west,activation_level=2,range_level=2": {
       "model": "realfilingreborn:block/filing_index_two_active_tier_2",
       "y": 270
     },
 
-    "facing=north,activation_level=2,upgrade_level=tier_three": {
+    "facing=north,activation_level=2,range_level=3": {
       "model": "realfilingreborn:block/filing_index_two_active_tier_3"
     },
-    "facing=south,activation_level=2,upgrade_level=tier_three": {
+    "facing=south,activation_level=2,range_level=3": {
       "model": "realfilingreborn:block/filing_index_two_active_tier_3",
       "y": 180
     },
-    "facing=east,activation_level=2,upgrade_level=tier_three": {
+    "facing=east,activation_level=2,range_level=3": {
       "model": "realfilingreborn:block/filing_index_two_active_tier_3",
       "y": 90
     },
-    "facing=west,activation_level=21,upgrade_level=tier_three": {
+    "facing=west,activation_level=2,range_level=3": {
       "model": "realfilingreborn:block/filing_index_two_active_tier_3",
       "y": 270
     }

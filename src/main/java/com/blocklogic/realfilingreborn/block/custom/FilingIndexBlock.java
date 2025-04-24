@@ -37,6 +37,7 @@ import org.jetbrains.annotations.Nullable;
 public class FilingIndexBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final IntegerProperty ACTIVATION_LEVEL = IntegerProperty.create("activation_level", 0, 2);
+    public static final IntegerProperty RANGE_LEVEL = IntegerProperty.create("range_level", 0, 3);
     public static final MapCodec<FilingIndexBlock> CODEC = simpleCodec(FilingIndexBlock::new);
     public static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 16, 16);
 
@@ -67,7 +68,7 @@ public class FilingIndexBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, ACTIVATION_LEVEL);
+        builder.add(FACING, ACTIVATION_LEVEL, RANGE_LEVEL);
     }
 
     @Nullable
@@ -102,7 +103,6 @@ public class FilingIndexBlock extends BaseEntityBlock {
 
         if (level.getBlockEntity(pos) instanceof FilingIndexBlockEntity filingIndexBlockEntity) {
 
-            // Insert Range Upgrade items
             if (stack.getItem() instanceof RangeUpgradeTierOne ||
                     stack.getItem() instanceof RangeUpgradeTierTwo ||
                     stack.getItem() instanceof RangeUpgradeTierThree) {
