@@ -12,8 +12,10 @@
   "creativetab.realfilingreborn.real_filing_reborn": "Real Filing Reborn",
 
   "menu.realfilingreborn.menu_title": "Filing Cabinet",
+  "menu.realfilingreborn.index_title": "Filing Index",
 
   "blockentity.realfilingreborn.name": "Filing Cabinet",
+  "blockentity.realfilingreborn.inde_name": "Filing Index",
 
   "message.realfilingreborn.upgrade_occupied": "Filing Cabinet already has an Upgrade",
 

@@ -2,25 +2,35 @@ package com.blocklogic.realfilingreborn.block.entity;
 
 import com.blocklogic.realfilingreborn.block.custom.FilingIndexBlock;
 import com.blocklogic.realfilingreborn.component.ModDataComponents;
-import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
+import com.blocklogic.realfilingreborn.item.custom.*;
+import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetMenu;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.Containers;
+import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
+import net.neoforged.neoforge.items.ItemStackHandler;
+import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class FilingIndexBlockEntity extends BlockEntity {
+public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider {
 
     private static final Logger LOGGER = LogUtils.getLogger();
     private final List<IItemHandler> cachedHandlers = new ArrayList<>();
@@ -140,6 +150,15 @@ public class FilingIndexBlockEntity extends BlockEntity {
         return getCabinetItemHandlers().size();
     }
 
+    public void drops() {
+        SimpleContainer inv = new SimpleContainer(inventory.getSlots());
+        for(int i = 0; i < inventory.getSlots(); i++) {
+            inv.setItem(i, inventory.getStackInSlot(i));
+        }
+
+        Containers.dropContents(this.level, this.worldPosition, inv);
+    }
+
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
@@ -150,6 +169,31 @@ public class FilingIndexBlockEntity extends BlockEntity {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         previousCabinetCount = tag.getInt("PreviousCabinetCount");
+    }
+
+    public final ItemStackHandler inventory = new ItemStackHandler(1) {
+        @Override
+        protected int getStackLimit(int slot, ItemStack stack) {
+            return 1;
+        }
+
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            return stack.getItem() instanceof RangeUpgradeTierOne ||
+                    stack.getItem() instanceof RangeUpgradeTierTwo ||
+                    stack.getItem() instanceof RangeUpgradeTierThree;
+        }
+    };
+
+    @Override
+    public Component getDisplayName() {
+        return Component.translatable("blockentity.realfilingreborn.inde_name");
+    }
+
+    @Nullable
+    @Override
+    public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
+        return new FilingCabinetMenu(i, inventory, this);
     }
 
     @Override

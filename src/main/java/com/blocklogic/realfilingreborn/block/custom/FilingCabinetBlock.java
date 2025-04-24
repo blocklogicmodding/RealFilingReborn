@@ -160,7 +160,6 @@ public class FilingCabinetBlock extends BaseEntityBlock {
             } else if (heldItem.getItem() instanceof RangeUpgradeTierOne ||
                     heldItem.getItem() instanceof RangeUpgradeTierTwo ||
                     heldItem.getItem() instanceof RangeUpgradeTierThree) {
-                // Handle range upgrade insertion
                 if (filingCabinetBlockEntity.inventory.getStackInSlot(13).isEmpty()) {
                     ItemStack upgradeStack = heldItem.copy();
                     upgradeStack.setCount(1);
@@ -174,7 +173,6 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                 }
                 return ItemInteractionResult.SUCCESS;
             } else if (heldItem.isEmpty()) {
-                // Only extract folders, not upgrades or index cards
                 for (int i = 11; i >= 0; i--) {
                     ItemStack slotStack = filingCabinetBlockEntity.inventory.getStackInSlot(i);
                     if (!slotStack.isEmpty()) {

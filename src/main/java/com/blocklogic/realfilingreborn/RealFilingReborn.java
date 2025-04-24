@@ -12,6 +12,7 @@ import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
 import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetScreen;
+import com.blocklogic.realfilingreborn.screen.custom.FilingIndexScreen;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -108,6 +109,7 @@ public class RealFilingReborn
         @SubscribeEvent
         public static void registerScreens(RegisterMenuScreensEvent event) {
             event.register(ModMenuTypes.FILING_CABINET_MENU.get(), FilingCabinetScreen::new);
+            event.register(ModMenuTypes.FILING_INDEX_MENU.get(), FilingIndexScreen::new);
         }
 
         @SubscribeEvent
