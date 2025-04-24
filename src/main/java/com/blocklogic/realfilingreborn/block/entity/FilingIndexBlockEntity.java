@@ -39,14 +39,25 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     private static final long CACHE_INTERVAL = 100;
     private int previousCabinetCount = 0;
     private boolean cacheDirty = true;
-    private static List<BlockPos> SPHERE_POSITIONS_CACHE = null;
-    private static final int SPHERE_RADIUS = 16;
+    private static List<BlockPos>[] SPHERE_POSITIONS_CACHE = new List[4];
+    private static final int[] RANGE_TIERS = {8, 16, 24, 32};
 
-    private static List<BlockPos> getSpherePositionsCache() {
-        if (SPHERE_POSITIONS_CACHE == null) {
-            SPHERE_POSITIONS_CACHE = List.copyOf(getSpherePositions(BlockPos.ZERO, SPHERE_RADIUS));
+    private List<BlockPos> getSpherePositionsCache() {
+        int rangeLevel = 0;
+        ItemStack stack = inventory.getStackInSlot(0);
+
+        if (stack.getItem() instanceof RangeUpgradeTierThree) {
+            rangeLevel = 3;
+        } else if (stack.getItem() instanceof RangeUpgradeTierTwo) {
+            rangeLevel = 2;
+        } else if (stack.getItem() instanceof RangeUpgradeTierOne) {
+            rangeLevel = 1;
         }
-        return SPHERE_POSITIONS_CACHE;
+
+        if (SPHERE_POSITIONS_CACHE[rangeLevel] == null) {
+            SPHERE_POSITIONS_CACHE[rangeLevel] = List.copyOf(getSpherePositions(BlockPos.ZERO, RANGE_TIERS[rangeLevel]));
+        }
+        return SPHERE_POSITIONS_CACHE[rangeLevel];
     }
 
     public FilingIndexBlockEntity(BlockPos pos, BlockState blockState) {
@@ -61,7 +72,8 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     public List<IItemHandler> getCabinetItemHandlers() {
         if (level == null || level.isClientSide()) return List.copyOf(cachedHandlers);
 
-        if(!level.isAreaLoaded(getBlockPos(), SPHERE_RADIUS)) {
+        int currentRange = getRangeFromUpgrade();
+        if(!level.isAreaLoaded(getBlockPos(), currentRange)) {
             return List.copyOf(cachedHandlers);
         }
 
@@ -150,15 +162,15 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     public int getRangeFromUpgrade() {
         ItemStack upgradeStack = inventory.getStackInSlot(0);
         if (upgradeStack.isEmpty()) {
-            return 16; // Default range
+            return 8;
         } else if (upgradeStack.getItem() instanceof RangeUpgradeTierOne) {
-            return 16; // Tier 1 range
+            return 16;
         } else if (upgradeStack.getItem() instanceof RangeUpgradeTierTwo) {
-            return 24; // Tier 2 range
+            return 24;
         } else if (upgradeStack.getItem() instanceof RangeUpgradeTierThree) {
-            return 32; // Tier 3 range
+            return 32;
         }
-        return 16; // Default fallback
+        return 8;
     }
 
     public void updateRangeLevelVisual() {
