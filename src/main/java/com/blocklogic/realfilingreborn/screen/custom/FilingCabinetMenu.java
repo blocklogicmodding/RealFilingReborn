@@ -37,7 +37,6 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        // Add two rows of 6 folder slots
         for (int row = 0; row < 2; row++) {
             for (int col = 0; col < 6; col++) {
                 int x = 8 + col * 18;
@@ -52,7 +51,6 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
             }
         }
 
-        // Add index card slot at x152, y22
         this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 12, 152, 22) {
             @Override
             public boolean mayPlace(ItemStack stack) {
@@ -70,7 +68,6 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
-    // Updated to 14 slots
     private static final int TE_INVENTORY_SLOT_COUNT = 13;
 
     @Override
