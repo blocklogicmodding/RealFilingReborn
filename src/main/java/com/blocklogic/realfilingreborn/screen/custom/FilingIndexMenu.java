@@ -27,18 +27,19 @@ public class FilingIndexMenu extends AbstractContainerMenu {
     }
 
     public FilingIndexMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
-        super(ModMenuTypes.FILING_CABINET_MENU.get(), containerId);
+        super(ModMenuTypes.FILING_INDEX_MENU.get(), containerId);
         this.blockEntity = ((FilingIndexBlockEntity) blockEntity);
         this.level = inv.player.level();
 
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 0, 83, 39) {
+        this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 0, 82, 39) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.getItem() instanceof IndexCardItem &&
-                        stack.get(ModDataComponents.COORDINATES) != null;
+                return stack.getItem() instanceof RangeUpgradeTierOne ||
+                        stack.getItem() instanceof RangeUpgradeTierTwo ||
+                        stack.getItem() instanceof RangeUpgradeTierThree;
             }
         });
     }
@@ -51,7 +52,7 @@ public class FilingIndexMenu extends AbstractContainerMenu {
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
-    private static final int TE_INVENTORY_SLOT_COUNT = 2;
+    private static final int TE_INVENTORY_SLOT_COUNT = 1;
 
     @Override
     public ItemStack quickMoveStack(Player playerIn, int pIndex) {
@@ -61,21 +62,9 @@ public class FilingIndexMenu extends AbstractContainerMenu {
         ItemStack copyOfSourceStack = sourceStack.copy();
 
         if (pIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
-            if (sourceStack.getItem() instanceof FilingFolderItem || sourceStack.getItem() instanceof NBTFilingFolderItem) {
-                if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX,
-                        TE_INVENTORY_FIRST_SLOT_INDEX + 12, false)) {
-                    return ItemStack.EMPTY;
-                }
-            } else if (sourceStack.getItem() instanceof IndexCardItem) {
-                if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX + 12,
-                        TE_INVENTORY_FIRST_SLOT_INDEX + 13, false)) {
-                    return ItemStack.EMPTY;
-                }
-            } else if (sourceStack.getItem() instanceof RangeUpgradeTierOne ||
-                    sourceStack.getItem() instanceof RangeUpgradeTierTwo ||
-                    sourceStack.getItem() instanceof RangeUpgradeTierThree) {
-                if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX + 13,
-                        TE_INVENTORY_FIRST_SLOT_INDEX + 14, false)) {
+            if (sourceStack.getItem() instanceof RangeUpgradeTierOne || sourceStack.getItem() instanceof RangeUpgradeTierTwo || sourceStack.getItem() instanceof RangeUpgradeTierThree) {
+                if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX, TE_INVENTORY_FIRST_SLOT_INDEX
+                        + TE_INVENTORY_SLOT_COUNT, false)) {
                     return ItemStack.EMPTY;
                 }
             } else {

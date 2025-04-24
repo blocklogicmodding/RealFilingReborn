@@ -4,6 +4,7 @@ import com.blocklogic.realfilingreborn.block.custom.FilingIndexBlock;
 import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.*;
 import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetMenu;
+import com.blocklogic.realfilingreborn.screen.custom.FilingIndexMenu;
 import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -193,7 +194,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     @Nullable
     @Override
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
-        return new FilingCabinetMenu(i, inventory, this);
+        return new FilingIndexMenu(i, inventory, this);
     }
 
     @Override
