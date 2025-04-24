@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Inventory;
 
 public class FilingCabinetScreen extends AbstractContainerScreen<FilingCabinetMenu> {
     private static final ResourceLocation GUI_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(RealFilingReborn.MODID, "textures/gui/filing_cabinet_gui3.png");
+            ResourceLocation.fromNamespaceAndPath(RealFilingReborn.MODID, "textures/gui/filing_cabinet_gui.png");
 
     public FilingCabinetScreen(FilingCabinetMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);

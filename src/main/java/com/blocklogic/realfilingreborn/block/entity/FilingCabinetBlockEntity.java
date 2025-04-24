@@ -37,7 +37,7 @@ import java.util.*;
 public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvider {
     private BlockPos previousIndexPos = null;
 
-    public final ItemStackHandler inventory = new ItemStackHandler(14) {
+    public final ItemStackHandler inventory = new ItemStackHandler(13) {
         @Override
         protected int getStackLimit(int slot, ItemStack stack) {
             return 1;
@@ -65,7 +65,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
             }
         }
 
-
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
             if (slot < 12) {
@@ -73,11 +72,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
             } else if (slot == 12) {
                 return stack.getItem() instanceof IndexCardItem &&
                         stack.get(ModDataComponents.COORDINATES) != null;
-            } else if (slot == 13) {
-                // Slot 13 is for range upgrades
-                return stack.getItem() instanceof RangeUpgradeTierOne ||
-                        stack.getItem() instanceof RangeUpgradeTierTwo ||
-                        stack.getItem() instanceof RangeUpgradeTierThree;
             }
             return false;
         }
@@ -88,27 +82,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
     public FilingCabinetBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FILING_CABINET_BE.get(), pos, blockState);
-    }
-
-    public ItemStack getRangeUpgrade() {
-        return inventory.getStackInSlot(13);
-    }
-
-    public int getRangeModifier() {
-        ItemStack upgradeStack = getRangeUpgrade();
-        if (upgradeStack.isEmpty()) {
-            return 0;
-        }
-
-        if (upgradeStack.getItem() instanceof RangeUpgradeTierOne) {
-            return 16;
-        } else if (upgradeStack.getItem() instanceof RangeUpgradeTierTwo) {
-            return 24;
-        } else if (upgradeStack.getItem() instanceof RangeUpgradeTierThree) {
-            return 32;
-        }
-
-        return 0;
     }
 
     @Nullable

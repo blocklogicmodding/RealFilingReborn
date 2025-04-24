@@ -60,16 +60,6 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
                         stack.get(ModDataComponents.COORDINATES) != null;
             }
         });
-
-        // Add upgrade slot at x152, y40
-        this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 13, 152, 40) {
-            @Override
-            public boolean mayPlace(ItemStack stack) {
-                return stack.getItem() instanceof RangeUpgradeTierOne ||
-                        stack.getItem() instanceof RangeUpgradeTierTwo ||
-                        stack.getItem() instanceof RangeUpgradeTierThree;
-            }
-        });
     }
 
     private static final int HOTBAR_SLOT_COUNT = 9;
@@ -81,7 +71,7 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
     // Updated to 14 slots
-    private static final int TE_INVENTORY_SLOT_COUNT = 14;
+    private static final int TE_INVENTORY_SLOT_COUNT = 13;
 
     @Override
     public ItemStack quickMoveStack(Player playerIn, int pIndex) {
