@@ -64,5 +64,9 @@
   "tooltip.realfilingreborn.jade.index_help": "Link cabinets with Index Cards",
 
   "config.jade.plugin_realfilingreborn.filing_cabinet_info": "Filing Cabinet Information",
-  "config.jade.plugin_realfilingreborn.filing_index_info": "Filing Index Information"
+  "config.jade.plugin_realfilingreborn.filing_index_info": "Filing Index Information",
+
+  "tooltip.realfilingreborn.range_visualization_button": "Toggle Range Visualization",
+  "tooltip.realfilingreborn.range_visualization_on": "Range Visualization: ON",
+  "tooltip.realfilingreborn.range_visualization_off": "Range Visualization: OFF"
 }

@@ -5,6 +5,8 @@ import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
 import com.blocklogic.realfilingreborn.block.entity.ModBlockEntities;
 import com.blocklogic.realfilingreborn.block.entity.renderer.FilingCabinetBlockEntityRenderer;
 import com.blocklogic.realfilingreborn.capability.CombinedItemHandler;
+import com.blocklogic.realfilingreborn.client.RangeVisualizationManager;
+import com.blocklogic.realfilingreborn.client.RangeVisualizationRenderer;
 import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.ModCreativeModTab;
 import com.blocklogic.realfilingreborn.item.ModItems;
@@ -57,6 +59,7 @@ public class RealFilingReborn
         FilingFolderItem.DATA_COMPONENTS.register(modEventBus);
         NBTFilingFolderItem.DATA_COMPONENTS.register(modEventBus);
         modEventBus.addListener(this::registerCapabilities);
+        NeoForge.EVENT_BUS.register(RangeVisualizationRenderer.class);
 
         modEventBus.addListener(this::addCreative);
 
@@ -98,7 +101,8 @@ public class RealFilingReborn
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-
+            NeoForge.EVENT_BUS.register(RangeVisualizationRenderer.class);
+            NeoForge.EVENT_BUS.register(RangeVisualizationManager.class);
         }
 
         @SubscribeEvent
