@@ -18,12 +18,14 @@ public class ModCreativeModTab {
             () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModBlocks.FILING_CABINET.get()))
                     .title(Component.translatable("creativetab.realfilingreborn.real_filing_reborn"))
                     .displayItems((ItemDisplayParameters, output) -> {
+                        output.accept(ModBlocks.FILING_CABINET);
+                        output.accept(ModBlocks.FILING_INDEX);
+
                         output.accept(ModItems.FILING_FOLDER);
                         output.accept(ModItems.NBT_FILING_FOLDER);
                         output.accept(ModItems.INDEX_CARD);
                         output.accept(ModItems.FILING_INDEX_RANGE_UPGRADE);
-                        output.accept(ModBlocks.FILING_CABINET);
-                        output.accept(ModBlocks.FILING_INDEX);
+                        output.accept(ModItems.ERASER);
                     }).build());
 
     public static void register (IEventBus eventBus) {

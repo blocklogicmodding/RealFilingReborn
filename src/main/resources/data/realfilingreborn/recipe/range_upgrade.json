@@ -5,20 +5,23 @@
     "F": {
       "item": "realfilingreborn:filing_index"
     },
-    "E": {
-      "item": "minecraft:ender_pearl"
+    "D": {
+      "item": "minecraft:diamond_block"
     },
-    "I": {
-      "item": "minecraft:iron_block"
+    "R": {
+      "item": "minecraft:repeater"
+    },
+    "E": {
+      "item": "minecraft:ender_eye"
     }
   },
   "pattern": [
-    "IEI",
+    "DRD",
     "EFE",
-    "IEI"
+    "DRD"
   ],
   "result": {
-    "id": "realfilingreborn:range_upgrade_tier_1",
+    "id": "realfilingreborn:range_upgrade",
     "count": 1
   }
 }

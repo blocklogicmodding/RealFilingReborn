@@ -22,6 +22,9 @@ public class ModItems {
     public static final DeferredItem<Item> FILING_INDEX_RANGE_UPGRADE = ITEMS.register("range_upgrade",
             () -> new FilingIndexRangeUpgradeItem(new Item.Properties()));
 
+    public static final DeferredItem<Item> ERASER = ITEMS.register("eraser",
+            () -> new EraserItem(new Item.Properties()));
+
     public static void register (IEventBus eventBus) {
         ITEMS.register(eventBus);
     }
