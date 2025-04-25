@@ -5,9 +5,6 @@ import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
-import com.blocklogic.realfilingreborn.item.custom.RangeUpgradeTierOne;
-import com.blocklogic.realfilingreborn.item.custom.RangeUpgradeTierTwo;
-import com.blocklogic.realfilingreborn.item.custom.RangeUpgradeTierThree;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
@@ -154,21 +151,6 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                 } else {
                     if (!level.isClientSide()) {
                         player.displayClientMessage(Component.translatable("message.realfilingreborn.index_occupied"), true);
-                    }
-                }
-                return ItemInteractionResult.SUCCESS;
-            } else if (heldItem.getItem() instanceof RangeUpgradeTierOne ||
-                    heldItem.getItem() instanceof RangeUpgradeTierTwo ||
-                    heldItem.getItem() instanceof RangeUpgradeTierThree) {
-                if (filingCabinetBlockEntity.inventory.getStackInSlot(13).isEmpty()) {
-                    ItemStack upgradeStack = heldItem.copy();
-                    upgradeStack.setCount(1);
-                    filingCabinetBlockEntity.inventory.setStackInSlot(13, upgradeStack);
-                    heldItem.shrink(1);
-                    level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
-                } else {
-                    if (!level.isClientSide()) {
-                        player.displayClientMessage(Component.translatable("message.realfilingreborn.upgrade_occupied"), true);
                     }
                 }
                 return ItemInteractionResult.SUCCESS;

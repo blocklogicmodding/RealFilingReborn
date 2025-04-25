@@ -2,9 +2,7 @@
   "item.realfilingreborn.filing_folder": "Folder",
   "item.realfilingreborn.nbt_filing_folder": "NBT Folder",
   "item.realfilingreborn.index_card": "Index Card",
-  "item.realfilingreborn.range_upgrade_tier_1": "Filing Index Iron Upgrade (16 Blocks)",
-  "item.realfilingreborn.range_upgrade_tier_2": "Filing Index Diamond Upgrade (24 Blocks)",
-  "item.realfilingreborn.range_upgrade_tier_3": "Filing Index Netherite Upgrade (32 Blocks)",
+  "item.realfilingreborn.filing_index_range_upgrade": "Filing Index Range Upgrade (32 Blocks)",
 
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
   "block.realfilingreborn.filing_index": "Filing Index",

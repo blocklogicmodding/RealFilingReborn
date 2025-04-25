@@ -1,6 +1,6 @@
 {
   "parent": "realfilingreborn:block/filing_index",
   "textures": {
-    "0": "realfilingreborn:block/filing_index_two_active_tier_2"
+    "0": "realfilingreborn:block/filing_index_inactive_range_upgrade"
   }
 }

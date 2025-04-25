@@ -100,9 +100,7 @@ public class FilingIndexBlock extends BaseEntityBlock {
 
         if (level.getBlockEntity(pos) instanceof FilingIndexBlockEntity filingIndexBlockEntity) {
 
-            if (stack.getItem() instanceof RangeUpgradeTierOne ||
-                    stack.getItem() instanceof RangeUpgradeTierTwo ||
-                    stack.getItem() instanceof RangeUpgradeTierThree) {
+            if (stack.getItem() instanceof FilingIndexRangeUpgradeItem) {
 
                 if (filingIndexBlockEntity.inventory.getStackInSlot(0).isEmpty()) {
                     ItemStack upgradeStack = stack.copy();

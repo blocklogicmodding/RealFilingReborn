@@ -6,9 +6,7 @@ import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
-import com.blocklogic.realfilingreborn.item.custom.RangeUpgradeTierOne;
-import com.blocklogic.realfilingreborn.item.custom.RangeUpgradeTierTwo;
-import com.blocklogic.realfilingreborn.item.custom.RangeUpgradeTierThree;
+import com.blocklogic.realfilingreborn.item.custom.FilingIndexRangeUpgradeItem;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -88,9 +86,7 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
                         TE_INVENTORY_FIRST_SLOT_INDEX + 13, false)) {
                     return ItemStack.EMPTY;
                 }
-            } else if (sourceStack.getItem() instanceof RangeUpgradeTierOne ||
-                    sourceStack.getItem() instanceof RangeUpgradeTierTwo ||
-                    sourceStack.getItem() instanceof RangeUpgradeTierThree) {
+            } else if (sourceStack.getItem() instanceof FilingIndexRangeUpgradeItem) {
                 if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX + 13,
                         TE_INVENTORY_FIRST_SLOT_INDEX + 14, false)) {
                     return ItemStack.EMPTY;

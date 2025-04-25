@@ -17,50 +17,18 @@
     },
 
     "facing=north,activation_level=0,range_level=1": {
-      "model": "realfilingreborn:block/filing_index_tier_1"
+      "model": "realfilingreborn:block/filing_index_range_upgrade"
     },
     "facing=south,activation_level=0,range_level=1": {
-      "model": "realfilingreborn:block/filing_index_tier_1",
+      "model": "realfilingreborn:block/filing_index_range_upgrade",
       "y": 180
     },
     "facing=east,activation_level=0,range_level=1": {
-      "model": "realfilingreborn:block/filing_index_tier_1",
+      "model": "realfilingreborn:block/filing_index_range_upgrade",
       "y": 90
     },
     "facing=west,activation_level=0,range_level=1": {
-      "model": "realfilingreborn:block/filing_index_tier_1",
-      "y": 270
-    },
-
-    "facing=north,activation_level=0,range_level=2": {
-      "model": "realfilingreborn:block/filing_index_tier_2"
-    },
-    "facing=south,activation_level=0,range_level=2": {
-      "model": "realfilingreborn:block/filing_index_tier_2",
-      "y": 180
-    },
-    "facing=east,activation_level=0,range_level=2": {
-      "model": "realfilingreborn:block/filing_index_tier_2",
-      "y": 90
-    },
-    "facing=west,activation_level=0,range_level=2": {
-      "model": "realfilingreborn:block/filing_index_tier_2",
-      "y": 270
-    },
-
-    "facing=north,activation_level=0,range_level=3": {
-      "model": "realfilingreborn:block/filing_index_tier_3"
-    },
-    "facing=south,activation_level=0,range_level=3": {
-      "model": "realfilingreborn:block/filing_index_tier_3",
-      "y": 180
-    },
-    "facing=east,activation_level=0,range_level=3": {
-      "model": "realfilingreborn:block/filing_index_tier_3",
-      "y": 90
-    },
-    "facing=west,activation_level=0,range_level=3": {
-      "model": "realfilingreborn:block/filing_index_tier_3",
+      "model": "realfilingreborn:block/filing_index_range_upgrade",
       "y": 270
     },
 
@@ -81,50 +49,18 @@
     },
 
     "facing=north,activation_level=1,range_level=1": {
-      "model": "realfilingreborn:block/filing_index_one_active_tier_1"
+      "model": "realfilingreborn:block/filing_index_one_active_range_upgrade"
     },
     "facing=south,activation_level=1,range_level=1": {
-      "model": "realfilingreborn:block/filing_index_one_active_tier_1",
+      "model": "realfilingreborn:block/filing_index_one_active_range_upgrade",
       "y": 180
     },
     "facing=east,activation_level=1,range_level=1": {
-      "model": "realfilingreborn:block/filing_index_one_active_tier_1",
+      "model": "realfilingreborn:block/filing_index_one_active_range_upgrade",
       "y": 90
     },
     "facing=west,activation_level=1,range_level=1": {
-      "model": "realfilingreborn:block/filing_index_one_active_tier_1",
-      "y": 270
-    },
-
-    "facing=north,activation_level=1,range_level=2": {
-      "model": "realfilingreborn:block/filing_index_one_active_tier_2"
-    },
-    "facing=south,activation_level=1,range_level=2": {
-      "model": "realfilingreborn:block/filing_index_one_active_tier_2",
-      "y": 180
-    },
-    "facing=east,activation_level=1,range_level=2": {
-      "model": "realfilingreborn:block/filing_index_one_active_tier_2",
-      "y": 90
-    },
-    "facing=west,activation_level=1,range_level=2": {
-      "model": "realfilingreborn:block/filing_index_one_active_tier_2",
-      "y": 270
-    },
-
-    "facing=north,activation_level=1,range_level=3": {
-      "model": "realfilingreborn:block/filing_index_one_active_tier_3"
-    },
-    "facing=south,activation_level=1,range_level=3": {
-      "model": "realfilingreborn:block/filing_index_one_active_tier_3",
-      "y": 180
-    },
-    "facing=east,activation_level=1,range_level=3": {
-      "model": "realfilingreborn:block/filing_index_one_active_tier_3",
-      "y": 90
-    },
-    "facing=west,activation_level=1,range_level=3": {
-      "model": "realfilingreborn:block/filing_index_one_active_tier_3",
+      "model": "realfilingreborn:block/filing_index_one_active_range_upgrade",
       "y": 270
     },
 
@@ -145,50 +81,18 @@
     },
 
     "facing=north,activation_level=2,range_level=1": {
-      "model": "realfilingreborn:block/filing_index_two_active_tier_1"
+      "model": "realfilingreborn:block/filing_index_two_active_range_upgrade"
     },
     "facing=south,activation_level=2,range_level=1": {
-      "model": "realfilingreborn:block/filing_index_two_active_tier_1",
+      "model": "realfilingreborn:block/filing_index_two_active_range_upgrade",
       "y": 180
     },
     "facing=east,activation_level=2,range_level=1": {
-      "model": "realfilingreborn:block/filing_index_two_active_tier_1",
+      "model": "realfilingreborn:block/filing_index_two_active_range_upgrade",
       "y": 90
     },
     "facing=west,activation_level=2,range_level=1": {
-      "model": "realfilingreborn:block/filing_index_two_active_tier_1",
-      "y": 270
-    },
-
-    "facing=north,activation_level=2,range_level=2": {
-      "model": "realfilingreborn:block/filing_index_two_active_tier_2"
-    },
-    "facing=south,activation_level=2,range_level=2": {
-      "model": "realfilingreborn:block/filing_index_two_active_tier_2",
-      "y": 180
-    },
-    "facing=east,activation_level=2,range_level=2": {
-      "model": "realfilingreborn:block/filing_index_two_active_tier_2",
-      "y": 90
-    },
-    "facing=west,activation_level=2,range_level=2": {
-      "model": "realfilingreborn:block/filing_index_two_active_tier_2",
-      "y": 270
-    },
-
-    "facing=north,activation_level=2,range_level=3": {
-      "model": "realfilingreborn:block/filing_index_two_active_tier_3"
-    },
-    "facing=south,activation_level=2,range_level=3": {
-      "model": "realfilingreborn:block/filing_index_two_active_tier_3",
-      "y": 180
-    },
-    "facing=east,activation_level=2,range_level=3": {
-      "model": "realfilingreborn:block/filing_index_two_active_tier_3",
-      "y": 90
-    },
-    "facing=west,activation_level=2,range_level=3": {
-      "model": "realfilingreborn:block/filing_index_two_active_tier_3",
+      "model": "realfilingreborn:block/filing_index_two_active_range_upgrade",
       "y": 270
     }
   }

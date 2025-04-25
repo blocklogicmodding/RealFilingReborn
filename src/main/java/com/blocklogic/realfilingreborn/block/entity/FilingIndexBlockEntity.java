@@ -35,22 +35,18 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     private static final Logger LOGGER = LogUtils.getLogger();
     private final List<IItemHandler> cachedHandlers = new ArrayList<>();
     private long lastCacheUpdate = -1;
-    private static final long CACHE_INTERVAL = 100;
+    private static final long CACHE_INTERVAL = 600;
     private int previousCabinetCount = 0;
     private boolean cacheDirty = true;
-    private static List<BlockPos>[] SPHERE_POSITIONS_CACHE = new List[4];
-    private static final int[] RANGE_TIERS = {8, 16, 24, 32};
+    private static List<BlockPos>[] SPHERE_POSITIONS_CACHE = new List[2];
+    private static final int[] RANGE_TIERS = {8, 16};
     private int cachedRange;
 
     private List<BlockPos> getSpherePositionsCache() {
         int rangeLevel = 0;
         ItemStack stack = inventory.getStackInSlot(0);
 
-        if (stack.getItem() instanceof RangeUpgradeTierThree) {
-            rangeLevel = 3;
-        } else if (stack.getItem() instanceof RangeUpgradeTierTwo) {
-            rangeLevel = 2;
-        } else if (stack.getItem() instanceof RangeUpgradeTierOne) {
+        if (stack.getItem() instanceof FilingIndexRangeUpgradeItem) {
             rangeLevel = 1;
         }
 
@@ -170,11 +166,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         int rangeLevel = 0;
         ItemStack stack = inventory.getStackInSlot(0);
 
-        if (stack.getItem() instanceof RangeUpgradeTierThree) {
-            rangeLevel = 3;
-        } else if (stack.getItem() instanceof RangeUpgradeTierTwo) {
-            rangeLevel = 2;
-        } else if (stack.getItem() instanceof RangeUpgradeTierOne) {
+        if (stack.getItem() instanceof FilingIndexRangeUpgradeItem) {
             rangeLevel = 1;
         }
 
@@ -223,9 +215,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return stack.getItem() instanceof RangeUpgradeTierOne ||
-                    stack.getItem() instanceof RangeUpgradeTierTwo ||
-                    stack.getItem() instanceof RangeUpgradeTierThree;
+            return stack.getItem() instanceof FilingIndexRangeUpgradeItem;
         }
 
         @Override
@@ -248,12 +238,8 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         ItemStack upgradeStack = inventory.getStackInSlot(0);
         if (upgradeStack.isEmpty()) {
             return 8;
-        } else if (upgradeStack.getItem() instanceof RangeUpgradeTierOne) {
+        } else if (upgradeStack.getItem() instanceof FilingIndexRangeUpgradeItem) {
             return 16;
-        } else if (upgradeStack.getItem() instanceof RangeUpgradeTierTwo) {
-            return 24;
-        } else if (upgradeStack.getItem() instanceof RangeUpgradeTierThree) {
-            return 32;
         }
         return 8;
     }
