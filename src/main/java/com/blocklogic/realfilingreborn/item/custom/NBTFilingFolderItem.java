@@ -270,6 +270,9 @@ public class NBTFilingFolderItem extends Item {
                     .withStyle(ChatFormatting.GRAY));
         }
 
+        tooltip.add(Component.translatable("tooltip.realfilingreborn.nbt_standard_folder_info")
+                .withStyle(ChatFormatting.RED, ChatFormatting.ITALIC));
+
         super.appendHoverText(stack, context, tooltip, flag);
     }
 }

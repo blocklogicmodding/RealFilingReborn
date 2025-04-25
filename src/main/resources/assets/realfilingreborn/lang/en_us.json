@@ -36,7 +36,8 @@
   "tooltip.realfilingreborn.unregistered_folder": "Folder is unassigned. Add items to assign it",
   "tooltip.realfilingreborn.index_card_linked": "Linked to Filing Index at %s",
   "tooltip.realfilingreborn.index_card_unlinked": "Right-click on a Filing Index to link",
-  "tooltip.realfilingreborn.standard_folder_info": "Can only store normal items or items with no unique properties (NBT)",
+  "tooltip.realfilingreborn.standard_folder_info": "Can only store normal items (no NBT)",
+  "tooltip.realfilingreborn.nbt_standard_folder_info": "Can only store items with unique properties (NBT)",
 
   "message.realfilingreborn.nbt_folder_requires_nbt": "Folder can only store items with unique properties",
   "tooltip.realfilingreborn.nbt_item_count": "Unique Items: %s",
