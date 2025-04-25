@@ -38,11 +38,11 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     private static final long CACHE_INTERVAL = 600;
     private int previousCabinetCount = 0;
     private boolean cacheDirty = true;
-    private static List<BlockPos>[] SPHERE_POSITIONS_CACHE = new List[2];
+    private static List<BlockPos>[] BOX_POSITIONS_CACHE = new List[2];
     private static final int[] RANGE_TIERS = {8, 16};
     private int cachedRange;
 
-    private List<BlockPos> getSpherePositionsCache() {
+    private List<BlockPos> getBoxPositionsCache() {
         int rangeLevel = 0;
         ItemStack stack = inventory.getStackInSlot(0);
 
@@ -50,10 +50,10 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             rangeLevel = 1;
         }
 
-        if (SPHERE_POSITIONS_CACHE[rangeLevel] == null) {
-            SPHERE_POSITIONS_CACHE[rangeLevel] = List.copyOf(getSpherePositions(BlockPos.ZERO, RANGE_TIERS[rangeLevel]));
+        if (BOX_POSITIONS_CACHE[rangeLevel] == null) {
+            BOX_POSITIONS_CACHE[rangeLevel] = List.copyOf(getBoxPositions(BlockPos.ZERO, RANGE_TIERS[rangeLevel]));
         }
-        return SPHERE_POSITIONS_CACHE[rangeLevel];
+        return BOX_POSITIONS_CACHE[rangeLevel];
     }
 
     public FilingIndexBlockEntity(BlockPos pos, BlockState blockState) {
@@ -83,7 +83,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         long startTime = System.nanoTime();
 
         cachedHandlers.clear();
-        List<BlockPos> searchArea = getSpherePositionsCache().stream() // CORRECT
+        List<BlockPos> searchArea = getBoxPositionsCache().stream() // CORRECT
                 .map(pos -> pos.offset(getBlockPos()))
                 .toList();
 
@@ -121,18 +121,18 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
                 stack.get(ModDataComponents.COORDINATES).equals(getBlockPos());
     }
 
-    private static List<BlockPos> getSpherePositions(BlockPos center, int radius) {
+    private static List<BlockPos> getBoxPositions(BlockPos center, int radius) {
         List<BlockPos> positions = new ArrayList<>();
-        int radiusSq = radius * radius;
+
+        // Generate all positions in a box with sides of length 2*radius+1
         for (int x = -radius; x <= radius; x++) {
             for (int y = -radius; y <= radius; y++) {
                 for (int z = -radius; z <= radius; z++) {
-                    if (x * x + y * y + z * z <= radiusSq) {
-                        positions.add(center.offset(x, y, z));
-                    }
+                    positions.add(center.offset(x, y, z));
                 }
             }
         }
+
         return positions;
     }
 
