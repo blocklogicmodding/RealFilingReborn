@@ -23,7 +23,7 @@ public class ModItems {
             () -> new FilingIndexRangeUpgradeItem(new Item.Properties()));
 
     public static final DeferredItem<Item> ERASER = ITEMS.register("eraser",
-            () -> new EraserItem(new Item.Properties()));
+            () -> new EraserItem(new Item.Properties().durability(64)));
 
     public static void register (IEventBus eventBus) {
         ITEMS.register(eventBus);

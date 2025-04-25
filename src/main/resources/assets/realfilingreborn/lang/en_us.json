@@ -16,6 +16,11 @@
   "blockentity.realfilingreborn.name": "Filing Cabinet",
   "blockentity.realfilingreborn.inde_name": "Filing Index",
 
+  "message.realfilingreborn.folder_erased": "Folder assignment erased",
+  "message.realfilingreborn.folder_not_empty": "Folder must be empty to erase assignment",
+  "message.realfilingreborn.folder_not_assigned": "Folder is not assigned to any item",
+  "tooltip.realfilingreborn.eraser_info": "Right-click while holding an empty folder to erase its assignment",
+
   "message.realfilingreborn.upgrade_occupied": "Filing Cabinet already has Upgrade",
 
   "message.realfilingreborn.index_occupied": "Filing Cabinet already has an Index Card",
