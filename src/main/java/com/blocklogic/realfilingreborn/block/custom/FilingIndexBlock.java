@@ -1,11 +1,8 @@
 package com.blocklogic.realfilingreborn.block.custom;
 
-import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
 import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
-import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.*;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;

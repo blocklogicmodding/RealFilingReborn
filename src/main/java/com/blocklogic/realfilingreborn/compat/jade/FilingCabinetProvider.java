@@ -20,7 +20,6 @@ import snownee.jade.api.config.IPluginConfig;
 
 import java.text.NumberFormat;
 import java.util.Locale;
-import java.util.Optional;
 
 public enum FilingCabinetProvider implements IBlockComponentProvider, IServerDataProvider<BlockAccessor> {
     INSTANCE;
@@ -65,7 +64,7 @@ public enum FilingCabinetProvider implements IBlockComponentProvider, IServerDat
         }
 
         if (data.getBoolean("index_linked")) {
-            tooltip.add(Component.literal(" ")); // Single spacer line
+            tooltip.add(Component.literal(" "));
             tooltip.add(Component.literal("Linked to Filing Index")
                     .withStyle(ChatFormatting.GREEN));
 

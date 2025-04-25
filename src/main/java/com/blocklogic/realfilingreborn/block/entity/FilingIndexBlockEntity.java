@@ -40,7 +40,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     private boolean cacheDirty = true;
     private static List<BlockPos>[] SPHERE_POSITIONS_CACHE = new List[4];
     private static final int[] RANGE_TIERS = {8, 16, 24, 32};
-    private int cachedRange; // ADDED: Cached range value for client-side access
+    private int cachedRange;
 
     private List<BlockPos> getSpherePositionsCache() {
         int rangeLevel = 0;
@@ -62,7 +62,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
 
     public FilingIndexBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FILING_INDEX_BE.get(), pos, blockState);
-        this.cachedRange = 8; // Initialize the cachedRange (default)
+        this.cachedRange = 8;
     }
 
     public void invalidateCache() {
@@ -160,7 +160,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         }
     }
 
-    // THIS METHOD IS NOW CORRECT AND USES CACHED VALUE
     public int getRangeFromUpgrade() {
         return cachedRange;
     }
@@ -205,7 +204,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         super.saveAdditional(tag, registries);
         tag.put("inventory", inventory.serializeNBT(registries));
         tag.putInt("PreviousCabinetCount", previousCabinetCount);
-        tag.putInt("CachedRange", cachedRange);  // ADDED: Save the cached range
+        tag.putInt("CachedRange", cachedRange);
     }
 
     @Override
@@ -213,7 +212,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("inventory"));
         previousCabinetCount = tag.getInt("PreviousCabinetCount");
-        cachedRange = tag.getInt("CachedRange");  // ADDED: Load the cached range
+        cachedRange = tag.getInt("CachedRange");
     }
 
     public final ItemStackHandler inventory = new ItemStackHandler(1) {
@@ -232,11 +231,11 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
-            if (level != null) { // Removed: !level.isClientSide()
+            if (level != null) {
                 updateRangeLevelVisual();
-                updateCachedRange(); // Update the cached range
+                updateCachedRange();
                 invalidateCache();
-                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL); // Force update
+                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
             }
         }
     };
@@ -273,7 +272,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
         CompoundTag tag = super.getUpdateTag(provider);
-        //tag.putInt("CachedRange", cachedRange);  // ADDED: Save range to update tag -NO! Already done by saveAdditional
         return tag;
     }
 
@@ -285,7 +283,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     @Override
     public void onLoad() {
         super.onLoad();
-        if (level != null) { // Removed: !level.isClientSide()
+        if (level != null) {
             invalidateCache();
             getCabinetItemHandlers();
             updateRangeLevelVisual();

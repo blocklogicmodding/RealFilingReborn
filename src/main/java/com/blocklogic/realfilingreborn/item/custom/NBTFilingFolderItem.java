@@ -162,8 +162,6 @@ public class NBTFilingFolderItem extends Item {
             return true;
         }
 
-        // Other checks for significant data components could be added here
-
         return false;
     }
 

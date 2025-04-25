@@ -1,14 +1,10 @@
 package com.blocklogic.realfilingreborn.screen.custom;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
-import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
 import com.blocklogic.realfilingreborn.client.RangeVisualizationManager;
-import com.blocklogic.realfilingreborn.client.RangeVisualizationRenderer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
-import net.minecraft.client.gui.components.ImageButton;
-import net.minecraft.client.gui.components.WidgetSprites;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.GameRenderer;
@@ -16,7 +12,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.level.Level;
 
 public class FilingIndexScreen extends AbstractContainerScreen<FilingIndexMenu> {
     private static final ResourceLocation GUI_TEXTURE =
@@ -68,7 +63,6 @@ public class FilingIndexScreen extends AbstractContainerScreen<FilingIndexMenu> 
         int x = (width - imageWidth) / 2;
         int y = (height - imageHeight) / 2;
 
-        // Check if there's an active visualization for this block when screen opens
         BlockPos pos = menu.blockEntity.getBlockPos();
         rangeVisualizationActive = RangeVisualizationManager.isVisualizationActive(pos);
 

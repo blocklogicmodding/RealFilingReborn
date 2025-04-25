@@ -1,9 +1,7 @@
 package com.blocklogic.realfilingreborn.screen.custom;
 
 import com.blocklogic.realfilingreborn.block.ModBlocks;
-import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
 import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
-import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.*;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;

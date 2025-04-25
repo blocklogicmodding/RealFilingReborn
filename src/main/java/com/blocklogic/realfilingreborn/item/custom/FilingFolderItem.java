@@ -62,10 +62,6 @@ public class FilingFolderItem extends Item {
         properties.component(FOLDER_CONTENTS.value(), new FolderContents(Optional.empty(), 0));
     }
 
-    /**
-     * Check if an item has any significant NBT data that would be lost if stored in a regular folder
-     * This method mirrors the one in NBTFilingFolderItem
-     */
     public static boolean hasSignificantNBT(ItemStack stack) {
         if (stack.isEmpty()) return false;
 
@@ -80,8 +76,6 @@ public class FilingFolderItem extends Item {
         if (lore != null && !lore.lines().isEmpty()) {
             return true;
         }
-
-        // Other checks for significant data components could be added here
 
         return false;
     }

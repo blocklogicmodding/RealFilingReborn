@@ -17,7 +17,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @OnlyIn(Dist.CLIENT)
@@ -31,7 +30,6 @@ public class RangeVisualizationRenderer {
     private static final float LINE_WIDTH = 2.0F;
 
     public static void init() {
-        // Register for rendering events
         NeoForge.EVENT_BUS.register(RangeVisualizationRenderer.class);
     }
 
@@ -41,10 +39,8 @@ public class RangeVisualizationRenderer {
 
     @SubscribeEvent
     public static void onRenderLevel(RenderLevelStageEvent event) {
-        // Stage check and early return
         if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_TRANSLUCENT_BLOCKS) return;
 
-        // Get active visualizations from manager
         Map<BlockPos, Integer> visualizations = RangeVisualizationManager.getActiveVisualizations();
         if (visualizations.isEmpty()) return;
 
@@ -55,27 +51,22 @@ public class RangeVisualizationRenderer {
         poseStack.pushPose();
         poseStack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 
-        // Get buffer source once per frame
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
 
         for (Map.Entry<BlockPos, Integer> entry : visualizations.entrySet()) {
             BlockPos pos = entry.getKey();
             int range = entry.getValue();
 
-            // Create bounding box with proper expansion
             AABB box = new AABB(pos)
-                    .inflate(range + 0.5)  // Proper cube expansion
-                    .move(0.5, 0.5, 0.5);  // Center on block
+                    .inflate(range + 0.5)
+                    .move(0.5, 0.5, 0.5);
 
-            // Get line buffer
             VertexConsumer builder = bufferSource.getBuffer(RenderType.lines());
 
-            // Render with proper line width
-            RenderSystem.lineWidth(3.0F);
+            RenderSystem.lineWidth(4.0F);
             LevelRenderer.renderLineBox(poseStack, builder, box, RED, GREEN, BLUE, ALPHA);
         }
 
-        // End batch after all rendering
         bufferSource.endBatch();
         poseStack.popPose();
     }
