@@ -42,4 +42,8 @@ public class RangeVisualizationManager {
                 event.getLevel().getChunk(pos).getPos().equals(event.getChunk().getPos())
         );
     }
+
+    public static boolean isVisualizationActive(BlockPos pos) {
+        return ACTIVE_VISUALIZATIONS.containsKey(pos);
+    }
 }
