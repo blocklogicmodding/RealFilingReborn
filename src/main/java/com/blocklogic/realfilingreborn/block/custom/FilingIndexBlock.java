@@ -112,7 +112,6 @@ public class FilingIndexBlock extends BaseEntityBlock {
                     }
                 });
 
-                // Handle normal drops afterward
                 filingIndexBlockEntity.drops();
                 level.updateNeighbourForOutputSignal(pos, this);
             }
