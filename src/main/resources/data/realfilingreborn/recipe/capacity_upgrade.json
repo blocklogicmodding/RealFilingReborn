@@ -13,15 +13,18 @@
     },
     "E": {
       "item": "minecraft:ender_eye"
+    },
+    "C": {
+      "item": "minecraft:comparator"
     }
   },
   "pattern": [
     "DRD",
     "EFE",
-    "DRD"
+    "DCD"
   ],
   "result": {
-    "id": "realfilingreborn:range_upgrade",
+    "id": "realfilingreborn:capacity_upgrade",
     "count": 1
   }
 }

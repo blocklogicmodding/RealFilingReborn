@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -19,6 +20,11 @@ public class FilingIndexMenu extends AbstractContainerMenu {
 
     public final FilingIndexBlockEntity blockEntity;
     private final Level level;
+    private int cabinetCount = 0;
+
+    public int getCabinetCount() {
+        return cabinetCount;
+    }
 
     public FilingIndexMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
         this(containerId, inv, inv.player.level().getBlockEntity(extraData.readBlockPos()));
@@ -29,6 +35,10 @@ public class FilingIndexMenu extends AbstractContainerMenu {
         this.blockEntity = ((FilingIndexBlockEntity) blockEntity);
         this.level = inv.player.level();
 
+        if (this.blockEntity != null) {
+            this.cabinetCount = this.blockEntity.getCabinetCount();
+        }
+
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
@@ -38,6 +48,29 @@ public class FilingIndexMenu extends AbstractContainerMenu {
                 return stack.getItem() instanceof CapacityUpgradeItem;
             }
         });
+        addDataSlot(new DataSlot() {
+            @Override
+            public int get() {
+                return cabinetCount;
+            }
+
+            @Override
+            public void set(int value) {
+                cabinetCount = value;
+            }
+        });
+    }
+
+    @Override
+    public void broadcastChanges() {
+        super.broadcastChanges();
+
+        if (!level.isClientSide() && blockEntity != null) {
+            int newCount = blockEntity.getCabinetCount();
+            if (cabinetCount != newCount) {
+                cabinetCount = newCount;
+            }
+        }
     }
 
     private static final int HOTBAR_SLOT_COUNT = 9;

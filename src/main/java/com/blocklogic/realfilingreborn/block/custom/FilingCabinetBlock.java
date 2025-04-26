@@ -101,7 +101,6 @@ public class FilingCabinetBlock extends BaseEntityBlock {
             ItemStack heldItem = player.getItemInHand(hand);
 
             if (heldItem.getItem() instanceof FilingFolderItem || heldItem.getItem() instanceof NBTFilingFolderItem) {
-                // Client early return to prevent visual desync
                 if (level.isClientSide()) {
                     return ItemInteractionResult.SUCCESS;
                 }
@@ -113,7 +112,6 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                         heldItem.shrink(1);
                         level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
 
-                        // Force synchronization
                         level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
                         filingCabinetBlockEntity.setChanged();
                         return ItemInteractionResult.SUCCESS;
@@ -124,13 +122,10 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                 return ItemInteractionResult.SUCCESS;
             }
             else if (heldItem.getItem() instanceof IndexCardItem) {
-                // Client early return to prevent visual desync
                 if (level.isClientSide()) {
                     return ItemInteractionResult.SUCCESS;
                 }
 
-                // Server-side validation
-                // 1. Check if card has coordinates FIRST
                 if (heldItem.get(ModDataComponents.COORDINATES) == null) {
                     player.displayClientMessage(
                             Component.translatable("message.realfilingreborn.index_card_not_linked")
@@ -139,10 +134,8 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                     return ItemInteractionResult.FAIL;
                 }
 
-                // 2. Get coordinates AFTER null check
                 BlockPos indexPos = heldItem.get(ModDataComponents.COORDINATES);
 
-                // 3. Verify index existence
                 if (!(level.getBlockEntity(indexPos) instanceof FilingIndexBlockEntity indexBE)) {
                     player.displayClientMessage(
                             Component.translatable("message.realfilingreborn.index_no_longer_exists")
@@ -151,9 +144,7 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                     return ItemInteractionResult.FAIL;
                 }
 
-                // 4. Check capacity BEFORE slot check
                 if (!indexBE.canAcceptMoreCabinets()) {
-                    // Check if it's at base capacity (64) or max capacity (128)
                     boolean hasUpgrade = !indexBE.inventory.getStackInSlot(0).isEmpty();
                     if (hasUpgrade) {
                         player.displayClientMessage(
@@ -169,7 +160,6 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                     return ItemInteractionResult.FAIL;
                 }
 
-                // 5. Check cabinet slot availability LAST
                 if (!filingCabinetBlockEntity.inventory.getStackInSlot(12).isEmpty()) {
                     player.displayClientMessage(
                             Component.translatable("message.realfilingreborn.index_occupied")
@@ -178,13 +168,11 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                     return ItemInteractionResult.SUCCESS;
                 }
 
-                // All checks passed - perform insertion
                 ItemStack cardStack = heldItem.copyWithCount(1);
                 filingCabinetBlockEntity.inventory.setStackInSlot(12, cardStack);
                 heldItem.shrink(1);
                 level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
 
-                // Force synchronization
                 level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
                 filingCabinetBlockEntity.setChanged();
                 indexBE.invalidateCache();

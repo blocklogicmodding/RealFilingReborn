@@ -1,61 +1,64 @@
 {
+  "creativetab.realfilingreborn.real_filing_reborn": "Real Filing Reborn",
+
   "item.realfilingreborn.filing_folder": "Folder",
   "item.realfilingreborn.nbt_filing_folder": "NBT Folder",
   "item.realfilingreborn.index_card": "Index Card",
   "item.realfilingreborn.eraser": "Eraser",
-  "item.realfilingreborn.capacity_upgrade": "Capacity Upgrade (+Range, +Cabinets)",
-  "tooltip.realfilingreborn.capacity_info": "Increases range to 16 blocks and cabinet limit to 128",
-
+  "item.realfilingreborn.capacity_upgrade": "Capacity Upgrade",
 
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
   "block.realfilingreborn.filing_index": "Filing Index",
 
-  "creativetab.realfilingreborn.real_filing_reborn": "Real Filing Reborn",
+  "blockentity.realfilingreborn.name": "Filing Cabinet",
+  "blockentity.realfilingreborn.inde_name": "Filing Index",
 
   "menu.realfilingreborn.menu_title": "Filing Cabinet",
   "menu.realfilingreborn.index_title": "Filing Index",
 
-  "blockentity.realfilingreborn.name": "Filing Cabinet",
-  "blockentity.realfilingreborn.inde_name": "Filing Index",
+  "tooltip.realfilingreborn.capacity_info": "Increases range to 16 blocks and cabinet limit to 128",
+
+  "gui.realfilingreborn.cabinets_connected": "Cabinets Connected: %d/%d",
+
+  "message.realfilingreborn.index_card_linked": "Index Card linked to Filing Index",
+  "message.realfilingreborn.index_card_not_linked": "Index Card must be linked to a Filing Index first",
+  "message.realfilingreborn.index_card_needs_index": "Index Card can only be linked to a Filing Index",
+  "tooltip.realfilingreborn.index_card_linked": "Linked to Filing Index at %s",
+  "tooltip.realfilingreborn.index_card_unlinked": "Right-click on a Filing Index to link",
+
+  "message.realfilingreborn.index_occupied": "Filing Cabinet already has an Index Card",
+  "message.realfilingreborn.index_at_max_capacity": "Filing Index is at max capacity (128)",
+  "message.realfilingreborn.index_at_base_capacity": "Filing Index is at Max capacity (64). To add more, use the Capacity upgrade",
+  "message.realfilingreborn.index_no_longer_exists": "The linked Filing Index no longer exists",
+  "message.realfilingreborn.upgrade_occupied": "Filing Cabinet already has Upgrade",
 
   "message.realfilingreborn.folder_erased": "Folder assignment erased",
   "message.realfilingreborn.folder_not_empty": "Folder must be empty to erase assignment",
   "message.realfilingreborn.folder_not_assigned": "Folder is not assigned to any item",
-  "tooltip.realfilingreborn.eraser_info": "Right-click while holding an empty folder to erase its assignment",
-
-  "message.realfilingreborn.upgrade_occupied": "Filing Cabinet already has Upgrade",
-
-  "message.realfilingreborn.index_at_max_capacity": "Filing Index is at max capacity (128)",
-  "message.realfilingreborn.index_at_base_capacity": "Filing Index is at Max capacity (64). To add more, use the Capacity upgrade",
-  "message.realfilingreborn.index_no_longer_exists": "The linked Filing Index no longer exists",
-
-
-  "message.realfilingreborn.index_occupied": "Filing Cabinet already has an Index Card",
   "message.realfilingreborn.folders_full": "Filing Cabinet is full (12 folders)",
   "message.realfilingreborn.no_folders": "Filing Cabinet can only accept folders",
   "message.realfilingreborn.folder_empty": "Folder is empty",
   "message.realfilingreborn.wrong_item_type": "Folder assigned to: %s",
   "message.realfilingreborn.folder_full": "Folder cannot store any more items",
-  "message.realfilingreborn.index_card_not_linked": "Index Card must be linked to a Filing Index first",
   "message.realfilingreborn.no_folder_ception": "Folders cannot store other Folders!",
-  "message.realfilingreborn.index_card_linked": "Index Card linked to Filing Index",
-  "message.realfilingreborn.index_card_needs_index": "Index Card can only be linked to a Filing Index",
   "message.realfilingreborn.standard_folder_no_nbt": "Folder cannot store items with unique properties. Use NBT Folder",
+  "message.realfilingreborn.nbt_folder_requires_nbt": "Folder can only store items with unique properties",
 
+  "tooltip.realfilingreborn.eraser_info": "Right-click while holding an empty folder to erase its assignment",
   "tooltip.realfilingreborn.stored_item": "Assigned to (Contents): %s",
   "tooltip.realfilingreborn.item_count": "Count: %s",
   "tooltip.realfilingreborn.empty_folder": "Folder is empty",
   "tooltip.realfilingreborn.unregistered_folder": "Folder is unassigned. Add items to assign it",
-  "tooltip.realfilingreborn.index_card_linked": "Linked to Filing Index at %s",
-  "tooltip.realfilingreborn.index_card_unlinked": "Right-click on a Filing Index to link",
   "tooltip.realfilingreborn.standard_folder_info": "Can only store normal items (no NBT)",
   "tooltip.realfilingreborn.nbt_standard_folder_info": "Can only store items with unique properties (NBT)",
-
-  "message.realfilingreborn.nbt_folder_requires_nbt": "Folder can only store items with unique properties",
   "tooltip.realfilingreborn.nbt_item_count": "Unique Items: %s",
   "tooltip.realfilingreborn.nbt_items_stored": "Contains:",
   "tooltip.realfilingreborn.and_x_more": "...and %s more",
   "tooltip.realfilingreborn.nbt_unregistered_folder": "NBT Folder is unassigned. Add items with unique properties to assign it",
+
+  "tooltip.realfilingreborn.range_visualization_button": "Toggle Range Visualization",
+  "tooltip.realfilingreborn.range_visualization_on": "Range Visualization: ON",
+  "tooltip.realfilingreborn.range_visualization_off": "Range Visualization: OFF",
 
   "tooltip.realfilingreborn.jade.cabinet_title": "Filing Cabinet Contents",
   "tooltip.realfilingreborn.jade.empty_cabinet": "Cabinet is empty. Right click to insert folders",
@@ -76,9 +79,5 @@
   "tooltip.realfilingreborn.jade.index_help": "Link cabinets with Index Cards",
 
   "config.jade.plugin_realfilingreborn.filing_cabinet_info": "Filing Cabinet Information",
-  "config.jade.plugin_realfilingreborn.filing_index_info": "Filing Index Information",
-
-  "tooltip.realfilingreborn.range_visualization_button": "Toggle Range Visualization",
-  "tooltip.realfilingreborn.range_visualization_on": "Range Visualization: ON",
-  "tooltip.realfilingreborn.range_visualization_off": "Range Visualization: OFF"
+  "config.jade.plugin_realfilingreborn.filing_index_info": "Filing Index Information"
 }

@@ -99,7 +99,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
 
         for (BlockPos cabinetPos : searchArea) {
             if (cabinetCount >= currentLimit) {
-                break; // Stop when we hit the limit
+                break;
             }
 
             if (level.isLoaded(cabinetPos)) {

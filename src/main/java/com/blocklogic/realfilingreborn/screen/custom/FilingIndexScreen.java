@@ -3,6 +3,7 @@ package com.blocklogic.realfilingreborn.screen.custom;
 import com.blocklogic.realfilingreborn.RealFilingReborn;
 import com.blocklogic.realfilingreborn.client.RangeVisualizationManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.AbstractButton;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -86,6 +87,42 @@ public class FilingIndexScreen extends AbstractContainerScreen<FilingIndexMenu> 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+
+        int currentCabinets = menu.getCabinetCount();
+        int maxCabinets = menu.blockEntity.inventory.getStackInSlot(0).isEmpty() ? 64 : 128;
+
+        Component cabinetText = Component.translatable("gui.realfilingreborn.cabinets_connected",
+                currentCabinets, maxCabinets);
+
+        int x = (width - imageWidth) / 2;
+        int y = (height - imageHeight) / 2;
+
+        float scale = 0.75f;
+
+        int textWidth = font.width(cabinetText);
+        int textX = Math.round((x + 89 - (textWidth * scale) / 2) / scale);
+        int textY = Math.round((y + 25) / scale);
+
+        int color;
+        if (currentCabinets == 0) {
+            color = 0x55FF55;
+        } else {
+            float ratio = (float)currentCabinets / maxCabinets;
+            int red = (int)(255 * ratio);
+            int green = (int)(255 * (1 - ratio * 0.7f));
+            color = (red << 16) | (green << 8);
+        }
+
+        PoseStack poseStack = guiGraphics.pose();
+
+        poseStack.pushPose();
+
+        poseStack.scale(scale, scale, scale);
+
+        guiGraphics.drawString(font, cabinetText, textX, textY, color, false);
+
+        poseStack.popPose();
+
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 

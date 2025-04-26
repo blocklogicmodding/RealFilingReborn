@@ -30,7 +30,6 @@ public class RangeVisualizationManager {
         return ACTIVE_VISUALIZATIONS;
     }
 
-    // Optional: Automatic cleanup handlers
     @SubscribeEvent
     public static void onBlockBreak(BlockEvent.BreakEvent event) {
         ACTIVE_VISUALIZATIONS.remove(event.getPos());

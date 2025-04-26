@@ -58,7 +58,7 @@ public class EraserItem extends Item {
                 player.displayClientMessage(Component.translatable("message.realfilingreborn.folder_not_empty")
                         .withStyle(ChatFormatting.RED), true);
             }
-            return InteractionResultHolder.consume(eraserStack); // Use consume to prevent further processing
+            return InteractionResultHolder.consume(eraserStack);
         }
 
         if (isUnassigned) {

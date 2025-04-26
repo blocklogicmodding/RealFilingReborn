@@ -28,7 +28,6 @@ public class IndexCardItem extends Item {
         Level level = context.getLevel();
         Player player = context.getPlayer();
 
-        // Skip if this is a filing cabinet - let the cabinet block handle it
         if (level.getBlockEntity(context.getClickedPos()) instanceof FilingCabinetBlockEntity) {
             return InteractionResult.PASS;
         }
@@ -43,11 +42,9 @@ public class IndexCardItem extends Item {
             return InteractionResult.FAIL;
         }
 
-        // Check if the filing index is at capacity
         if (level.getBlockEntity(context.getClickedPos()) instanceof FilingIndexBlockEntity indexBE) {
             if (!indexBE.canAcceptMoreCabinets()) {
                 if (!level.isClientSide() && player != null) {
-                    // Check if it's at base capacity (64) or max capacity (128)
                     boolean hasUpgrade = !indexBE.inventory.getStackInSlot(0).isEmpty();
                     if (hasUpgrade) {
                         player.displayClientMessage(
