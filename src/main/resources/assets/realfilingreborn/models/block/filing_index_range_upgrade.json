@@ -1,6 +1,12 @@
 {
-  "parent": "realfilingreborn:block/filing_index",
+  "parent": "minecraft:block/cube",
   "textures": {
-    "0": "realfilingreborn:block/filing_index_inactive_range_upgrade"
+    "north": "realfilingreborn:block/filing_index_inactive",
+    "south": "realfilingreborn:block/filing_index_back",
+    "east": "realfilingreborn:block/filing_index_sides",
+    "west": "realfilingreborn:block/filing_index_sides",
+    "up": "realfilingreborn:block/filing_index_top_capacity_upgrade",
+    "down": "realfilingreborn:block/filing_index_bottom",
+    "particle": "realfilingreborn:block/filing_index_inactive"
   }
 }
