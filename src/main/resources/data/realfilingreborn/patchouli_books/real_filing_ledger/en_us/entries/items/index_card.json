@@ -1,0 +1,27 @@
+{
+  "name": "Index Card",
+  "icon": "realfilingreborn:index_card",
+  "category": "realfilingreborn:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "realfilingreborn:index_card",
+      "text": "The Index Card is a crucial component for networking your filing system. It links Filing Cabinets to a Filing Index, allowing you to access multiple cabinets from a single point."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "realfilingreborn:index_card",
+      "title": "Crafting"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Linking Process",
+      "text": "To use an Index Card:$(br)$(br)1. Right-click on a Filing Index with a blank Index Card$(br)2. The card will now be linked to that Index (it will glow)$(br)3. Right-click on a Filing Cabinet with the linked card$(br)4. The Cabinet is now connected to the Index"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Technical Details",
+      "text": "$(li)Each Filing Index has a limited range (8 blocks by default)$(li)Cabinets must be within range of the Index to connect$(li)Each Index has a maximum number of cabinets it can connect to (64 by default)$(li)A cabinet can only be linked to one Index at a time$(li)Breaking the Index will unlink all connected cabinets and drop the unlinked cards where the Filing Index was broken"
+    }
+  ]
+}

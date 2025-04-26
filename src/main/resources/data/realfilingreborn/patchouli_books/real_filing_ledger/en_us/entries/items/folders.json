@@ -1,0 +1,36 @@
+{
+  "name": "Filing Folders",
+  "icon": "realfilingreborn:filing_folder",
+  "category": "realfilingreborn:items",
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "text": "Real Filing Reborn features two types of filing folders:$(br2)$(li)$(item)Standard Filing Folder$() - For storing regular items$(li)$(item)NBT Filing Folder$() - For storing items with special properties like enchantments, names, or durability"
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "realfilingreborn:filing_folder",
+      "title": "Standard Filing Folder"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Standard Filing Folder",
+      "text": "The $(item)Standard Filing Folder$() can store over 2 billion (2,147,483,647) of the same type of item.$(br2)It cannot store items with NBT data (such as enchanted items or items with custom names)."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "realfilingreborn:nbt_filing_folder",
+      "title": "NBT Filing Folder"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "NBT Filing Folder",
+      "text": "The $(item)NBT Filing Folder$() is designed specifically for items with unique properties.$(br2)It can only store items with NBT data and maintains each item's unique properties. Perfect for storing enchanted tools, weapons, or named items."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Using Folders",
+      "text": "To use a folder:$(br)1. Hold the folder in your main hand$(br)2. Place the item you want to store in your off-hand$(br)3. Right-click with the folder$(br)$(br)To extract items:$(br)1. Hold the folder with items stored$(br)2. Shift-right-click with the folder$(br)$(br)Folders can be placed inside Filing Cabinets for better organization."
+    }
+  ]
+}

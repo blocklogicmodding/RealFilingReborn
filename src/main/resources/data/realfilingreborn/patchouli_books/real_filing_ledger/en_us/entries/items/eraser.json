@@ -1,0 +1,27 @@
+{
+  "name": "Eraser",
+  "icon": "realfilingreborn:eraser",
+  "category": "realfilingreborn:items",
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "realfilingreborn:eraser",
+      "text": "The Eraser is a utility tool that allows you to reset a folder's assignment, letting you repurpose it for storing a different item type."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "realfilingreborn:eraser",
+      "title": "Crafting"
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Using the Eraser",
+      "text": "To use the Eraser:$(br)$(br)1. Make sure the folder is completely empty (remove all items)$(br)2. Hold the Eraser in your main hand$(br)3. Place the empty folder in your off-hand$(br)4. Right-click with the Eraser$(br)$(br)The folder will be reset and can now store a different type of item."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Important Notes",
+      "text": "$(li)The eraser has limited durability (64 uses)$(li)The folder must be completely empty before erasing$(li)Works with both standard and NBT folders"
+    }
+  ]
+}
