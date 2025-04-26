@@ -5,6 +5,7 @@ import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
 import com.blocklogic.realfilingreborn.block.entity.ModBlockEntities;
 import com.blocklogic.realfilingreborn.block.entity.renderer.FilingCabinetBlockEntityRenderer;
 import com.blocklogic.realfilingreborn.capability.CombinedItemHandler;
+import com.blocklogic.realfilingreborn.client.ModItemProperties;
 import com.blocklogic.realfilingreborn.client.RangeVisualizationManager;
 import com.blocklogic.realfilingreborn.client.render.RangeVisualizationRenderer;
 import com.blocklogic.realfilingreborn.component.ModDataComponents;
@@ -103,6 +104,7 @@ public class RealFilingReborn
         {
             NeoForge.EVENT_BUS.register(RangeVisualizationRenderer.class);
             NeoForge.EVENT_BUS.register(RangeVisualizationManager.class);
+            ModItemProperties.addCustomItemProperties();
         }
 
         @SubscribeEvent

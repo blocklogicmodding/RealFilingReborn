@@ -2,5 +2,13 @@
   "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "realfilingreborn:item/index_card"
-  }
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "realfilingreborn:linked": 1
+      },
+      "model": "realfilingreborn:item/index_card_linked"
+    }
+  ]
 }
