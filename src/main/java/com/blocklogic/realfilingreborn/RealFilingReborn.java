@@ -6,7 +6,7 @@ import com.blocklogic.realfilingreborn.block.entity.ModBlockEntities;
 import com.blocklogic.realfilingreborn.block.entity.renderer.FilingCabinetBlockEntityRenderer;
 import com.blocklogic.realfilingreborn.capability.CombinedItemHandler;
 import com.blocklogic.realfilingreborn.client.RangeVisualizationManager;
-import com.blocklogic.realfilingreborn.client.RangeVisualizationRenderer;
+import com.blocklogic.realfilingreborn.client.render.RangeVisualizationRenderer;
 import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.ModCreativeModTab;
 import com.blocklogic.realfilingreborn.item.ModItems;

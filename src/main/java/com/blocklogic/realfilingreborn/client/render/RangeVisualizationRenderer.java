@@ -1,5 +1,6 @@
-package com.blocklogic.realfilingreborn.client;
+package com.blocklogic.realfilingreborn.client.render;
 
+import com.blocklogic.realfilingreborn.client.RangeVisualizationManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
