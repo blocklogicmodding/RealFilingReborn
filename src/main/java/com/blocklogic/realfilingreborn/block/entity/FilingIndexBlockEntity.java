@@ -38,7 +38,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     private static final long CACHE_INTERVAL = 100;
     private int previousCabinetCount = 0;
     private boolean cacheDirty = true;
-    private static List<BlockPos>[] BOX_POSITIONS_CACHE = new List[2];
+    private final List<BlockPos>[] boxPositionsCache = new List[2];
     private static final int[] RANGE_TIERS = {8, 16};
     private int cachedRange;
     private static final int BASE_CABINET_LIMIT = 64;
@@ -57,20 +57,24 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             rangeLevel = 1;
         }
 
-        if (BOX_POSITIONS_CACHE[rangeLevel] == null) {
-            BOX_POSITIONS_CACHE[rangeLevel] = List.copyOf(getBoxPositions(BlockPos.ZERO, RANGE_TIERS[rangeLevel]));
+        if (boxPositionsCache[rangeLevel] == null) {
+            boxPositionsCache[rangeLevel] = List.copyOf(getBoxPositions(BlockPos.ZERO, RANGE_TIERS[rangeLevel]));
         }
-        return BOX_POSITIONS_CACHE[rangeLevel];
+        return boxPositionsCache[rangeLevel];
     }
 
     public FilingIndexBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FILING_INDEX_BE.get(), pos, blockState);
         this.cachedRange = 8;
+        this.boxPositionsCache[0] = null;
+        this.boxPositionsCache[1] = null;
     }
 
     public void invalidateCache() {
         cacheDirty = true;
         lastCacheUpdate = -CACHE_INTERVAL;
+        boxPositionsCache[0] = null;
+        boxPositionsCache[1] = null;
     }
 
     public List<IItemHandler> getCabinetItemHandlers() {
@@ -83,8 +87,11 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
 
         long gameTime = level.getGameTime();
 
-        if (!cacheDirty && gameTime - lastCacheUpdate < CACHE_INTERVAL) {
-            return List.copyOf(cachedHandlers);
+        if (!cacheDirty) {
+            long adjustedInterval = CACHE_INTERVAL + (Math.floorMod(getBlockPos().asLong(), 20));
+            if (gameTime - lastCacheUpdate < adjustedInterval) {
+                return List.copyOf(cachedHandlers);
+            }
         }
 
         long startTime = System.nanoTime();
@@ -137,12 +144,17 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     private static List<BlockPos> getBoxPositions(BlockPos center, int radius) {
-        List<BlockPos> positions = new ArrayList<>();
+        int size = (radius * 2 + 1) * (radius * 2 + 1) * (radius * 2 + 1);
+        List<BlockPos> positions = new ArrayList<>(size);
+
+        int baseX = center.getX();
+        int baseY = center.getY();
+        int baseZ = center.getZ();
 
         for (int x = -radius; x <= radius; x++) {
             for (int y = -radius; y <= radius; y++) {
                 for (int z = -radius; z <= radius; z++) {
-                    positions.add(center.offset(x, y, z));
+                    positions.add(new BlockPos(baseX + x, baseY + y, baseZ + z));
                 }
             }
         }
