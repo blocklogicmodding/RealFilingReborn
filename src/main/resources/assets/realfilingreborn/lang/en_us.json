@@ -3,7 +3,9 @@
   "item.realfilingreborn.nbt_filing_folder": "NBT Folder",
   "item.realfilingreborn.index_card": "Index Card",
   "item.realfilingreborn.eraser": "Eraser",
-  "item.realfilingreborn.range_upgrade": "Range Upgrade (32 Blocks)",
+  "item.realfilingreborn.capacity_upgrade": "Capacity Upgrade (+Range, +Cabinets)",
+  "tooltip.realfilingreborn.capacity_info": "Increases range to 16 blocks and cabinet limit to 128",
+
 
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
   "block.realfilingreborn.filing_index": "Filing Index",
@@ -22,6 +24,11 @@
   "tooltip.realfilingreborn.eraser_info": "Right-click while holding an empty folder to erase its assignment",
 
   "message.realfilingreborn.upgrade_occupied": "Filing Cabinet already has Upgrade",
+
+  "message.realfilingreborn.index_at_max_capacity": "Filing Index is at max capacity (128)",
+  "message.realfilingreborn.index_at_base_capacity": "Filing Index is at Max capacity (64). To add more, use the Capacity upgrade",
+  "message.realfilingreborn.index_no_longer_exists": "The linked Filing Index no longer exists",
+
 
   "message.realfilingreborn.index_occupied": "Filing Cabinet already has an Index Card",
   "message.realfilingreborn.folders_full": "Filing Cabinet is full (12 folders)",

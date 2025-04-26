@@ -35,18 +35,25 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     private static final Logger LOGGER = LogUtils.getLogger();
     private final List<IItemHandler> cachedHandlers = new ArrayList<>();
     private long lastCacheUpdate = -1;
-    private static final long CACHE_INTERVAL = 600;
+    private static final long CACHE_INTERVAL = 100;
     private int previousCabinetCount = 0;
     private boolean cacheDirty = true;
     private static List<BlockPos>[] BOX_POSITIONS_CACHE = new List[2];
     private static final int[] RANGE_TIERS = {8, 16};
     private int cachedRange;
+    private static final int BASE_CABINET_LIMIT = 64;
+    private static final int UPGRADED_CABINET_LIMIT = 128;
+
+    public boolean canAcceptMoreCabinets() {
+        int currentLimit = inventory.getStackInSlot(0).isEmpty() ? BASE_CABINET_LIMIT : UPGRADED_CABINET_LIMIT;
+        return getCabinetCount() < currentLimit;
+    }
 
     private List<BlockPos> getBoxPositionsCache() {
         int rangeLevel = 0;
         ItemStack stack = inventory.getStackInSlot(0);
 
-        if (stack.getItem() instanceof FilingIndexRangeUpgradeItem) {
+        if (stack.getItem() instanceof CapacityUpgradeItem) {
             rangeLevel = 1;
         }
 
@@ -83,11 +90,18 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         long startTime = System.nanoTime();
 
         cachedHandlers.clear();
-        List<BlockPos> searchArea = getBoxPositionsCache().stream() // CORRECT
+        List<BlockPos> searchArea = getBoxPositionsCache().stream()
                 .map(pos -> pos.offset(getBlockPos()))
                 .toList();
 
+        int currentLimit = inventory.getStackInSlot(0).isEmpty() ? BASE_CABINET_LIMIT : UPGRADED_CABINET_LIMIT;
+        int cabinetCount = 0;
+
         for (BlockPos cabinetPos : searchArea) {
+            if (cabinetCount >= currentLimit) {
+                break; // Stop when we hit the limit
+            }
+
             if (level.isLoaded(cabinetPos)) {
                 BlockEntity be = level.getBlockEntity(cabinetPos);
                 if (be instanceof FilingCabinetBlockEntity cabinet) {
@@ -96,6 +110,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
                         IItemHandler handler = cabinet.getCapabilityHandler(null);
                         if (handler != null) {
                             cachedHandlers.add(handler);
+                            cabinetCount++;
                         }
                     }
                 }
@@ -124,7 +139,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     private static List<BlockPos> getBoxPositions(BlockPos center, int radius) {
         List<BlockPos> positions = new ArrayList<>();
 
-        // Generate all positions in a box with sides of length 2*radius+1
         for (int x = -radius; x <= radius; x++) {
             for (int y = -radius; y <= radius; y++) {
                 for (int z = -radius; z <= radius; z++) {
@@ -166,7 +180,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         int rangeLevel = 0;
         ItemStack stack = inventory.getStackInSlot(0);
 
-        if (stack.getItem() instanceof FilingIndexRangeUpgradeItem) {
+        if (stack.getItem() instanceof CapacityUpgradeItem) {
             rangeLevel = 1;
         }
 
@@ -215,7 +229,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return stack.getItem() instanceof FilingIndexRangeUpgradeItem;
+            return stack.getItem() instanceof CapacityUpgradeItem;
         }
 
         @Override
@@ -238,7 +252,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         ItemStack upgradeStack = inventory.getStackInSlot(0);
         if (upgradeStack.isEmpty()) {
             return 8;
-        } else if (upgradeStack.getItem() instanceof FilingIndexRangeUpgradeItem) {
+        } else if (upgradeStack.getItem() instanceof CapacityUpgradeItem) {
             return 16;
         }
         return 8;

@@ -1,6 +1,8 @@
 package com.blocklogic.realfilingreborn.item.custom;
 
 import com.blocklogic.realfilingreborn.block.ModBlocks;
+import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
+import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
 import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
@@ -26,6 +28,11 @@ public class IndexCardItem extends Item {
         Level level = context.getLevel();
         Player player = context.getPlayer();
 
+        // Skip if this is a filing cabinet - let the cabinet block handle it
+        if (level.getBlockEntity(context.getClickedPos()) instanceof FilingCabinetBlockEntity) {
+            return InteractionResult.PASS;
+        }
+
         if (!level.getBlockState(context.getClickedPos()).is(ModBlocks.FILING_INDEX.get())) {
             if (!level.isClientSide() && player != null) {
                 player.displayClientMessage(
@@ -34,6 +41,28 @@ public class IndexCardItem extends Item {
                         true);
             }
             return InteractionResult.FAIL;
+        }
+
+        // Check if the filing index is at capacity
+        if (level.getBlockEntity(context.getClickedPos()) instanceof FilingIndexBlockEntity indexBE) {
+            if (!indexBE.canAcceptMoreCabinets()) {
+                if (!level.isClientSide() && player != null) {
+                    // Check if it's at base capacity (64) or max capacity (128)
+                    boolean hasUpgrade = !indexBE.inventory.getStackInSlot(0).isEmpty();
+                    if (hasUpgrade) {
+                        player.displayClientMessage(
+                                Component.translatable("message.realfilingreborn.index_at_max_capacity")
+                                        .withStyle(ChatFormatting.RED),
+                                true);
+                    } else {
+                        player.displayClientMessage(
+                                Component.translatable("message.realfilingreborn.index_at_base_capacity")
+                                        .withStyle(ChatFormatting.RED),
+                                true);
+                    }
+                }
+                return InteractionResult.FAIL;
+            }
         }
 
         ItemStack heldStack = context.getItemInHand();

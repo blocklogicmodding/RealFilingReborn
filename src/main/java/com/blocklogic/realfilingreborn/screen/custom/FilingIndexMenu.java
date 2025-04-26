@@ -35,7 +35,7 @@ public class FilingIndexMenu extends AbstractContainerMenu {
         this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 0, 82, 39) {
             @Override
             public boolean mayPlace(ItemStack stack) {
-                return stack.getItem() instanceof FilingIndexRangeUpgradeItem;
+                return stack.getItem() instanceof CapacityUpgradeItem;
             }
         });
     }
@@ -58,7 +58,7 @@ public class FilingIndexMenu extends AbstractContainerMenu {
         ItemStack copyOfSourceStack = sourceStack.copy();
 
         if (pIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
-            if (sourceStack.getItem() instanceof FilingIndexRangeUpgradeItem) {
+            if (sourceStack.getItem() instanceof CapacityUpgradeItem) {
                 if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX, TE_INVENTORY_FIRST_SLOT_INDEX
                         + TE_INVENTORY_SLOT_COUNT, false)) {
                     return ItemStack.EMPTY;

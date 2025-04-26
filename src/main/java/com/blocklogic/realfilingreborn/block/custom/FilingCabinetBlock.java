@@ -1,6 +1,7 @@
 package com.blocklogic.realfilingreborn.block.custom;
 
 import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
+import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
 import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
@@ -99,78 +100,99 @@ public class FilingCabinetBlock extends BaseEntityBlock {
         if (level.getBlockEntity(pos) instanceof FilingCabinetBlockEntity filingCabinetBlockEntity) {
             ItemStack heldItem = player.getItemInHand(hand);
 
-            if (heldItem.getItem() instanceof FilingFolderItem) {
+            if (heldItem.getItem() instanceof FilingFolderItem || heldItem.getItem() instanceof NBTFilingFolderItem) {
+                // Client early return to prevent visual desync
+                if (level.isClientSide()) {
+                    return ItemInteractionResult.SUCCESS;
+                }
+
                 for (int i = 0; i < 12; i++) {
                     if (filingCabinetBlockEntity.inventory.getStackInSlot(i).isEmpty()) {
-                        ItemStack folderStack = heldItem.copy();
-                        folderStack.setCount(1);
+                        ItemStack folderStack = heldItem.copyWithCount(1);
                         filingCabinetBlockEntity.inventory.setStackInSlot(i, folderStack);
                         heldItem.shrink(1);
-                        level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
+                        level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
+
+                        // Force synchronization
+                        level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+                        filingCabinetBlockEntity.setChanged();
                         return ItemInteractionResult.SUCCESS;
                     }
                 }
 
-                if (!level.isClientSide()) {
-                    player.displayClientMessage(Component.translatable("message.realfilingreborn.folders_full"), true);
-                }
+                player.displayClientMessage(Component.translatable("message.realfilingreborn.folders_full"), true);
                 return ItemInteractionResult.SUCCESS;
-            } else if (heldItem.getItem() instanceof NBTFilingFolderItem) {
-                for (int i = 0; i < 12; i++) {
-                    if (filingCabinetBlockEntity.inventory.getStackInSlot(i).isEmpty()) {
-                        ItemStack folderStack = heldItem.copy();
-                        folderStack.setCount(1);
-                        filingCabinetBlockEntity.inventory.setStackInSlot(i, folderStack);
-                        heldItem.shrink(1);
-                        level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
-                        return ItemInteractionResult.SUCCESS;
-                    }
+            }
+            else if (heldItem.getItem() instanceof IndexCardItem) {
+                // Client early return to prevent visual desync
+                if (level.isClientSide()) {
+                    return ItemInteractionResult.SUCCESS;
                 }
 
-                if (!level.isClientSide()) {
-                    player.displayClientMessage(Component.translatable("message.realfilingreborn.folders_full"), true);
-                }
-                return ItemInteractionResult.SUCCESS;
-            } else if (heldItem.getItem() instanceof IndexCardItem) {
+                // Server-side validation
+                // 1. Check if card has coordinates FIRST
                 if (heldItem.get(ModDataComponents.COORDINATES) == null) {
-                    if (!level.isClientSide()) {
+                    player.displayClientMessage(
+                            Component.translatable("message.realfilingreborn.index_card_not_linked")
+                                    .withStyle(ChatFormatting.RED),
+                            true);
+                    return ItemInteractionResult.FAIL;
+                }
+
+                // 2. Get coordinates AFTER null check
+                BlockPos indexPos = heldItem.get(ModDataComponents.COORDINATES);
+
+                // 3. Verify index existence
+                if (!(level.getBlockEntity(indexPos) instanceof FilingIndexBlockEntity indexBE)) {
+                    player.displayClientMessage(
+                            Component.translatable("message.realfilingreborn.index_no_longer_exists")
+                                    .withStyle(ChatFormatting.RED),
+                            true);
+                    return ItemInteractionResult.FAIL;
+                }
+
+                // 4. Check capacity BEFORE slot check
+                if (!indexBE.canAcceptMoreCabinets()) {
+                    // Check if it's at base capacity (64) or max capacity (128)
+                    boolean hasUpgrade = !indexBE.inventory.getStackInSlot(0).isEmpty();
+                    if (hasUpgrade) {
                         player.displayClientMessage(
-                                Component.translatable("message.realfilingreborn.index_card_not_linked")
+                                Component.translatable("message.realfilingreborn.index_at_max_capacity")
+                                        .withStyle(ChatFormatting.RED),
+                                true);
+                    } else {
+                        player.displayClientMessage(
+                                Component.translatable("message.realfilingreborn.index_at_base_capacity")
                                         .withStyle(ChatFormatting.RED),
                                 true);
                     }
                     return ItemInteractionResult.FAIL;
                 }
 
-                if (filingCabinetBlockEntity.inventory.getStackInSlot(12).isEmpty()) {
-                    ItemStack cardStack = heldItem.copy();
-                    cardStack.setCount(1);
-                    filingCabinetBlockEntity.inventory.setStackInSlot(12, cardStack);
-                    heldItem.shrink(1);
-                    level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
-                } else {
-                    if (!level.isClientSide()) {
-                        player.displayClientMessage(Component.translatable("message.realfilingreborn.index_occupied"), true);
-                    }
+                // 5. Check cabinet slot availability LAST
+                if (!filingCabinetBlockEntity.inventory.getStackInSlot(12).isEmpty()) {
+                    player.displayClientMessage(
+                            Component.translatable("message.realfilingreborn.index_occupied")
+                                    .withStyle(ChatFormatting.RED),
+                            true);
+                    return ItemInteractionResult.SUCCESS;
                 }
-                return ItemInteractionResult.SUCCESS;
-            } else if (heldItem.isEmpty()) {
-                for (int i = 11; i >= 0; i--) {
-                    ItemStack slotStack = filingCabinetBlockEntity.inventory.getStackInSlot(i);
-                    if (!slotStack.isEmpty()) {
-                        player.setItemInHand(hand, slotStack.copy());
-                        filingCabinetBlockEntity.inventory.setStackInSlot(i, ItemStack.EMPTY);
-                        level.playSound(player, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 1f);
-                        return ItemInteractionResult.SUCCESS;
-                    }
-                }
-                if (!level.isClientSide()) {
-                    player.displayClientMessage(Component.translatable("message.realfilingreborn.no_folders"), true);
-                }
+
+                // All checks passed - perform insertion
+                ItemStack cardStack = heldItem.copyWithCount(1);
+                filingCabinetBlockEntity.inventory.setStackInSlot(12, cardStack);
+                heldItem.shrink(1);
+                level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
+
+                // Force synchronization
+                level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+                filingCabinetBlockEntity.setChanged();
+                indexBE.invalidateCache();
+
                 return ItemInteractionResult.SUCCESS;
             }
-        }
 
+        }
         return ItemInteractionResult.FAIL;
     }
 }
