@@ -1,0 +1,9 @@
+{
+  "name": "Real Filing Ledger",
+  "landing_text": "Welcome to Real Filing Reborn",
+  "version": 1,
+  "creative_tab": "realfilingreborn:real_filing_reborn",
+  "use_resource_pack": true,
+  "book_texture": "patchouli:textures/gui/book_cyan.png",
+  "model": "realfilingreborn:item/rfr_guide"
+}
