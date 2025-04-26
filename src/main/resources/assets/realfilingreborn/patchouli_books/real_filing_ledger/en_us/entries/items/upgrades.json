@@ -11,7 +11,7 @@
     {
       "type": "patchouli:text",
       "title": "Benefits",
-      "text": "Installing a Capacity Upgrade in your Filing Index provides:$(br)$(br)$(li)Increased range from 8 to 16 blocks$(li)Increased cabinet limit from 64 to 128 cabinets$(li)Visual indicator on top of the Filing Index"
+      "text": "Installing a Capacity Upgrade in your Filing Index provides:$(br)$(br)$(li)Increased radius from 8 to 16 blocks$(li)Increased cabinet limit from 64 to 128 cabinets"
     },
     {
       "type": "patchouli:crafting",

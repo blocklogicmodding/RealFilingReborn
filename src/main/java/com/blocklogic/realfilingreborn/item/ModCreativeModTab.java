@@ -15,7 +15,7 @@ public class ModCreativeModTab {
     public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TAB = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, RealFilingReborn.MODID);
 
     public static final Supplier<CreativeModeTab> REAL_FILING_REBORN = CREATIVE_MODE_TAB.register("real_filing_reborn",
-            () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModBlocks.FILING_CABINET.get()))
+            () -> CreativeModeTab.builder().icon(() -> new ItemStack(ModItems.FILING_FOLDER.get()))
                     .title(Component.translatable("creativetab.realfilingreborn.real_filing_reborn"))
                     .displayItems((ItemDisplayParameters, output) -> {
                         output.accept(ModBlocks.FILING_CABINET);

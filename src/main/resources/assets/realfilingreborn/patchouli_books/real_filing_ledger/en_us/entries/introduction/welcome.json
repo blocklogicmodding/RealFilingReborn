@@ -1,7 +1,8 @@
 {
-  "name": "Welcome to Real Filing Reborn",
+  "name": "Real Filing Reborn",
   "icon": "realfilingreborn:filing_folder",
   "category": "realfilingreborn:introduction",
+  "sortnum": 0,
   "pages": [
     {
       "type": "patchouli:text",

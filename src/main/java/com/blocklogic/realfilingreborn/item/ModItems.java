@@ -37,7 +37,7 @@ public class ModItems {
             () -> new EraserItem(new Item.Properties().durability(64)));
 
     public static final DeferredItem<Item> RFR_GUIDE = ITEMS.register("rfr_guide",
-            () -> new IndexCardItem(new Item.Properties()));
+            () -> new RFRGuideItem(new Item.Properties()));
 
     public static void register (IEventBus eventBus) {
         ITEMS.register(eventBus);

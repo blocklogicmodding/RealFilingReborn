@@ -21,7 +21,7 @@
     {
       "type": "patchouli:text",
       "title": "Technical Details",
-      "text": "$(li)Each Filing Index has a limited range (8 blocks by default)$(li)Cabinets must be within range of the Index to connect$(li)Each Index has a maximum number of cabinets it can connect to (64 by default)$(li)A cabinet can only be linked to one Index at a time$(li)Breaking the Index will unlink all connected cabinets and drop the unlinked cards where the Filing Index was broken"
+      "text": "$(li)Each Filing Index has a limited radius (8 blocks by default)$(li)Cabinets must be within range of the Index to connect$(li)Each Index has a maximum number of cabinets it can connect to (64 by default)$(li)A cabinet can only be linked to one Index at a time$(li)Breaking the Index will unlink all connected cabinets and drop the unlinked cards where the Filing Index was broken"
     }
   ]
 }
