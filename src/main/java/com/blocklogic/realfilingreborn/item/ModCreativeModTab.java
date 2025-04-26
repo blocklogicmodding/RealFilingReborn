@@ -26,7 +26,6 @@ public class ModCreativeModTab {
                         output.accept(ModItems.INDEX_CARD);
                         output.accept(ModItems.CAPACITY_UPGRADE);
                         output.accept(ModItems.ERASER);
-                        output.accept(ModItems.RFR_GUIDE);
                     }).build());
 
     public static void register (IEventBus eventBus) {
