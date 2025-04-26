@@ -1,6 +1,8 @@
 package com.blocklogic.realfilingreborn.block.custom;
 
+import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
 import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
+import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.*;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
@@ -9,6 +11,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
@@ -30,6 +33,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class FilingIndexBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
@@ -78,6 +84,35 @@ public class FilingIndexBlock extends BaseEntityBlock {
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.getBlock() != newState.getBlock()) {
             if (level.getBlockEntity(pos) instanceof FilingIndexBlockEntity filingIndexBlockEntity) {
+                List<BlockPos> connectedCabinetPositions = new ArrayList<>();
+
+                int searchRange = filingIndexBlockEntity.getRangeFromUpgrade();
+
+                BlockPos.betweenClosed(
+                        pos.offset(-searchRange, -searchRange, -searchRange),
+                        pos.offset(searchRange, searchRange, searchRange)
+                ).forEach(checkPos -> {
+                    if (level.isLoaded(checkPos) && level.getBlockEntity(checkPos) instanceof FilingCabinetBlockEntity cabinetBE) {
+                        ItemStack indexCardStack = cabinetBE.inventory.getStackInSlot(12);
+
+                        if (!indexCardStack.isEmpty() &&
+                                indexCardStack.getItem() instanceof IndexCardItem &&
+                                indexCardStack.get(ModDataComponents.COORDINATES) != null &&
+                                indexCardStack.get(ModDataComponents.COORDINATES).equals(pos)) {
+
+                            ItemStack resetCard = new ItemStack(indexCardStack.getItem());
+                            resetCard.setCount(1);
+
+                            cabinetBE.inventory.setStackInSlot(12, ItemStack.EMPTY);
+
+                            Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, resetCard);
+
+                            cabinetBE.setChanged();
+                        }
+                    }
+                });
+
+                // Handle normal drops afterward
                 filingIndexBlockEntity.drops();
                 level.updateNeighbourForOutputSignal(pos, this);
             }
