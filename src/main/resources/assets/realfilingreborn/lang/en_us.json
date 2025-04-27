@@ -10,6 +10,8 @@
 
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
   "block.realfilingreborn.filing_index": "Filing Index",
+  "block.realfilingreborn.test_blocks_generator": "Test Blocks Generator",
+  "block.realfilingreborn.test_nbt_items_generator": "Test NBT Items Generator",
 
   "blockentity.realfilingreborn.name": "Filing Cabinet",
   "blockentity.realfilingreborn.inde_name": "Filing Index",

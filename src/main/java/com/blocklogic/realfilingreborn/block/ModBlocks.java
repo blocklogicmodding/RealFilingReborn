@@ -3,6 +3,8 @@ package com.blocklogic.realfilingreborn.block;
 import com.blocklogic.realfilingreborn.RealFilingReborn;
 import com.blocklogic.realfilingreborn.block.custom.FilingCabinetBlock;
 import com.blocklogic.realfilingreborn.block.custom.FilingIndexBlock;
+import com.blocklogic.realfilingreborn.block.custom.TestBlocksGeneratorBlock;
+import com.blocklogic.realfilingreborn.block.custom.TestNBTItemsGeneratorBlock;
 import com.blocklogic.realfilingreborn.item.ModItems;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -29,6 +31,18 @@ public class ModBlocks {
             () -> new FilingIndexBlock(BlockBehaviour.Properties.of()
                     .strength(3.0F)
                     .requiresCorrectToolForDrops()
+                    .sound(SoundType.STONE)
+            ));
+
+    public static final DeferredBlock<Block> TEST_BLOCKS_GENERATOR = registerBlock("test_blocks_generator",
+            () -> new TestBlocksGeneratorBlock(BlockBehaviour.Properties.of()
+                    .strength(3.0F)
+                    .sound(SoundType.STONE)
+            ));
+
+    public static final DeferredBlock<Block> TEST_NBT_ITEMS_GENERATOR = registerBlock("test_nbt_items_generator",
+            () -> new TestNBTItemsGeneratorBlock(BlockBehaviour.Properties.of()
+                    .strength(3.0F)
                     .sound(SoundType.STONE)
             ));
 

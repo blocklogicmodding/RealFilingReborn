@@ -1,0 +1,7 @@
+{
+  "variants": {
+    "": {
+      "model": "realfilingreborn:block/test_blocks_generator"
+    }
+  }
+}

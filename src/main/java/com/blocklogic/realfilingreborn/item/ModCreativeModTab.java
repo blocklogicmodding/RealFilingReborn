@@ -21,6 +21,9 @@ public class ModCreativeModTab {
                         output.accept(ModBlocks.FILING_CABINET);
                         output.accept(ModBlocks.FILING_INDEX);
 
+                        output.accept(ModBlocks.TEST_BLOCKS_GENERATOR);
+                        output.accept(ModBlocks.TEST_NBT_ITEMS_GENERATOR);
+
                         output.accept(ModItems.FILING_FOLDER);
                         output.accept(ModItems.NBT_FILING_FOLDER);
                         output.accept(ModItems.INDEX_CARD);

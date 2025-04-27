@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "realfilingreborn:block/test_blocks_generator"
+  }
+}
