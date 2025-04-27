@@ -18,6 +18,20 @@ public class ModBlockEntities {
     public static final Supplier<BlockEntityType<FilingIndexBlockEntity>> FILING_INDEX_BE = BLOCK_ENTITIES.register("filing_index_be", () -> BlockEntityType.Builder.of(
             FilingIndexBlockEntity::new, ModBlocks.FILING_INDEX.get()).build(null));
 
+    // Add this to ModBlockEntities.java
+    public static final Supplier<BlockEntityType<TestBlocksGeneratorBlockEntity>> TEST_BLOCKS_GENERATOR_BE =
+            BLOCK_ENTITIES.register("test_blocks_generator_be",
+                    () -> BlockEntityType.Builder.of(
+                            TestBlocksGeneratorBlockEntity::new,
+                            ModBlocks.TEST_BLOCKS_GENERATOR.get()).build(null));
+
+    // Add this to ModBlockEntities.java
+    public static final Supplier<BlockEntityType<TestNBTItemsGeneratorBlockEntity>> TEST_NBT_ITEMS_GENERATOR_BE =
+            BLOCK_ENTITIES.register("test_nbt_items_generator_be",
+                    () -> BlockEntityType.Builder.of(
+                            TestNBTItemsGeneratorBlockEntity::new,
+                            ModBlocks.TEST_NBT_ITEMS_GENERATOR.get()).build(null));
+
     public static void register (IEventBus eventBus) {
         BLOCK_ENTITIES.register(eventBus);
     }
