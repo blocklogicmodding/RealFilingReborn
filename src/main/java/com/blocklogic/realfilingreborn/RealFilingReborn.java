@@ -1,21 +1,13 @@
 package com.blocklogic.realfilingreborn;
 
 import com.blocklogic.realfilingreborn.block.ModBlocks;
-import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
 import com.blocklogic.realfilingreborn.block.entity.ModBlockEntities;
-import com.blocklogic.realfilingreborn.block.entity.renderer.FilingCabinetBlockEntityRenderer;
-import com.blocklogic.realfilingreborn.capability.CombinedItemHandler;
-import com.blocklogic.realfilingreborn.client.ModItemProperties;
-import com.blocklogic.realfilingreborn.client.RangeVisualizationManager;
-import com.blocklogic.realfilingreborn.client.render.RangeVisualizationRenderer;
-import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.ModCreativeModTab;
 import com.blocklogic.realfilingreborn.item.ModItems;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
 import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetScreen;
-import com.blocklogic.realfilingreborn.screen.custom.FilingIndexScreen;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -55,12 +47,9 @@ public class RealFilingReborn
         ModCreativeModTab.register(modEventBus);
         ModBlockEntities.register(modEventBus);
         ModMenuTypes.register(modEventBus);
-        ModDataComponents.register(modEventBus);
 
         FilingFolderItem.DATA_COMPONENTS.register(modEventBus);
         NBTFilingFolderItem.DATA_COMPONENTS.register(modEventBus);
-        modEventBus.addListener(this::registerCapabilities);
-        NeoForge.EVENT_BUS.register(RangeVisualizationRenderer.class);
 
         modEventBus.addListener(this::addCreative);
 
@@ -82,12 +71,6 @@ public class RealFilingReborn
                 ModBlockEntities.FILING_CABINET_BE.get(),
                 (filingCabinetBE, side) -> filingCabinetBE.getCapabilityHandler(side)
         );
-
-        event.registerBlockEntity(
-                Capabilities.ItemHandler.BLOCK,
-                ModBlockEntities.FILING_INDEX_BE.get(),
-                (filingIndexBE, side) -> new CombinedItemHandler((FilingIndexBlockEntity) filingIndexBE)
-        );
     }
 
     @SubscribeEvent
@@ -102,20 +85,15 @@ public class RealFilingReborn
         @SubscribeEvent
         public static void onClientSetup(FMLClientSetupEvent event)
         {
-            NeoForge.EVENT_BUS.register(RangeVisualizationRenderer.class);
-            NeoForge.EVENT_BUS.register(RangeVisualizationManager.class);
-            ModItemProperties.addCustomItemProperties();
         }
 
         @SubscribeEvent
         public static void registerBER(EntityRenderersEvent.RegisterRenderers event) {
-            event.registerBlockEntityRenderer(ModBlockEntities.FILING_CABINET_BE.get(), FilingCabinetBlockEntityRenderer::new);
         }
 
         @SubscribeEvent
         public static void registerScreens(RegisterMenuScreensEvent event) {
             event.register(ModMenuTypes.FILING_CABINET_MENU.get(), FilingCabinetScreen::new);
-            event.register(ModMenuTypes.FILING_INDEX_MENU.get(), FilingIndexScreen::new);
         }
 
         @SubscribeEvent

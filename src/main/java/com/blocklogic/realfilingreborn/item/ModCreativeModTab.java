@@ -19,15 +19,12 @@ public class ModCreativeModTab {
                     .title(Component.translatable("creativetab.realfilingreborn.real_filing_reborn"))
                     .displayItems((ItemDisplayParameters, output) -> {
                         output.accept(ModBlocks.FILING_CABINET);
-                        output.accept(ModBlocks.FILING_INDEX);
 
                         output.accept(ModBlocks.TEST_BLOCKS_GENERATOR);
                         output.accept(ModBlocks.TEST_NBT_ITEMS_GENERATOR);
 
                         output.accept(ModItems.FILING_FOLDER);
                         output.accept(ModItems.NBT_FILING_FOLDER);
-                        output.accept(ModItems.INDEX_CARD);
-                        output.accept(ModItems.CAPACITY_UPGRADE);
                         output.accept(ModItems.ERASER);
                     }).build());
 

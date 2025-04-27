@@ -2,17 +2,10 @@ package com.blocklogic.realfilingreborn.screen.custom;
 
 import com.blocklogic.realfilingreborn.block.ModBlocks;
 import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
-import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
-import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
-import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
-import com.blocklogic.realfilingreborn.item.custom.CapacityUpgradeItem;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
-import net.minecraft.ChatFormatting;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -39,11 +32,12 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        for (int row = 0; row < 2; row++) {
-            for (int col = 0; col < 6; col++) {
+        // Updated loop to support 3 rows and 9 columns (27 slots)
+        for (int row = 0; row < 3; row++) {  // Changed to 3 rows
+            for (int col = 0; col < 9; col++) {  // Changed to 9 columns
                 int x = 8 + col * 18;
-                int y = 22 + row * 18;
-                int slotIndex = col + row * 6;
+                int y = 17 + row * 18;
+                int slotIndex = col + row * 9;  // Updated to calculate the correct slot index
                 this.addSlot(new SlotItemHandler(this.blockEntity.inventory, slotIndex, x, y) {
                     @Override
                     public boolean mayPlace(ItemStack stack) {
@@ -52,14 +46,6 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
                 });
             }
         }
-
-        this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 12, 152, 22) {
-            @Override
-            public boolean mayPlace(ItemStack stack) {
-                return stack.getItem() instanceof IndexCardItem &&
-                        stack.get(ModDataComponents.COORDINATES) != null;
-            }
-        });
     }
 
     private static final int HOTBAR_SLOT_COUNT = 9;
@@ -70,7 +56,7 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
-    private static final int TE_INVENTORY_SLOT_COUNT = 13;
+    private static final int TE_INVENTORY_SLOT_COUNT = 27;
 
     @Override
     public ItemStack quickMoveStack(Player playerIn, int pIndex) {
@@ -82,46 +68,7 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
         if (pIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
             if (sourceStack.getItem() instanceof FilingFolderItem || sourceStack.getItem() instanceof NBTFilingFolderItem) {
                 if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX,
-                        TE_INVENTORY_FIRST_SLOT_INDEX + 12, false)) {
-                    return ItemStack.EMPTY;
-                }
-            } else if (sourceStack.getItem() instanceof IndexCardItem) {
-                if (sourceStack.get(ModDataComponents.COORDINATES) == null) {
-                    return ItemStack.EMPTY;
-                }
-
-                BlockPos indexPos = sourceStack.get(ModDataComponents.COORDINATES);
-                Level level = playerIn.level();
-                if (level.getBlockEntity(indexPos) instanceof FilingIndexBlockEntity indexBE) {
-                    if (!indexBE.canAcceptMoreCabinets()) {
-                        if (!level.isClientSide()) {
-                            boolean hasUpgrade = !indexBE.inventory.getStackInSlot(0).isEmpty();
-                            if (hasUpgrade) {
-                                playerIn.displayClientMessage(
-                                        Component.translatable("message.realfilingreborn.index_at_max_capacity")
-                                                .withStyle(ChatFormatting.RED),
-                                        true);
-                            } else {
-                                playerIn.displayClientMessage(
-                                        Component.translatable("message.realfilingreborn.index_at_base_capacity")
-                                                .withStyle(ChatFormatting.RED),
-                                        true);
-                            }
-                        }
-                        return ItemStack.EMPTY;
-                    }
-                } else {
-                    if (!level.isClientSide()) {
-                        playerIn.displayClientMessage(
-                                Component.translatable("message.realfilingreborn.index_no_longer_exists")
-                                        .withStyle(ChatFormatting.RED),
-                                true);
-                    }
-                    return ItemStack.EMPTY;
-                }
-
-                if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX + 12,
-                        TE_INVENTORY_FIRST_SLOT_INDEX + 13, false)) {
+                        TE_INVENTORY_FIRST_SLOT_INDEX + 26, false)) {
                     return ItemStack.EMPTY;
                 }
             } else {

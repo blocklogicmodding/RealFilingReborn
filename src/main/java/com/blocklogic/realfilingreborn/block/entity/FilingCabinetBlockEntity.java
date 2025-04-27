@@ -1,7 +1,6 @@
 package com.blocklogic.realfilingreborn.block.entity;
 
 import com.blocklogic.realfilingreborn.block.custom.FilingCabinetBlock;
-import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.*;
 import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetMenu;
 import net.minecraft.core.BlockPos;
@@ -24,7 +23,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -35,46 +37,18 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvider {
-    private BlockPos previousIndexPos = null;
-
-    public final ItemStackHandler inventory = new ItemStackHandler(13) {
+    public final ItemStackHandler inventory = new ItemStackHandler(27) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
 
             if (level != null && !level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
-
-                if (slot == 12) { // Index card slot
-                    // Notify the previous index (if any) that we're no longer connected
-                    if (previousIndexPos != null) {
-                        if (level.getBlockEntity(previousIndexPos) instanceof FilingIndexBlockEntity oldIndex) {
-                            oldIndex.notifyCabinetChanged();
-                        }
-                    }
-
-                    // Update the tracking of which index we're connected to
-                    updateIndexLinking();
-
-                    // Notify the new index (if any) that we're now connected
-                    ItemStack stack = getStackInSlot(12);
-                    if (stack.getItem() instanceof IndexCardItem && stack.get(ModDataComponents.COORDINATES) != null) {
-                        BlockPos indexPos = stack.get(ModDataComponents.COORDINATES);
-                        previousIndexPos = indexPos; // Store for future reference
-
-                        if (level.getBlockEntity(indexPos) instanceof FilingIndexBlockEntity indexBE) {
-                            indexBE.notifyCabinetChanged();
-                        }
-                    } else {
-                        previousIndexPos = null;
-                    }
-                }
             }
         }
     };
 
     private final Map<Direction, IItemHandler> handlers = new HashMap<>();
-    private final IItemHandler nullSideHandler = new FilingCabinetItemHandler(this, null);
 
     public FilingCabinetBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FILING_CABINET_BE.get(), pos, blockState);
@@ -89,23 +63,9 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         return handlers.computeIfAbsent(side != null ? side : Direction.UP, s -> new FilingCabinetItemHandler(this, s));
     }
 
-    private BlockPos getLinkedIndexPos() {
-        ItemStack indexCardStack = inventory.getStackInSlot(12);
-        if (!indexCardStack.isEmpty() && indexCardStack.get(ModDataComponents.COORDINATES) != null) {
-            return indexCardStack.get(ModDataComponents.COORDINATES);
-        }
-        return null;
-    }
-
     public void updateIndexLinking() {
         if (level != null && !level.isClientSide()) {
             level.invalidateCapabilities(getBlockPos());
-        }
-    }
-
-    public void clearContents() {
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            inventory.setStackInSlot(i, ItemStack.EMPTY);
         }
     }
 
@@ -122,29 +82,12 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", inventory.serializeNBT(registries));
-
-        if (previousIndexPos != null) {
-            CompoundTag posTag = new CompoundTag();
-            posTag.putInt("X", previousIndexPos.getX());
-            posTag.putInt("Y", previousIndexPos.getY());
-            posTag.putInt("Z", previousIndexPos.getZ());
-            tag.put("PreviousIndexPos", posTag);
-        }
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("inventory"));
-
-        if (tag.contains("PreviousIndexPos", Tag.TAG_COMPOUND)) {
-            CompoundTag posTag = tag.getCompound("PreviousIndexPos");
-            previousIndexPos = new BlockPos(
-                    posTag.getInt("X"),
-                    posTag.getInt("Y"),
-                    posTag.getInt("Z")
-            );
-        }
     }
 
     @Override
@@ -180,6 +123,12 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         updateIndexLinking();
     }
 
+    public void markForUpdate() {
+        if (level != null) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        }
+    }
+
     private static class FilingCabinetItemHandler implements IItemHandler {
         private final FilingCabinetBlockEntity cabinet;
         private final Direction side;
@@ -191,7 +140,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
         @Override
         public int getSlots() {
-            return 12;
+            return 27;
         }
 
         @Override
@@ -241,7 +190,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
             if (side != null) {
                 ResourceLocation stackItemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
 
-                for (int i = 0; i < 12; i++) {
+                for (int i = 0; i < 27; i++) {
                     ItemStack folderStack = cabinet.inventory.getStackInSlot(i);
 
                     if (folderStack.isEmpty()) {
@@ -285,7 +234,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     }
                 }
 
-                for (int i = 0; i < 12; i++) {
+                for (int i = 0; i < 27; i++) {
                     ItemStack folderStack = cabinet.inventory.getStackInSlot(i);
 
                     if (folderStack.isEmpty()) {
@@ -516,18 +465,21 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
         private boolean hasSignificantNBT(ItemStack stack) {
             if (stack.isEmpty()) return false;
-
             if (stack.isDamaged()) return true;
 
-            if (stack.get(DataComponents.ENCHANTMENTS) != null &&
-                    !stack.get(DataComponents.ENCHANTMENTS).isEmpty()) return true;
+            ItemEnchantments enchantments = stack.get(DataComponents.ENCHANTMENTS);
+            if (enchantments != null && !enchantments.isEmpty()) return true;
+
+            ItemEnchantments stored = stack.get(DataComponents.STORED_ENCHANTMENTS);
+            if (stored != null && !stored.isEmpty()) return true;
 
             if (stack.get(DataComponents.CUSTOM_NAME) != null) return true;
 
             ItemLore lore = stack.get(DataComponents.LORE);
-            if (lore != null && !lore.lines().isEmpty()) {
-                return true;
-            }
+            if (lore != null && !lore.lines().isEmpty()) return true;
+
+            PotionContents potion = stack.get(DataComponents.POTION_CONTENTS);
+            if (potion != null && (!potion.customEffects().isEmpty() || !potion.potion().isEmpty())) return true;
 
             return false;
         }
@@ -619,12 +571,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            if (slot < 12) {
-                return stack.getItem() instanceof FilingFolderItem;
-            } else {
-                return stack.getItem() instanceof IndexCardItem &&
-                        stack.get(ModDataComponents.COORDINATES) != null;
-            }
+            return stack.getItem() instanceof FilingFolderItem;
         }
     }
 }

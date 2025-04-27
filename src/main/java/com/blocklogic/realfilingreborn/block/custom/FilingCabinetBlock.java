@@ -1,13 +1,10 @@
 package com.blocklogic.realfilingreborn.block.custom;
 
 import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
-import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
-import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
-import com.blocklogic.realfilingreborn.item.custom.IndexCardItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
+import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetMenu;
 import com.mojang.serialization.MapCodec;
-import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -85,7 +82,10 @@ public class FilingCabinetBlock extends BaseEntityBlock {
     }
 
     private void openFilingCabinetMenu(FilingCabinetBlockEntity blockEntity, ServerPlayer player, BlockPos pos) {
-        player.openMenu(new SimpleMenuProvider(blockEntity, Component.translatable("menu.realfilingreborn.menu_title")), pos);
+        player.openMenu(new SimpleMenuProvider(
+                (id, inventory, playerEntity) -> new FilingCabinetMenu(id, inventory, blockEntity),
+                Component.translatable("menu.realfilingreborn.menu_title")
+        ), pos);
     }
 
     @Override
@@ -105,7 +105,7 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                     return ItemInteractionResult.SUCCESS;
                 }
 
-                for (int i = 0; i < 12; i++) {
+                for (int i = 0; i < 27; i++) {
                     if (filingCabinetBlockEntity.inventory.getStackInSlot(i).isEmpty()) {
                         ItemStack folderStack = heldItem.copyWithCount(1);
                         filingCabinetBlockEntity.inventory.setStackInSlot(i, folderStack);
@@ -121,65 +121,6 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                 player.displayClientMessage(Component.translatable("message.realfilingreborn.folders_full"), true);
                 return ItemInteractionResult.SUCCESS;
             }
-            else if (heldItem.getItem() instanceof IndexCardItem) {
-                if (level.isClientSide()) {
-                    return ItemInteractionResult.SUCCESS;
-                }
-
-                if (heldItem.get(ModDataComponents.COORDINATES) == null) {
-                    player.displayClientMessage(
-                            Component.translatable("message.realfilingreborn.index_card_not_linked")
-                                    .withStyle(ChatFormatting.RED),
-                            true);
-                    return ItemInteractionResult.FAIL;
-                }
-
-                BlockPos indexPos = heldItem.get(ModDataComponents.COORDINATES);
-
-                if (!(level.getBlockEntity(indexPos) instanceof FilingIndexBlockEntity indexBE)) {
-                    player.displayClientMessage(
-                            Component.translatable("message.realfilingreborn.index_no_longer_exists")
-                                    .withStyle(ChatFormatting.RED),
-                            true);
-                    return ItemInteractionResult.FAIL;
-                }
-
-                if (!indexBE.canAcceptMoreCabinets()) {
-                    boolean hasUpgrade = !indexBE.inventory.getStackInSlot(0).isEmpty();
-                    if (hasUpgrade) {
-                        player.displayClientMessage(
-                                Component.translatable("message.realfilingreborn.index_at_max_capacity")
-                                        .withStyle(ChatFormatting.RED),
-                                true);
-                    } else {
-                        player.displayClientMessage(
-                                Component.translatable("message.realfilingreborn.index_at_base_capacity")
-                                        .withStyle(ChatFormatting.RED),
-                                true);
-                    }
-                    return ItemInteractionResult.FAIL;
-                }
-
-                if (!filingCabinetBlockEntity.inventory.getStackInSlot(12).isEmpty()) {
-                    player.displayClientMessage(
-                            Component.translatable("message.realfilingreborn.index_occupied")
-                                    .withStyle(ChatFormatting.RED),
-                            true);
-                    return ItemInteractionResult.SUCCESS;
-                }
-
-                ItemStack cardStack = heldItem.copyWithCount(1);
-                filingCabinetBlockEntity.inventory.setStackInSlot(12, cardStack);
-                heldItem.shrink(1);
-                level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
-
-                level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
-                filingCabinetBlockEntity.setChanged();
-                indexBE.invalidateCache();
-
-                return ItemInteractionResult.SUCCESS;
-            }
-
         }
         return ItemInteractionResult.FAIL;
     }

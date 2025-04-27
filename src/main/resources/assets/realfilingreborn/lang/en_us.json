@@ -3,44 +3,22 @@
 
   "item.realfilingreborn.filing_folder": "Folder",
   "item.realfilingreborn.nbt_filing_folder": "NBT Folder",
-  "item.realfilingreborn.index_card": "Index Card",
   "item.realfilingreborn.eraser": "Eraser",
-  "item.realfilingreborn.capacity_upgrade": "Capacity Upgrade",
-  "item.realfilingreborn.rfr_guide": "Real Filing Ledger",
 
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
-  "block.realfilingreborn.filing_index": "Filing Index",
   "block.realfilingreborn.test_blocks_generator": "Test Blocks Generator",
   "block.realfilingreborn.test_nbt_items_generator": "Test NBT Items Generator",
 
   "blockentity.realfilingreborn.name": "Filing Cabinet",
-  "blockentity.realfilingreborn.inde_name": "Filing Index",
 
   "menu.realfilingreborn.menu_title": "Filing Cabinet",
-  "menu.realfilingreborn.index_title": "Filing Index",
-
-  "tooltip.realfilingreborn.capacity_info": "Increases range to 16 blocks and cabinet limit to 128",
-
-  "gui.realfilingreborn.cabinets_connected": "Cabinets Connected: %d/%d",
-
-  "message.realfilingreborn.index_card_linked": "Index Card linked to Filing Index",
-  "message.realfilingreborn.index_card_not_linked": "Index Card must be linked to a Filing Index first",
-  "message.realfilingreborn.index_card_needs_index": "Index Card can only be linked to a Filing Index",
-  "tooltip.realfilingreborn.index_card_linked": "Linked to Filing Index at %s",
-  "tooltip.realfilingreborn.index_card_unlinked": "Right-click on a Filing Index to link",
-
-  "message.realfilingreborn.index_occupied": "Filing Cabinet already has an Index Card",
-  "message.realfilingreborn.index_at_max_capacity": "Filing Index is at max capacity (128)",
-  "message.realfilingreborn.index_at_base_capacity": "Filing Index is at Max capacity (64). To add more, use the Capacity upgrade",
-  "message.realfilingreborn.index_no_longer_exists": "The linked Filing Index no longer exists",
-  "message.realfilingreborn.upgrade_occupied": "Filing Cabinet already has Upgrade",
 
   "message.realfilingreborn.folder_erased": "Folder assignment erased",
   "message.realfilingreborn.folder_not_empty": "Folder must be empty to erase assignment",
   "message.realfilingreborn.folder_not_assigned": "Folder is not assigned to any item",
-  "message.realfilingreborn.folders_full": "Filing Cabinet is full (12 folders)",
+  "message.realfilingreborn.folders_full": "Filing Cabinet is full (27 folders)",
   "message.realfilingreborn.no_folders": "Filing Cabinet can only accept folders",
-  "message.realfilingreborn.folder_empty": "Folder is empty",
+  "message.realfilingreborn.folder_empty": "Folder is empty. Hold item in off hand and folder in main hand to add items",
   "message.realfilingreborn.wrong_item_type": "Folder assigned to: %s",
   "message.realfilingreborn.folder_full": "Folder cannot store any more items",
   "message.realfilingreborn.no_folder_ception": "Folders cannot store other Folders!",
@@ -59,10 +37,6 @@
   "tooltip.realfilingreborn.and_x_more": "...and %s more",
   "tooltip.realfilingreborn.nbt_unregistered_folder": "NBT Folder is unassigned. Add items with unique properties to assign it",
 
-  "tooltip.realfilingreborn.range_visualization_button": "Toggle Range Visualization",
-  "tooltip.realfilingreborn.range_visualization_on": "Range Visualization: ON",
-  "tooltip.realfilingreborn.range_visualization_off": "Range Visualization: OFF",
-
   "tooltip.realfilingreborn.jade.cabinet_title": "Filing Cabinet Contents",
   "tooltip.realfilingreborn.jade.empty_cabinet": "Cabinet is empty. Right click to insert folders",
   "tooltip.realfilingreborn.jade.folder_summary": "Folders: %d/%d filled",
@@ -71,16 +45,9 @@
   "tooltip.realfilingreborn.jade.folder_short": "F%d: %s (%s, %s)",
   "tooltip.realfilingreborn.jade.nbt_folder_short": "NF%d: %s (%d items)",
   "tooltip.realfilingreborn.jade.empty_folder": "Folder %d: Empty",
-  "tooltip.realfilingreborn.jade.index_linked": "Linked to Filing Index",
-  "tooltip.realfilingreborn.jade.index_pos": "at %s",
 
-  "tooltip.realfilingreborn.jade.index_title": "Filing Index",
-  "tooltip.realfilingreborn.jade.connected_cabinets": "Connected Cabinets: %d",
-  "tooltip.realfilingreborn.jade.no_cabinets": "No Cabinets Connected",
   "tooltip.realfilingreborn.jade.total_folders": "Total Folders: %d",
   "tooltip.realfilingreborn.jade.total_items": "Total Items: %s",
-  "tooltip.realfilingreborn.jade.index_help": "Link cabinets with Index Cards",
 
-  "config.jade.plugin_realfilingreborn.filing_cabinet_info": "Filing Cabinet Information",
-  "config.jade.plugin_realfilingreborn.filing_index_info": "Filing Index Information"
+  "config.jade.plugin_realfilingreborn.filing_cabinet_info": "Filing Cabinet Information"
 }

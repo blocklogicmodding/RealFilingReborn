@@ -2,7 +2,6 @@ package com.blocklogic.realfilingreborn.block;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
 import com.blocklogic.realfilingreborn.block.custom.FilingCabinetBlock;
-import com.blocklogic.realfilingreborn.block.custom.FilingIndexBlock;
 import com.blocklogic.realfilingreborn.block.custom.TestBlocksGeneratorBlock;
 import com.blocklogic.realfilingreborn.block.custom.TestNBTItemsGeneratorBlock;
 import com.blocklogic.realfilingreborn.item.ModItems;
@@ -22,13 +21,6 @@ public class ModBlocks {
 
     public static final DeferredBlock<Block> FILING_CABINET = registerBlock("filing_cabinet",
             () -> new FilingCabinetBlock(BlockBehaviour.Properties.of()
-                    .strength(3.0F)
-                    .requiresCorrectToolForDrops()
-                    .sound(SoundType.STONE)
-            ));
-
-    public static final DeferredBlock<Block> FILING_INDEX = registerBlock("filing_index",
-            () -> new FilingIndexBlock(BlockBehaviour.Properties.of()
                     .strength(3.0F)
                     .requiresCorrectToolForDrops()
                     .sound(SoundType.STONE)

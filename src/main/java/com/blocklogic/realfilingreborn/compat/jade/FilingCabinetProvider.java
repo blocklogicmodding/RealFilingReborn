@@ -62,17 +62,6 @@ public enum FilingCabinetProvider implements IBlockComponentProvider, IServerDat
                 }
             }
         }
-
-        if (data.getBoolean("index_linked")) {
-            tooltip.add(Component.literal(" "));
-            tooltip.add(Component.literal("Linked to Filing Index")
-                    .withStyle(ChatFormatting.GREEN));
-
-            if (data.contains("index_pos")) {
-                tooltip.add(Component.literal("at " + data.getString("index_pos"))
-                        .withStyle(ChatFormatting.GRAY));
-            }
-        }
     }
 
 
@@ -84,7 +73,7 @@ public enum FilingCabinetProvider implements IBlockComponentProvider, IServerDat
 
         ListTag foldersList = new ListTag();
 
-        for (int i = 0; i < 12; i++) {
+        for (int i = 0; i < 27; i++) {
             ItemStack stackInSlot = cabinetEntity.inventory.getStackInSlot(i);
             CompoundTag folderTag = new CompoundTag();
             folderTag.putInt("slot", i);
@@ -120,16 +109,6 @@ public enum FilingCabinetProvider implements IBlockComponentProvider, IServerDat
         }
 
         data.put("folders", foldersList);
-
-        ItemStack indexCardStack = cabinetEntity.inventory.getStackInSlot(12);
-        if (!indexCardStack.isEmpty()) {
-            data.putBoolean("index_linked", true);
-
-            var indexPos = indexCardStack.get(com.blocklogic.realfilingreborn.component.ModDataComponents.COORDINATES);
-            if (indexPos != null) {
-                data.putString("index_pos", indexPos.toShortString());
-            }
-        }
     }
 
     @Override
