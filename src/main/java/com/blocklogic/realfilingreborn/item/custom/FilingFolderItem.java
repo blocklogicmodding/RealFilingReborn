@@ -18,8 +18,12 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.component.ItemLore;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -64,21 +68,25 @@ public class FilingFolderItem extends Item {
 
     public static boolean hasSignificantNBT(ItemStack stack) {
         if (stack.isEmpty()) return false;
-
         if (stack.isDamaged()) return true;
 
-        if (stack.get(DataComponents.ENCHANTMENTS) != null &&
-                !stack.get(DataComponents.ENCHANTMENTS).isEmpty()) return true;
+        ItemEnchantments enchantments = stack.get(DataComponents.ENCHANTMENTS);
+        if (enchantments != null && !enchantments.isEmpty()) return true;
+
+        ItemEnchantments stored = stack.get(DataComponents.STORED_ENCHANTMENTS);
+        if (stored != null && !stored.isEmpty()) return true;
 
         if (stack.get(DataComponents.CUSTOM_NAME) != null) return true;
 
         ItemLore lore = stack.get(DataComponents.LORE);
-        if (lore != null && !lore.lines().isEmpty()) {
-            return true;
-        }
+        if (lore != null && !lore.lines().isEmpty()) return true;
+
+        PotionContents potion = stack.get(DataComponents.POTION_CONTENTS);
+        if (potion != null && (!potion.customEffects().isEmpty() || !potion.potion().isEmpty())) return true;
 
         return false;
     }
+
 
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
