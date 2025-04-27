@@ -28,16 +28,17 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider {
 
     private static final Logger LOGGER = LogUtils.getLogger();
-    private final List<IItemHandler> cachedHandlers = new ArrayList<>();
-    private long lastCacheUpdate = -1;
-    private static final long CACHE_INTERVAL = 100;
+    private final List<IItemHandler> connectedHandlers = new ArrayList<>();
+    private final Set<BlockPos> connectedCabinetPositions = new HashSet<>();
+    private boolean scanNeeded = true;
     private int previousCabinetCount = 0;
-    private boolean cacheDirty = true;
     private final List<BlockPos>[] boxPositionsCache = new List[2];
     private static final int[] RANGE_TIERS = {8, 16};
     private int cachedRange;
@@ -70,33 +71,59 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         this.boxPositionsCache[1] = null;
     }
 
+    /**
+     * Called when a cabinet is connected or disconnected from this index
+     * This marks that a scan is needed and performs it immediately
+     */
+    public void notifyCabinetChanged() {
+        scanNeeded = true;
+        if (level != null && !level.isClientSide()) {
+            performFullScan();
+        }
+    }
+
+    /**
+     * Force the cache to be rebuilt on the next access
+     */
     public void invalidateCache() {
-        cacheDirty = true;
-        lastCacheUpdate = -CACHE_INTERVAL;
+        scanNeeded = true;
         boxPositionsCache[0] = null;
         boxPositionsCache[1] = null;
     }
 
+    /**
+     * Get all cabinet item handlers connected to this index
+     * Only performs a scan if one is needed due to changes
+     */
     public List<IItemHandler> getCabinetItemHandlers() {
-        if (level == null || level.isClientSide()) return List.copyOf(cachedHandlers);
+        if (level == null || level.isClientSide()) {
+            return List.copyOf(connectedHandlers);
+        }
+
+        if (scanNeeded) {
+            performFullScan();
+        }
+
+        return List.copyOf(connectedHandlers);
+    }
+
+    /**
+     * Perform a full scan of the area to find all connected cabinets
+     * Only called when necessary (after a change)
+     */
+    private void performFullScan() {
+        if (level == null || level.isClientSide()) return;
+
+        long startTime = System.nanoTime();
+        connectedHandlers.clear();
+        connectedCabinetPositions.clear();
 
         int currentRange = getRangeFromUpgrade();
         if(!level.isAreaLoaded(getBlockPos(), currentRange)) {
-            return List.copyOf(cachedHandlers);
+            scanNeeded = false;
+            return;
         }
 
-        long gameTime = level.getGameTime();
-
-        if (!cacheDirty) {
-            long adjustedInterval = CACHE_INTERVAL + (Math.floorMod(getBlockPos().asLong(), 20));
-            if (gameTime - lastCacheUpdate < adjustedInterval) {
-                return List.copyOf(cachedHandlers);
-            }
-        }
-
-        long startTime = System.nanoTime();
-
-        cachedHandlers.clear();
         List<BlockPos> searchArea = getBoxPositionsCache().stream()
                 .map(pos -> pos.offset(getBlockPos()))
                 .toList();
@@ -116,7 +143,8 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
                     if (isValidIndexCard(indexCardStack)) {
                         IItemHandler handler = cabinet.getCapabilityHandler(null);
                         if (handler != null) {
-                            cachedHandlers.add(handler);
+                            connectedHandlers.add(handler);
+                            connectedCabinetPositions.add(cabinetPos.immutable());
                             cabinetCount++;
                         }
                     }
@@ -124,16 +152,13 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             }
         }
 
-        cacheDirty = false;
-        lastCacheUpdate = gameTime;
         updateActivationLevel();
+        scanNeeded = false;
 
         if (LOGGER.isDebugEnabled()) {
             double ms = (System.nanoTime() - startTime) / 1_000_000.0;
-            LOGGER.debug("Cache rebuilt in {}ms ({} cabinets)", ms, cachedHandlers.size());
+            LOGGER.debug("Full cabinet scan completed in {}ms ({} cabinets)", ms, connectedHandlers.size());
         }
-
-        return List.copyOf(cachedHandlers);
     }
 
     private boolean isValidIndexCard(ItemStack stack) {
@@ -163,7 +188,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     }
 
     private void updateActivationLevel() {
-        int cabinetCount = cachedHandlers.size();
+        int cabinetCount = connectedHandlers.size();
 
         if (cabinetCount != previousCabinetCount) {
             previousCabinetCount = cabinetCount;
@@ -208,6 +233,16 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         return getCabinetItemHandlers().size();
     }
 
+    /**
+     * Get all BlockPos of cabinets connected to this index
+     */
+    public Set<BlockPos> getConnectedCabinetPositions() {
+        if (scanNeeded) {
+            performFullScan();
+        }
+        return Set.copyOf(connectedCabinetPositions);
+    }
+
     public void drops() {
         SimpleContainer inv = new SimpleContainer(inventory.getSlots());
         for(int i = 0; i < inventory.getSlots(); i++) {
@@ -250,7 +285,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             if (level != null) {
                 updateRangeLevelVisual();
                 updateCachedRange();
-                invalidateCache();
+                invalidateCache(); // Range change requires a full rescan
                 level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_ALL);
             }
         }
@@ -296,8 +331,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     public void onLoad() {
         super.onLoad();
         if (level != null) {
-            invalidateCache();
-            getCabinetItemHandlers();
+            scanNeeded = true;
             updateRangeLevelVisual();
             updateCachedRange();
         }

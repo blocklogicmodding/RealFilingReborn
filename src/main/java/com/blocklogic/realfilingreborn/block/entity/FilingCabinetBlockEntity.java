@@ -39,41 +39,37 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
     public final ItemStackHandler inventory = new ItemStackHandler(13) {
         @Override
-        protected int getStackLimit(int slot, ItemStack stack) {
-            return 1;
-        }
-
-        @Override
         protected void onContentsChanged(int slot) {
             setChanged();
 
             if (level != null && !level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
 
-                if (slot == 12) {
+                if (slot == 12) { // Index card slot
+                    // Notify the previous index (if any) that we're no longer connected
+                    if (previousIndexPos != null) {
+                        if (level.getBlockEntity(previousIndexPos) instanceof FilingIndexBlockEntity oldIndex) {
+                            oldIndex.notifyCabinetChanged();
+                        }
+                    }
+
+                    // Update the tracking of which index we're connected to
                     updateIndexLinking();
 
+                    // Notify the new index (if any) that we're now connected
                     ItemStack stack = getStackInSlot(12);
                     if (stack.getItem() instanceof IndexCardItem && stack.get(ModDataComponents.COORDINATES) != null) {
                         BlockPos indexPos = stack.get(ModDataComponents.COORDINATES);
+                        previousIndexPos = indexPos; // Store for future reference
+
                         if (level.getBlockEntity(indexPos) instanceof FilingIndexBlockEntity indexBE) {
-                            indexBE.invalidateCache();
-                            indexBE.getCabinetItemHandlers();
+                            indexBE.notifyCabinetChanged();
                         }
+                    } else {
+                        previousIndexPos = null;
                     }
                 }
             }
-        }
-
-        @Override
-        public boolean isItemValid(int slot, ItemStack stack) {
-            if (slot < 12) {
-                return stack.getItem() instanceof FilingFolderItem || stack.getItem() instanceof NBTFilingFolderItem;
-            } else if (slot == 12) {
-                return stack.getItem() instanceof IndexCardItem &&
-                        stack.get(ModDataComponents.COORDINATES) != null;
-            }
-            return false;
         }
     };
 
