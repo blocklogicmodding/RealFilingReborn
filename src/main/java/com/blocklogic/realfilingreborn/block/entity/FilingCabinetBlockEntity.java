@@ -401,6 +401,10 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     contents = new NBTFilingFolderItem.NBTFolderContents(Optional.empty(), new ArrayList<>());
                 }
 
+                if (contents.storedItems() != null && contents.storedItems().size() >= 64) {
+                    return stack;
+                }
+
                 if (contents.storedItemId().isEmpty()) {
                     if (!hasSignificantNBT(stack)) {
                         return stack;

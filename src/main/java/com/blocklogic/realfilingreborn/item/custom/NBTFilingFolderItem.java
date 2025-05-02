@@ -19,11 +19,9 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.component.ItemLore;
-import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -36,6 +34,7 @@ import java.util.Optional;
 public class NBTFilingFolderItem extends Item {
 
     public record SerializedItemStack(ItemStack stack) {}
+    private static final int MAX_NBT_ITEMS = 64;
 
     public record NBTFolderContents(
             Optional<ResourceLocation> storedItemId,
@@ -215,7 +214,13 @@ public class NBTFilingFolderItem extends Item {
             return InteractionResultHolder.fail(folderStack);
         }
 
-        List<SerializedItemStack> newItems = new ArrayList<>(contents.storedItems() != null ? contents.storedItems() : new ArrayList<>());
+        List<SerializedItemStack> currentItems = contents.storedItems() != null ? contents.storedItems() : new ArrayList<>();
+        if (currentItems.size() >= MAX_NBT_ITEMS) {
+            player.displayClientMessage(Component.translatable("message.realfilingreborn.nbt_folder_full"), true);
+            return InteractionResultHolder.fail(folderStack);
+        }
+
+        List<SerializedItemStack> newItems = new ArrayList<>(currentItems);
 
         ItemStack itemCopy = itemToStore.copy();
         itemCopy.setCount(1);
@@ -246,7 +251,8 @@ public class NBTFilingFolderItem extends Item {
 
             if (contents.storedItems() != null && !contents.storedItems().isEmpty()) {
                 tooltip.add(Component.translatable("tooltip.realfilingreborn.nbt_item_count",
-                                Component.literal(String.valueOf(contents.storedItems().size())).withStyle(ChatFormatting.GREEN))
+                                Component.literal(String.valueOf(contents.storedItems().size())).withStyle(ChatFormatting.GREEN),
+                                Component.literal(String.valueOf(MAX_NBT_ITEMS)).withStyle(ChatFormatting.GREEN))
                         .withStyle(ChatFormatting.GRAY));
 
                 if (flag.isAdvanced() && !contents.storedItems().isEmpty()) {

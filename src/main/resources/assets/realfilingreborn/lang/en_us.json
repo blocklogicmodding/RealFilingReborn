@@ -24,6 +24,7 @@
   "message.realfilingreborn.no_folder_ception": "Folders cannot store other Folders!",
   "message.realfilingreborn.standard_folder_no_nbt": "Folder cannot store items with unique properties. Use NBT Folder",
   "message.realfilingreborn.nbt_folder_requires_nbt": "Folder can only store items with unique properties",
+  "message.realfilingreborn.nbt_folder_full": "NBT Folder cannot store more than 64 items",
 
   "tooltip.realfilingreborn.eraser_info": "Right-click while holding an empty folder to erase its assignment",
   "tooltip.realfilingreborn.stored_item": "Assigned to (Contents): %s",
@@ -32,7 +33,7 @@
   "tooltip.realfilingreborn.unregistered_folder": "Folder is unassigned. Add items to assign it",
   "tooltip.realfilingreborn.standard_folder_info": "Can only store normal items (no NBT)",
   "tooltip.realfilingreborn.nbt_standard_folder_info": "Can only store items with unique properties (NBT)",
-  "tooltip.realfilingreborn.nbt_item_count": "Unique Items: %s",
+  "tooltip.realfilingreborn.nbt_item_count": "Unique Items: %s/%s",
   "tooltip.realfilingreborn.nbt_items_stored": "Contains:",
   "tooltip.realfilingreborn.and_x_more": "...and %s more",
   "tooltip.realfilingreborn.nbt_unregistered_folder": "NBT Folder is unassigned. Add items with unique properties to assign it",
