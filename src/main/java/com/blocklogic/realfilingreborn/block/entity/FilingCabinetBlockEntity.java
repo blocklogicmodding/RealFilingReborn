@@ -254,12 +254,19 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                             boolean hasNBT = hasSignificantNBT(stack);
 
                             if (hasNBT) {
+                                if (contents.storedItems() != null &&
+                                        contents.storedItems().size() >= NBTFilingFolderItem.MAX_NBT_ITEMS) {
+                                    return stack;
+                                }
 
                                 if (!simulate) {
                                     List<NBTFilingFolderItem.SerializedItemStack> newItems =
                                             new ArrayList<>(contents.storedItems() != null ? contents.storedItems() : new ArrayList<>());
 
-                                    for (int count = 0; count < stack.getCount(); count++) {
+                                    int availableSpace = NBTFilingFolderItem.MAX_NBT_ITEMS - newItems.size();
+                                    int itemsToAdd = Math.min(stack.getCount(), availableSpace);
+
+                                    for (int count = 0; count < itemsToAdd; count++) {
                                         ItemStack singleItem = stack.copy();
                                         singleItem.setCount(1);
                                         newItems.add(new NBTFilingFolderItem.SerializedItemStack(singleItem));
@@ -271,6 +278,12 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                                     );
                                     folderStack.set(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value(), newContents);
                                     cabinet.setChanged();
+
+                                    if (itemsToAdd < stack.getCount()) {
+                                        ItemStack remaining = stack.copy();
+                                        remaining.setCount(stack.getCount() - itemsToAdd);
+                                        return remaining;
+                                    }
                                 }
 
                                 return ItemStack.EMPTY;
@@ -343,65 +356,14 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                 remaining.shrink(toAdd);
                 return remaining;
             }
-
-            if (folderStack.getItem() instanceof FilingFolderItem && !(folderStack.getItem() instanceof NBTFilingFolderItem)) {
-                FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
-                if (contents == null) {
-                    contents = new FilingFolderItem.FolderContents(Optional.empty(), 0);
-                }
-
-                if (contents.storedItemId().isEmpty()) {
-                    ResourceLocation newItemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
-
-                    if (!simulate) {
-                        int toAdd = Math.min(stack.getCount(), Integer.MAX_VALUE);
-                        FilingFolderItem.FolderContents newContents = new FilingFolderItem.FolderContents(
-                                Optional.of(newItemId),
-                                toAdd
-                        );
-                        folderStack.set(FilingFolderItem.FOLDER_CONTENTS.value(), newContents);
-                        cabinet.setChanged();
-                    }
-
-                    ItemStack remaining = stack.copy();
-                    remaining.shrink(stack.getCount());
-                    return remaining;
-                }
-
-                ResourceLocation itemId = contents.storedItemId().get();
-                ResourceLocation stackItemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
-
-                if (!itemId.equals(stackItemId)) {
-                    return stack;
-                }
-
-                int maxToAdd = Integer.MAX_VALUE - contents.count();
-                int toAdd = Math.min(stack.getCount(), maxToAdd);
-
-                if (toAdd <= 0) {
-                    return stack;
-                }
-
-                if (!simulate) {
-                    FilingFolderItem.FolderContents newContents = new FilingFolderItem.FolderContents(
-                            contents.storedItemId(),
-                            contents.count() + toAdd
-                    );
-                    folderStack.set(FilingFolderItem.FOLDER_CONTENTS.value(), newContents);
-                    cabinet.setChanged();
-                }
-
-                ItemStack remaining = stack.copy();
-                remaining.shrink(toAdd);
-                return remaining;
-            }
             else if (folderStack.getItem() instanceof NBTFilingFolderItem) {
                 NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
                 if (contents == null) {
                     contents = new NBTFilingFolderItem.NBTFolderContents(Optional.empty(), new ArrayList<>());
                 }
 
-                if (contents.storedItems() != null && contents.storedItems().size() >= 64) {
+                if (contents.storedItems() != null &&
+                        contents.storedItems().size() >= NBTFilingFolderItem.MAX_NBT_ITEMS) {
                     return stack;
                 }
 
@@ -415,7 +377,10 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     if (!simulate) {
                         List<NBTFilingFolderItem.SerializedItemStack> newItems = new ArrayList<>();
 
-                        for (int count = 0; count < stack.getCount(); count++) {
+                        int availableSpace = NBTFilingFolderItem.MAX_NBT_ITEMS;
+                        int itemsToAdd = Math.min(stack.getCount(), availableSpace);
+
+                        for (int count = 0; count < itemsToAdd; count++) {
                             ItemStack singleItem = stack.copy();
                             singleItem.setCount(1);
                             newItems.add(new NBTFilingFolderItem.SerializedItemStack(singleItem));
@@ -427,6 +392,12 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                         );
                         folderStack.set(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value(), newContents);
                         cabinet.setChanged();
+
+                        if (itemsToAdd < stack.getCount()) {
+                            ItemStack remaining = stack.copy();
+                            remaining.setCount(stack.getCount() - itemsToAdd);
+                            return remaining;
+                        }
                     }
 
                     return ItemStack.EMPTY;
@@ -447,7 +418,10 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     List<NBTFilingFolderItem.SerializedItemStack> newItems =
                             new ArrayList<>(contents.storedItems() != null ? contents.storedItems() : new ArrayList<>());
 
-                    for (int count = 0; count < stack.getCount(); count++) {
+                    int availableSpace = NBTFilingFolderItem.MAX_NBT_ITEMS - newItems.size();
+                    int itemsToAdd = Math.min(stack.getCount(), availableSpace);
+
+                    for (int count = 0; count < itemsToAdd; count++) {
                         ItemStack singleItem = stack.copy();
                         singleItem.setCount(1);
                         newItems.add(new NBTFilingFolderItem.SerializedItemStack(singleItem));
@@ -459,6 +433,12 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     );
                     folderStack.set(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value(), newContents);
                     cabinet.setChanged();
+
+                    if (itemsToAdd < stack.getCount()) {
+                        ItemStack remaining = stack.copy();
+                        remaining.setCount(stack.getCount() - itemsToAdd);
+                        return remaining;
+                    }
                 }
 
                 return ItemStack.EMPTY;
