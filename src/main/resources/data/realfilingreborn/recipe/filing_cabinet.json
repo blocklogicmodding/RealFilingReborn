@@ -2,23 +2,23 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "item": "minecraft:iron_block"
-    },
     "I": {
       "item": "minecraft:iron_bars"
     },
     "E": {
       "item": "minecraft:iron_ingot"
     },
+    "C": {
+      "item": "minecraft:copper_block"
+    },
     "F": {
       "item": "realfilingreborn:filing_folder"
     }
   },
   "pattern": [
-    "IEI",
-    "FBF",
-    "EFE"
+    "IFI",
+    "FCF",
+    "CEC"
   ],
   "result": {
     "id": "realfilingreborn:filing_cabinet",

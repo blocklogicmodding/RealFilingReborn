@@ -32,19 +32,15 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        // Updated loop to support 3 rows and 9 columns (27 slots)
-        for (int row = 0; row < 3; row++) {  // Changed to 3 rows
-            for (int col = 0; col < 9; col++) {  // Changed to 9 columns
-                int x = 8 + col * 18;
-                int y = 17 + row * 18;
-                int slotIndex = col + row * 9;  // Updated to calculate the correct slot index
-                this.addSlot(new SlotItemHandler(this.blockEntity.inventory, slotIndex, x, y) {
-                    @Override
-                    public boolean mayPlace(ItemStack stack) {
-                        return stack.getItem() instanceof FilingFolderItem || stack.getItem() instanceof NBTFilingFolderItem;
-                    }
-                });
-            }
+        for (int i = 0; i < 5; i++) {
+            int x = 44 + i * 18;
+            int y = 17;
+            this.addSlot(new SlotItemHandler(this.blockEntity.inventory, i, x, y) {
+                @Override
+                public boolean mayPlace(ItemStack stack) {
+                    return stack.getItem() instanceof FilingFolderItem || stack.getItem() instanceof NBTFilingFolderItem;
+                }
+            });
         }
     }
 
@@ -56,7 +52,7 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
 
-    private static final int TE_INVENTORY_SLOT_COUNT = 27;
+    private static final int TE_INVENTORY_SLOT_COUNT = 5;
 
     @Override
     public ItemStack quickMoveStack(Player playerIn, int pIndex) {
@@ -68,7 +64,7 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
         if (pIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
             if (sourceStack.getItem() instanceof FilingFolderItem || sourceStack.getItem() instanceof NBTFilingFolderItem) {
                 if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX,
-                        TE_INVENTORY_FIRST_SLOT_INDEX + 26, false)) {
+                        TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT, false)) {
                     return ItemStack.EMPTY;
                 }
             } else {
@@ -102,14 +98,14 @@ public class FilingCabinetMenu extends AbstractContainerMenu {
     private void addPlayerInventory(Inventory playerInventory) {
         for (int i = 0; i < 3; ++i) {
             for (int l = 0; l < 9; ++l) {
-                this.addSlot(new Slot(playerInventory, l + i * 9 + 9, 8 + l * 18, 84 + i * 18));
+                this.addSlot(new Slot(playerInventory, l + i * 9 + 9, 8 + l * 18, 48 + i * 18));
             }
         }
     }
 
     private void addPlayerHotbar(Inventory playerInventory) {
         for (int i = 0; i < 9; ++i) {
-            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 142));
+            this.addSlot(new Slot(playerInventory, i, 8 + i * 18, 106));
         }
     }
 }

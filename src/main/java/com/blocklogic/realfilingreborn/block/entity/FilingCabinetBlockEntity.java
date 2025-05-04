@@ -37,7 +37,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvider {
-    public final ItemStackHandler inventory = new ItemStackHandler(27) {
+    public final ItemStackHandler inventory = new ItemStackHandler(5) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
@@ -140,7 +140,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
         @Override
         public int getSlots() {
-            return 27;
+            return 5;
         }
 
         @Override
@@ -190,7 +190,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
             if (side != null) {
                 ResourceLocation stackItemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
 
-                for (int i = 0; i < 27; i++) {
+                for (int i = 0; i < 5; i++) {
                     ItemStack folderStack = cabinet.inventory.getStackInSlot(i);
 
                     if (folderStack.isEmpty()) {
@@ -234,7 +234,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     }
                 }
 
-                for (int i = 0; i < 27; i++) {
+                for (int i = 0; i < 5; i++) {
                     ItemStack folderStack = cabinet.inventory.getStackInSlot(i);
 
                     if (folderStack.isEmpty()) {

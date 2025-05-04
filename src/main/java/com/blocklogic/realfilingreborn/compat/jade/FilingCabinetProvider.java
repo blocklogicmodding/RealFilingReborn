@@ -73,7 +73,7 @@ public enum FilingCabinetProvider implements IBlockComponentProvider, IServerDat
 
         ListTag foldersList = new ListTag();
 
-        for (int i = 0; i < 27; i++) {
+        for (int i = 0; i < 5; i++) {
             ItemStack stackInSlot = cabinetEntity.inventory.getStackInSlot(i);
             CompoundTag folderTag = new CompoundTag();
             folderTag.putInt("slot", i);
