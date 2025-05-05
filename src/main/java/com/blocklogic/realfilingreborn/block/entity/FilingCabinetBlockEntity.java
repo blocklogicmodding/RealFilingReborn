@@ -336,7 +336,11 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     return stack;
                 }
 
-                int maxToAdd = Integer.MAX_VALUE - contents.count();
+                int maxToAdd;
+                if (contents.count() > Integer.MAX_VALUE - 1000) {
+                    return stack;
+                }
+                maxToAdd = Integer.MAX_VALUE - contents.count();
                 int toAdd = Math.min(stack.getCount(), maxToAdd);
 
                 if (toAdd <= 0) {

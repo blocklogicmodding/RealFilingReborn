@@ -105,7 +105,7 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                     return ItemInteractionResult.SUCCESS;
                 }
 
-                for (int i = 0; i < 27; i++) {
+                for (int i = 0; i < 5; i++) {
                     if (filingCabinetBlockEntity.inventory.getStackInSlot(i).isEmpty()) {
                         ItemStack folderStack = heldItem.copyWithCount(1);
                         filingCabinetBlockEntity.inventory.setStackInSlot(i, folderStack);

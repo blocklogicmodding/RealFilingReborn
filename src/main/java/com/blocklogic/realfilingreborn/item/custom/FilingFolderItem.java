@@ -111,6 +111,24 @@ public class FilingFolderItem extends Item {
             }
 
             if (player.isShiftKeyDown() && contents.storedItemId().isPresent()) {
+                if (folderStack.getCount() > 1) {
+                    ItemStack singleFolder = folderStack.copy();
+                    singleFolder.setCount(1);
+
+                    InteractionResultHolder<ItemStack> result = extractItems(level, player, singleFolder, contents);
+                    ItemStack modifiedFolder = result.getObject();
+
+                    if (result.getResult().consumesAction()) {
+                        folderStack.shrink(1);
+
+                        if (!player.getInventory().add(modifiedFolder)) {
+                            player.drop(modifiedFolder, false);
+                        }
+
+                        return InteractionResultHolder.success(folderStack);
+                    }
+                    return result;
+                }
                 return extractItems(level, player, folderStack, contents);
             } else {
                 return InteractionResultHolder.pass(folderStack);
@@ -188,7 +206,7 @@ public class FilingFolderItem extends Item {
         }
     }
 
-    private InteractionResultHolder<ItemStack> storeItems(Level level, Player player, ItemStack folderStack,  ItemStack itemToStore, FolderContents contents) {
+    private InteractionResultHolder<ItemStack> storeItems(Level level, Player player, ItemStack folderStack, ItemStack itemToStore, FolderContents contents) {
         if (itemToStore.isEmpty() || itemToStore.getItem() instanceof FilingFolderItem) {
             return InteractionResultHolder.pass(folderStack);
         }
@@ -198,7 +216,16 @@ public class FilingFolderItem extends Item {
             return InteractionResultHolder.fail(folderStack);
         }
 
+        if (contents == null) {
+            contents = new FolderContents(Optional.empty(), 0);
+            folderStack.set(FOLDER_CONTENTS.value(), contents);
+        }
+
         ResourceLocation newItemId = BuiltInRegistries.ITEM.getKey(itemToStore.getItem());
+
+        if (contents == null) {
+            return InteractionResultHolder.fail(folderStack);
+        }
 
         Optional<ResourceLocation> currentItemIdOpt = contents.storedItemId();
         ResourceLocation effectiveItemId;
