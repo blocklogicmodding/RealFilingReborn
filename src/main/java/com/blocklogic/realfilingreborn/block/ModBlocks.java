@@ -26,16 +26,19 @@ public class ModBlocks {
                     .sound(SoundType.STONE)
             ));
 
-    public static final DeferredBlock<Block> TEST_BLOCKS_GENERATOR = registerBlock("test_blocks_generator",
+    // Register test blocks with special properties
+    public static final DeferredBlock<Block> TEST_BLOCKS_GENERATOR = registerDevBlock("test_blocks_generator",
             () -> new TestBlocksGeneratorBlock(BlockBehaviour.Properties.of()
-                    .strength(3.0F)
+                    .strength(-1.0F, 3600000.0F)
                     .sound(SoundType.STONE)
+                    .noLootTable()
             ));
 
-    public static final DeferredBlock<Block> TEST_NBT_ITEMS_GENERATOR = registerBlock("test_nbt_items_generator",
+    public static final DeferredBlock<Block> TEST_NBT_ITEMS_GENERATOR = registerDevBlock("test_nbt_items_generator",
             () -> new TestNBTItemsGeneratorBlock(BlockBehaviour.Properties.of()
-                    .strength(3.0F)
+                    .strength(-1.0F, 3600000.0F)
                     .sound(SoundType.STONE)
+                    .noLootTable()
             ));
 
     private static <T extends Block>DeferredBlock<T> registerBlock(String name, Supplier<T> block) {
@@ -44,11 +47,21 @@ public class ModBlocks {
         return toReturn;
     }
 
+    private static <T extends Block>DeferredBlock<T> registerDevBlock(String name, Supplier<T> block) {
+        DeferredBlock<T> toReturn = BLOCKS.register(name, block);
+        registerDevBlockItem(name, toReturn);
+        return toReturn;
+    }
+
     private static <T extends Block> void registerBlockItem(String name, DeferredBlock<T> block) {
         ModItems.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
     }
 
-    public static void register (IEventBus eventBus) {
+    private static <T extends Block> void registerDevBlockItem(String name, DeferredBlock<T> block) {
+        ModItems.ITEMS.register(name, () -> new BlockItem(block.get(), new Item.Properties()));
+    }
+
+    public static void register(IEventBus eventBus) {
         BLOCKS.register(eventBus);
     }
 }
