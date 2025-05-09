@@ -25,6 +25,7 @@
   "message.realfilingreborn.standard_folder_no_nbt": "Folder cannot store items with unique properties. Use NBT Folder",
   "message.realfilingreborn.nbt_folder_requires_nbt": "Folder can only store items with unique properties",
   "message.realfilingreborn.nbt_folder_full": "NBT Folder cannot store more than 64 items",
+  "message.realfilingreborn.no_compatible_folder": "No folder available in the Cabinet for this item",
 
   "tooltip.realfilingreborn.eraser_info": "Right-click while holding an empty folder to erase its assignment",
   "tooltip.realfilingreborn.stored_item": "Assigned to (Contents): %s",

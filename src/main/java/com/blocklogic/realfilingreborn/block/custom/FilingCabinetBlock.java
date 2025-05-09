@@ -7,7 +7,9 @@ import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetMenu;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -28,6 +30,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 public class FilingCabinetBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
@@ -100,6 +106,7 @@ public class FilingCabinetBlock extends BaseEntityBlock {
         if (level.getBlockEntity(pos) instanceof FilingCabinetBlockEntity filingCabinetBlockEntity) {
             ItemStack heldItem = player.getItemInHand(hand);
 
+            // Handle folder insertion into the cabinet
             if (heldItem.getItem() instanceof FilingFolderItem || heldItem.getItem() instanceof NBTFilingFolderItem) {
                 if (level.isClientSide()) {
                     return ItemInteractionResult.SUCCESS;
@@ -119,6 +126,130 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                 }
 
                 player.displayClientMessage(Component.translatable("message.realfilingreborn.folders_full"), true);
+                return ItemInteractionResult.SUCCESS;
+            }
+            // NEW CODE: Handle regular item insertion into folders
+            else if (!heldItem.isEmpty() && !(heldItem.getItem() instanceof FilingFolderItem) && !(heldItem.getItem() instanceof NBTFilingFolderItem)) {
+                if (level.isClientSide()) {
+                    return ItemInteractionResult.SUCCESS;
+                }
+
+                boolean hasNbt = NBTFilingFolderItem.hasSignificantNBT(heldItem);
+                ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(heldItem.getItem());
+
+                // Try to find a compatible folder in the cabinet
+                for (int i = 0; i < 5; i++) {
+                    ItemStack folderStack = filingCabinetBlockEntity.inventory.getStackInSlot(i);
+
+                    if (!folderStack.isEmpty()) {
+                        // Check if it's a regular folder
+                        if (folderStack.getItem() instanceof FilingFolderItem && !(folderStack.getItem() instanceof NBTFilingFolderItem)) {
+                            if (hasNbt) {
+                                continue; // Skip regular folders for NBT items
+                            }
+
+                            FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
+
+                            if (contents != null) {
+                                if (contents.storedItemId().isEmpty()) {
+                                    // Empty folder - can accept the item
+                                    FilingFolderItem.FolderContents newContents = new FilingFolderItem.FolderContents(
+                                            Optional.of(itemId),
+                                            heldItem.getCount()
+                                    );
+                                    folderStack.set(FilingFolderItem.FOLDER_CONTENTS.value(), newContents);
+                                    heldItem.shrink(heldItem.getCount());
+
+                                    level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 1.5f);
+                                    level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+                                    filingCabinetBlockEntity.setChanged();
+                                    return ItemInteractionResult.SUCCESS;
+                                } else if (contents.storedItemId().get().equals(itemId)) {
+                                    // Folder with matching item - can add more
+                                    int maxToAdd = Integer.MAX_VALUE - contents.count();
+                                    int toAdd = Math.min(heldItem.getCount(), maxToAdd);
+
+                                    if (toAdd > 0) {
+                                        FilingFolderItem.FolderContents newContents = new FilingFolderItem.FolderContents(
+                                                contents.storedItemId(),
+                                                contents.count() + toAdd
+                                        );
+                                        folderStack.set(FilingFolderItem.FOLDER_CONTENTS.value(), newContents);
+                                        heldItem.shrink(toAdd);
+
+                                        level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 1.5f);
+                                        level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+                                        filingCabinetBlockEntity.setChanged();
+                                        return ItemInteractionResult.SUCCESS;
+                                    }
+                                }
+                            }
+                        }
+                        // Check if it's an NBT folder
+                        else if (folderStack.getItem() instanceof NBTFilingFolderItem) {
+                            if (!hasNbt) {
+                                continue; // Skip NBT folders for regular items
+                            }
+
+                            NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
+
+                            if (contents != null) {
+                                if (contents.storedItemId().isEmpty()) {
+                                    // Empty NBT folder - can accept the item
+                                    List<NBTFilingFolderItem.SerializedItemStack> newItems = new ArrayList<>();
+
+                                    int toAdd = Math.min(heldItem.getCount(), NBTFilingFolderItem.MAX_NBT_ITEMS);
+                                    for (int count = 0; count < toAdd; count++) {
+                                        ItemStack singleItem = heldItem.copy();
+                                        singleItem.setCount(1);
+                                        newItems.add(new NBTFilingFolderItem.SerializedItemStack(singleItem));
+                                    }
+
+                                    NBTFilingFolderItem.NBTFolderContents newContents = new NBTFilingFolderItem.NBTFolderContents(
+                                            Optional.of(itemId),
+                                            newItems
+                                    );
+                                    folderStack.set(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value(), newContents);
+                                    heldItem.shrink(toAdd);
+
+                                    level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 1.5f);
+                                    level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+                                    filingCabinetBlockEntity.setChanged();
+                                    return ItemInteractionResult.SUCCESS;
+                                } else if (contents.storedItemId().get().equals(itemId)) {
+                                    // NBT folder with matching item - can add more if space allows
+                                    if (contents.storedItems().size() < NBTFilingFolderItem.MAX_NBT_ITEMS) {
+                                        List<NBTFilingFolderItem.SerializedItemStack> newItems = new ArrayList<>(contents.storedItems());
+
+                                        int availableSpace = NBTFilingFolderItem.MAX_NBT_ITEMS - newItems.size();
+                                        int toAdd = Math.min(heldItem.getCount(), availableSpace);
+
+                                        for (int count = 0; count < toAdd; count++) {
+                                            ItemStack singleItem = heldItem.copy();
+                                            singleItem.setCount(1);
+                                            newItems.add(new NBTFilingFolderItem.SerializedItemStack(singleItem));
+                                        }
+
+                                        NBTFilingFolderItem.NBTFolderContents newContents = new NBTFilingFolderItem.NBTFolderContents(
+                                                contents.storedItemId(),
+                                                newItems
+                                        );
+                                        folderStack.set(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value(), newContents);
+                                        heldItem.shrink(toAdd);
+
+                                        level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 1.5f);
+                                        level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+                                        filingCabinetBlockEntity.setChanged();
+                                        return ItemInteractionResult.SUCCESS;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+
+                // If we get here, no compatible folder was found
+                player.displayClientMessage(Component.translatable("message.realfilingreborn.no_compatible_folder"), true);
                 return ItemInteractionResult.SUCCESS;
             }
         }
