@@ -106,7 +106,6 @@ public class FilingCabinetBlock extends BaseEntityBlock {
         if (level.getBlockEntity(pos) instanceof FilingCabinetBlockEntity filingCabinetBlockEntity) {
             ItemStack heldItem = player.getItemInHand(hand);
 
-            // Handle folder insertion into the cabinet
             if (heldItem.getItem() instanceof FilingFolderItem || heldItem.getItem() instanceof NBTFilingFolderItem) {
                 if (level.isClientSide()) {
                     return ItemInteractionResult.SUCCESS;
@@ -128,7 +127,6 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                 player.displayClientMessage(Component.translatable("message.realfilingreborn.folders_full"), true);
                 return ItemInteractionResult.SUCCESS;
             }
-            // NEW CODE: Handle regular item insertion into folders
             else if (!heldItem.isEmpty() && !(heldItem.getItem() instanceof FilingFolderItem) && !(heldItem.getItem() instanceof NBTFilingFolderItem)) {
                 if (level.isClientSide()) {
                     return ItemInteractionResult.SUCCESS;
@@ -137,22 +135,19 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                 boolean hasNbt = NBTFilingFolderItem.hasSignificantNBT(heldItem);
                 ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(heldItem.getItem());
 
-                // Try to find a compatible folder in the cabinet
                 for (int i = 0; i < 5; i++) {
                     ItemStack folderStack = filingCabinetBlockEntity.inventory.getStackInSlot(i);
 
                     if (!folderStack.isEmpty()) {
-                        // Check if it's a regular folder
                         if (folderStack.getItem() instanceof FilingFolderItem && !(folderStack.getItem() instanceof NBTFilingFolderItem)) {
                             if (hasNbt) {
-                                continue; // Skip regular folders for NBT items
+                                continue;
                             }
 
                             FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
 
                             if (contents != null) {
                                 if (contents.storedItemId().isEmpty()) {
-                                    // Empty folder - can accept the item
                                     FilingFolderItem.FolderContents newContents = new FilingFolderItem.FolderContents(
                                             Optional.of(itemId),
                                             heldItem.getCount()
@@ -165,7 +160,6 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                                     filingCabinetBlockEntity.setChanged();
                                     return ItemInteractionResult.SUCCESS;
                                 } else if (contents.storedItemId().get().equals(itemId)) {
-                                    // Folder with matching item - can add more
                                     int maxToAdd = Integer.MAX_VALUE - contents.count();
                                     int toAdd = Math.min(heldItem.getCount(), maxToAdd);
 
@@ -185,17 +179,15 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                                 }
                             }
                         }
-                        // Check if it's an NBT folder
                         else if (folderStack.getItem() instanceof NBTFilingFolderItem) {
                             if (!hasNbt) {
-                                continue; // Skip NBT folders for regular items
+                                continue;
                             }
 
                             NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
 
                             if (contents != null) {
                                 if (contents.storedItemId().isEmpty()) {
-                                    // Empty NBT folder - can accept the item
                                     List<NBTFilingFolderItem.SerializedItemStack> newItems = new ArrayList<>();
 
                                     int toAdd = Math.min(heldItem.getCount(), NBTFilingFolderItem.MAX_NBT_ITEMS);
@@ -217,7 +209,6 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                                     filingCabinetBlockEntity.setChanged();
                                     return ItemInteractionResult.SUCCESS;
                                 } else if (contents.storedItemId().get().equals(itemId)) {
-                                    // NBT folder with matching item - can add more if space allows
                                     if (contents.storedItems().size() < NBTFilingFolderItem.MAX_NBT_ITEMS) {
                                         List<NBTFilingFolderItem.SerializedItemStack> newItems = new ArrayList<>(contents.storedItems());
 
@@ -248,7 +239,6 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                     }
                 }
 
-                // If we get here, no compatible folder was found
                 player.displayClientMessage(Component.translatable("message.realfilingreborn.no_compatible_folder"), true);
                 return ItemInteractionResult.SUCCESS;
             }
