@@ -127,12 +127,10 @@ public class LedgerItem extends Item {
             data = new LedgerData(new ArrayList<>(), Optional.empty(), LedgerMode.Add);
         }
 
-        // Handle Filing Index interaction
         if (blockEntity instanceof FilingIndexBlockEntity && level.getBlockState(pos).getBlock() instanceof FilingIndexBlock) {
             return handleIndexInteraction(ledger, data, pos, player);
         }
 
-        // Handle Filing Cabinet interaction
         if (blockEntity instanceof FilingCabinetBlockEntity && level.getBlockState(pos).getBlock() instanceof FilingCabinetBlock) {
             return handleCabinetInteraction(ledger, data, pos, player, level);
         }
@@ -141,7 +139,6 @@ public class LedgerItem extends Item {
     }
 
     private InteractionResult handleIndexInteraction(ItemStack ledger, LedgerData data, BlockPos indexPos, Player player) {
-        // Clean up broken indices first
         data = cleanupBrokenIndices(data, player.level());
 
         List<BlockPos> knownIndices = new ArrayList<>(data.knownIndices());
@@ -156,7 +153,6 @@ public class LedgerItem extends Item {
             );
         }
 
-        // Set as selected index
         LedgerData newData = new LedgerData(knownIndices, Optional.of(indexPos), data.mode());
         ledger.set(LEDGER_DATA.value(), newData);
 
@@ -167,7 +163,6 @@ public class LedgerItem extends Item {
                 true
         );
 
-        // Play index selection sound
         player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0f, 1.0f);
 
@@ -197,7 +192,6 @@ public class LedgerItem extends Item {
             return InteractionResult.FAIL;
         }
 
-        // Check range
         double distance = Math.sqrt(indexPos.distSqr(cabinetPos));
         int maxRange = getIndexRange(filingIndexEntity);
 
@@ -213,9 +207,7 @@ public class LedgerItem extends Item {
             return InteractionResult.FAIL;
         }
 
-        // Add or remove cabinet from index
         if (data.mode() == LedgerMode.Add) {
-            // Check if cabinet is already in ANY network
             if (level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
                 if (cabinet.isInNetwork()) {
                     player.displayClientMessage(
@@ -267,30 +259,6 @@ public class LedgerItem extends Item {
         return InteractionResult.SUCCESS;
     }
 
-    private FilingIndexBlockEntity findCabinetInAnyNetwork(BlockPos cabinetPos, BlockPos excludeIndexPos, Level level) {
-        // Search in a reasonable area around the cabinet for other indices
-        int searchRange = 256; // Max possible range with netherite upgrade
-
-        for (int x = -searchRange; x <= searchRange; x += 16) {
-            for (int y = -searchRange; y <= searchRange; y += 16) {
-                for (int z = -searchRange; z <= searchRange; z += 16) {
-                    BlockPos searchPos = cabinetPos.offset(x, y, z);
-                    if (searchPos.equals(excludeIndexPos)) continue;
-
-                    if (level.isLoaded(searchPos)) {
-                        BlockEntity be = level.getBlockEntity(searchPos);
-                        if (be instanceof FilingIndexBlockEntity indexEntity) {
-                            if (indexEntity.isInNetwork(cabinetPos)) {
-                                return indexEntity;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
     private int getIndexRange(FilingIndexBlockEntity indexEntity) {
         ItemStack upgrade = indexEntity.inventory.getStackInSlot(0);
 
@@ -302,7 +270,7 @@ public class LedgerItem extends Item {
             return 32;
         }
 
-        return 16; // Base range
+        return 16;
     }
 
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
@@ -316,15 +284,12 @@ public class LedgerItem extends Item {
             data = new LedgerData(new ArrayList<>(), Optional.empty(), LedgerMode.Add);
         }
 
-        // Clean up broken indices first
         data = cleanupBrokenIndices(data, level);
 
-        // Toggle mode when right-clicking air
         LedgerMode newMode = data.mode().toggle();
         LedgerData newData = new LedgerData(data.knownIndices(), data.selectedIndex(), newMode);
         ledger.set(LEDGER_DATA.value(), newData);
 
-        // Play sound based on mode
         if (newMode == LedgerMode.Add) {
             level.playSound(null, player.getX(), player.getY(), player.getZ(),
                     SoundEvents.VILLAGER_WORK_CARTOGRAPHER, SoundSource.PLAYERS, 1.0f, 0.5f);
@@ -377,7 +342,6 @@ public class LedgerItem extends Item {
         List<BlockPos> validIndices = new ArrayList<>();
         Optional<BlockPos> validSelectedIndex = data.selectedIndex();
 
-        // Check all known indices
         for (BlockPos indexPos : data.knownIndices()) {
             if (level.isLoaded(indexPos) &&
                     level.getBlockEntity(indexPos) instanceof FilingIndexBlockEntity) {
@@ -385,7 +349,6 @@ public class LedgerItem extends Item {
             }
         }
 
-        // Check if selected index is still valid
         if (validSelectedIndex.isPresent()) {
             BlockPos selectedPos = validSelectedIndex.get();
             if (!level.isLoaded(selectedPos) ||
@@ -394,7 +357,6 @@ public class LedgerItem extends Item {
             }
         }
 
-        // Return new data if anything changed
         if (validIndices.size() != data.knownIndices().size() ||
                 !validSelectedIndex.equals(data.selectedIndex())) {
             return new LedgerData(validIndices, validSelectedIndex, data.mode());

@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -34,12 +35,15 @@ import org.jetbrains.annotations.Nullable;
 
 public class FilingIndexBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final BooleanProperty CONNECTED = BooleanProperty.create("connected");
     public static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 16, 16);
     public static final MapCodec<FilingIndexBlock> CODEC = simpleCodec(FilingIndexBlock::new);
 
     public FilingIndexBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+        this.registerDefaultState(this.stateDefinition.any()
+                .setValue(FACING, Direction.NORTH)
+                .setValue(CONNECTED, false));
     }
 
     @Override
@@ -54,7 +58,7 @@ public class FilingIndexBlock extends BaseEntityBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite()).setValue(CONNECTED, false);
     }
 
     @Override
@@ -64,7 +68,7 @@ public class FilingIndexBlock extends BaseEntityBlock {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, CONNECTED);
     }
 
     @Nullable
@@ -89,6 +93,13 @@ public class FilingIndexBlock extends BaseEntityBlock {
                 (id, inventory, playerEntity) -> new FilingIndexMenu(id, inventory, blockEntity),
                 Component.translatable("menu.realfilingreborn.filing_index_menu_title")
         ), pos);
+    }
+
+    public void updateConnectionState(Level level, BlockPos pos, boolean connected) {
+        BlockState currentState = level.getBlockState(pos);
+        if (currentState.getValue(CONNECTED) != connected) {
+            level.setBlock(pos, currentState.setValue(CONNECTED, connected), Block.UPDATE_CLIENTS);
+        }
     }
 
     @Override

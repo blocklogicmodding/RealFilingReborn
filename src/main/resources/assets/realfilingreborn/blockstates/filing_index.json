@@ -1,18 +1,33 @@
 {
   "variants": {
-    "facing=north": {
+    "facing=north,connected=false": {
       "model": "realfilingreborn:block/filing_index"
     },
-    "facing=south": {
+    "facing=north,connected=true": {
+      "model": "realfilingreborn:block/filing_index_on"
+    },
+    "facing=south,connected=false": {
       "model": "realfilingreborn:block/filing_index",
       "y": 180
     },
-    "facing=east": {
+    "facing=south,connected=true": {
+      "model": "realfilingreborn:block/filing_index_on",
+      "y": 180
+    },
+    "facing=east,connected=false": {
       "model": "realfilingreborn:block/filing_index",
       "y": 90
     },
-    "facing=west": {
+    "facing=east,connected=true": {
+      "model": "realfilingreborn:block/filing_index_on",
+      "y": 90
+    },
+    "facing=west,connected=false": {
       "model": "realfilingreborn:block/filing_index",
+      "y": 270
+    },
+    "facing=west,connected=true": {
+      "model": "realfilingreborn:block/filing_index_on",
       "y": 270
     }
   }

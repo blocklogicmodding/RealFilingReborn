@@ -1,5 +1,6 @@
 package com.blocklogic.realfilingreborn.block.entity;
 
+import com.blocklogic.realfilingreborn.block.custom.FilingIndexBlock;
 import com.blocklogic.realfilingreborn.item.custom.*;
 import com.blocklogic.realfilingreborn.screen.custom.FilingIndexMenu;
 import net.minecraft.core.BlockPos;
@@ -82,8 +83,8 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             if (!level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
                 updateNetworkCapabilities();
-                // Direct cabinet addition to caches
                 addCabinetToHandlerCaches(cabinetPos);
+                updateBlockStateConnection();
             }
 
             return true;
@@ -105,15 +106,22 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             if (level != null && !level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
                 updateNetworkCapabilities();
-                // Direct cabinet removal from caches
                 removeCabinetFromHandlerCaches(cabinetPos);
+                updateBlockStateConnection();
             }
         }
 
         return removed;
     }
 
-    // Direct cache management - no position tracking needed
+    private void updateBlockStateConnection() {
+        if (level != null && !level.isClientSide() &&
+                getBlockState().getBlock() instanceof FilingIndexBlock indexBlock) {
+            boolean hasConnections = !connectedCabinets.isEmpty();
+            indexBlock.updateConnectionState(level, getBlockPos(), hasConnections);
+        }
+    }
+
     private void addCabinetToHandlerCaches(BlockPos cabinetPos) {
         for (IItemHandler handler : handlers.values()) {
             if (handler instanceof FilingIndexNetworkHandler networkHandler) {
@@ -130,21 +138,12 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         }
     }
 
-    // Only used for broken connections or world load
     private void invalidateHandlerCaches() {
         for (IItemHandler handler : handlers.values()) {
             if (handler instanceof FilingIndexNetworkHandler networkHandler) {
                 networkHandler.invalidateCache();
             }
         }
-    }
-
-    public Set<BlockPos> getConnectedCabinets() {
-        return new HashSet<>(connectedCabinets);
-    }
-
-    public int getNetworkSize() {
-        return connectedCabinets.size();
     }
 
     public boolean isInNetwork(BlockPos cabinetPos) {
@@ -160,8 +159,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             return;
         }
 
-        // Clean up broken cabinet connections every 100 ticks (5 seconds)
-        // Stagger cleanup to prevent thundering herd
         if ((level.getGameTime() + pos.hashCode()) % 100 == 0) {
             blockEntity.cleanupBrokenConnections();
         }
@@ -177,7 +174,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         while (iterator.hasNext()) {
             BlockPos cabinetPos = iterator.next();
 
-            // Check if cabinet still exists and is valid
             if (!level.isLoaded(cabinetPos) ||
                     !(level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity)) {
                 iterator.remove();
@@ -191,10 +187,11 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
             updateNetworkCapabilities();
 
-            // Remove broken cabinets from caches
             for (BlockPos removedCabinet : removedCabinets) {
                 removeCabinetFromHandlerCaches(removedCabinet);
             }
+
+            updateBlockStateConnection();
         }
     }
 
@@ -233,7 +230,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             for (int slot = 0; slot < 5; slot++) {
                 ItemStack folderStack = cabinet.inventory.getStackInSlot(slot);
                 if (!folderStack.isEmpty()) {
-                    // Check regular folders
                     if (folderStack.getItem() instanceof FilingFolderItem) {
                         FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
                         if (contents != null && contents.storedItemId().isPresent()) {
@@ -243,7 +239,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
                             }
                         }
                     }
-                    // Check NBT folders
                     else if (folderStack.getItem() instanceof NBTFilingFolderItem) {
                         NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
                         if (contents != null && contents.storedItemId().isPresent()) {
@@ -310,7 +305,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             connectedCabinets.add(pos);
         }
 
-        // After loading, invalidate caches so they rebuild on first access
         invalidateHandlerCaches();
     }
 
@@ -350,7 +344,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         // Direct cabinet addition - O(1) operation
         public void addCabinet(BlockPos cabinetPos) {
             if (cachedSlotMappings == null) {
-                // Cache doesn't exist yet, will be built on first access
                 return;
             }
 
@@ -366,10 +359,8 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             }
         }
 
-        // Direct cabinet removal - O(n) where n = slots in removed cabinet
         public void removeCabinet(BlockPos cabinetPos) {
             if (cachedSlotMappings == null) {
-                // Cache doesn't exist, nothing to remove
                 return;
             }
 
@@ -448,10 +439,10 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             for (CabinetSlotMapping mapping : cachedSlotMappings) {
                 ItemStack remaining = mapping.handler.insertItem(mapping.localSlot, stack, simulate);
                 if (remaining.getCount() < stack.getCount()) {
-                    return remaining; // Successfully inserted some/all
+                    return remaining;
                 }
             }
-            return stack; // Couldn't insert anywhere
+            return stack;
         }
 
         @Override

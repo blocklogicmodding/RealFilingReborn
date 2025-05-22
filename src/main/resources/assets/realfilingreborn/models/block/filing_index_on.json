@@ -1,0 +1,12 @@
+{
+  "parent": "minecraft:block/cube",
+  "textures": {
+    "north": "realfilingreborn:block/filing_index_front_on",
+    "south": "realfilingreborn:block/filing_cabinet_sides",
+    "east": "realfilingreborn:block/filing_cabinet_sides",
+    "west": "realfilingreborn:block/filing_cabinet_sides",
+    "up": "realfilingreborn:block/filing_cabinet_top",
+    "down": "realfilingreborn:block/filing_cabinet_bottom",
+    "particle": "realfilingreborn:block/filing_cabinet_front"
+  }
+}
