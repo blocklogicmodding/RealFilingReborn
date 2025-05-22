@@ -4,8 +4,10 @@
   "item.realfilingreborn.filing_folder": "Folder",
   "item.realfilingreborn.nbt_filing_folder": "NBT Folder",
   "item.realfilingreborn.eraser": "Eraser",
+  "item.realfilingreborn.ledger": "Ledger",
 
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
+  "block.realfilingreborn.filing_index": "Filing Index",
   "block.realfilingreborn.test_blocks_generator": "Test Blocks Generator",
   "block.realfilingreborn.test_nbt_items_generator": "Test NBT Items Generator",
 
@@ -16,7 +18,7 @@
   "message.realfilingreborn.folder_erased": "Folder assignment erased",
   "message.realfilingreborn.folder_not_empty": "Folder must be empty to erase assignment",
   "message.realfilingreborn.folder_not_assigned": "Folder is not assigned to any item",
-  "message.realfilingreborn.folders_full": "Filing Cabinet is full (27 folders)",
+  "message.realfilingreborn.folders_full": "Filing Cabinet is full (5 folders)",
   "message.realfilingreborn.no_folders": "Filing Cabinet can only accept folders",
   "message.realfilingreborn.folder_empty": "Folder is empty. Hold item in off hand and folder in main hand to add items",
   "message.realfilingreborn.wrong_item_type": "Folder assigned to: %s",

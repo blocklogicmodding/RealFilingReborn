@@ -21,6 +21,9 @@ public class ModItems {
     public static final DeferredItem<Item> NBT_FILING_FOLDER = ITEMS.register("nbt_filing_folder",
             () -> new NBTFilingFolderItem(new Item.Properties()));
 
+    public static final DeferredItem<Item> LEDGER = ITEMS.register("ledger",
+            () -> new LedgerItem(new Item.Properties()));
+
     public static final DeferredItem<Item> ERASER = ITEMS.register("eraser",
             () -> new EraserItem(new Item.Properties().durability(64)));
 
