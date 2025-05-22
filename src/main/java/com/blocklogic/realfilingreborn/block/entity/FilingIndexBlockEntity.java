@@ -71,18 +71,18 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         }
 
         if (level != null && level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
-            // Check if cabinet is already connected to ANY network
             if (cabinet.isInNetwork()) {
-                return false; // Cabinet already in a network
+                return false;
             }
 
             connectedCabinets.add(cabinetPos);
-            cabinet.setConnectedIndex(getBlockPos()); // Tell cabinet it's connected to us
+            cabinet.setConnectedIndex(getBlockPos());
             setChanged();
 
             if (!level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
                 updateNetworkCapabilities();
+                invalidateHandlerCaches(); // NEW
             }
 
             return true;
@@ -95,7 +95,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         boolean removed = connectedCabinets.remove(cabinetPos);
 
         if (removed) {
-            // Tell cabinet it's no longer connected
             if (level != null && level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
                 cabinet.clearConnectedIndex();
             }
@@ -105,10 +104,20 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             if (level != null && !level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
                 updateNetworkCapabilities();
+                invalidateHandlerCaches(); // NEW
             }
         }
 
         return removed;
+    }
+
+    private void invalidateHandlerCaches() {
+        // Invalidate all cached handlers
+        for (IItemHandler handler : handlers.values()) {
+            if (handler instanceof FilingIndexNetworkHandler networkHandler) {
+                networkHandler.invalidateCache();
+            }
+        }
     }
 
     public Set<BlockPos> getConnectedCabinets() {
@@ -159,6 +168,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             setChanged();
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
             updateNetworkCapabilities();
+            invalidateHandlerCaches();
         }
     }
 
@@ -226,39 +236,9 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         return found;
     }
 
-    private void cleanupSelectedIndexReferences() {
-        BlockPos thisPos = getBlockPos();
-
-        // Check all players for ledgers that have THIS index selected
-        for (Player player : level.players()) {
-            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
-                ItemStack stack = player.getInventory().getItem(i);
-                if (stack.getItem() instanceof LedgerItem) {
-                    LedgerItem.LedgerData data = stack.get(LedgerItem.LEDGER_DATA.value());
-                    if (data != null && data.selectedIndex().isPresent() &&
-                            data.selectedIndex().get().equals(thisPos)) {
-
-                        // Clear ONLY the selected index, keep the known indices list
-                        LedgerItem.LedgerData newData = new LedgerItem.LedgerData(
-                                data.knownIndices(),
-                                Optional.empty(), // Clear selected
-                                data.mode()
-                        );
-                        stack.set(LedgerItem.LEDGER_DATA.value(), newData);
-                    }
-                }
-            }
-        }
-    }
-
     @Override
     public void setRemoved() {
         super.setRemoved();
-
-        if (level != null && !level.isClientSide()) {
-            // Only clean up ledgers if THIS index was selected somewhere
-            cleanupSelectedIndexReferences();
-        }
     }
 
     public void drops() {
@@ -330,27 +310,55 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     private static class FilingIndexNetworkHandler implements IItemHandler {
         private final FilingIndexBlockEntity indexEntity;
         private final Direction side;
+        private int cachedTotalSlots = -1;
+        private List<CabinetSlotMapping> cachedSlotMappings = null;
 
         public FilingIndexNetworkHandler(FilingIndexBlockEntity indexEntity, @Nullable Direction side) {
             this.indexEntity = indexEntity;
             this.side = side;
         }
 
-        @Override
-        public int getSlots() {
-            if (indexEntity.level == null) return 0;
+        private void invalidateCache() {
+            cachedTotalSlots = -1;
+            cachedSlotMappings = null;
+        }
 
-            // Calculate total slots across all connected cabinets
-            int totalSlots = 0;
+        private void buildSlotMappings() {
+            if (cachedSlotMappings != null) return;
+
+            cachedSlotMappings = new ArrayList<>();
+            cachedTotalSlots = 0;
+
             for (BlockPos cabinetPos : indexEntity.connectedCabinets) {
                 if (indexEntity.level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
                     IItemHandler cabinetHandler = cabinet.getCapabilityHandler(side);
                     if (cabinetHandler != null) {
-                        totalSlots += cabinetHandler.getSlots();
+                        int cabinetSlots = cabinetHandler.getSlots();
+                        for (int i = 0; i < cabinetSlots; i++) {
+                            cachedSlotMappings.add(new CabinetSlotMapping(cabinetHandler, i));
+                        }
+                        cachedTotalSlots += cabinetSlots;
                     }
                 }
             }
-            return totalSlots;
+        }
+
+        @Override
+        public int getSlots() {
+            if (cachedTotalSlots == -1) {
+                buildSlotMappings();
+            }
+            return cachedTotalSlots;
+        }
+
+        private CabinetSlotMapping getCabinetAndSlot(int globalSlot) {
+            buildSlotMappings();
+
+            if (globalSlot < 0 || globalSlot >= cachedSlotMappings.size()) {
+                return null;
+            }
+
+            return cachedSlotMappings.get(globalSlot);
         }
 
         @Override
@@ -367,16 +375,12 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
             if (stack.isEmpty()) return stack;
 
-            // Try to insert into any compatible cabinet
-            for (BlockPos cabinetPos : indexEntity.connectedCabinets) {
-                if (indexEntity.level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
-                    IItemHandler cabinetHandler = cabinet.getCapabilityHandler(side);
-                    if (cabinetHandler != null) {
-                        ItemStack remaining = cabinetHandler.insertItem(slot % cabinetHandler.getSlots(), stack, simulate);
-                        if (remaining.getCount() < stack.getCount()) {
-                            return remaining; // Successfully inserted some/all
-                        }
-                    }
+            buildSlotMappings();
+
+            for (CabinetSlotMapping mapping : cachedSlotMappings) {
+                ItemStack remaining = mapping.handler.insertItem(mapping.localSlot, stack, simulate);
+                if (remaining.getCount() < stack.getCount()) {
+                    return remaining; // Successfully inserted some/all
                 }
             }
             return stack; // Couldn't insert anywhere
@@ -405,25 +409,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             if (mapping == null) return false;
 
             return mapping.handler.isItemValid(mapping.localSlot, stack);
-        }
-
-        private CabinetSlotMapping getCabinetAndSlot(int globalSlot) {
-            if (indexEntity.level == null) return null;
-
-            int currentSlot = 0;
-            for (BlockPos cabinetPos : indexEntity.connectedCabinets) {
-                if (indexEntity.level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
-                    IItemHandler cabinetHandler = cabinet.getCapabilityHandler(side);
-                    if (cabinetHandler != null) {
-                        int cabinetSlots = cabinetHandler.getSlots();
-                        if (globalSlot < currentSlot + cabinetSlots) {
-                            return new CabinetSlotMapping(cabinetHandler, globalSlot - currentSlot);
-                        }
-                        currentSlot += cabinetSlots;
-                    }
-                }
-            }
-            return null;
         }
 
         private record CabinetSlotMapping(IItemHandler handler, int localSlot) {}
