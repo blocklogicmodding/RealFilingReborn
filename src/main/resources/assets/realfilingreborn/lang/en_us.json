@@ -74,6 +74,7 @@
   "message.realfilingreborn.ledger.cabinet_removed": "Filing Cabinet removed from network",
   "message.realfilingreborn.ledger.cabinet_not_connected": "Filing Cabinet is not connected to this network",
   "message.realfilingreborn.ledger.mode_changed": "Ledger mode changed to %s",
+  "message.realfilingreborn.cabinet_already_in_network": "Cabinet is already connected to another network. Remove it first!",
 
   "tooltip.realfilingreborn.ledger.mode": "Mode: %s",
   "tooltip.realfilingreborn.ledger.selected_index": "Selected Index: %s, %s, %s",

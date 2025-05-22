@@ -15,6 +15,8 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -35,8 +37,8 @@ import java.util.Optional;
 public class LedgerItem extends Item {
 
     public enum LedgerMode {
-        ADD("add"),
-        REMOVE("remove");
+        Add("add"),
+        Remove("remove");
 
         private final String name;
 
@@ -49,7 +51,7 @@ public class LedgerItem extends Item {
         }
 
         public LedgerMode toggle() {
-            return this == ADD ? REMOVE : ADD;
+            return this == Add ? Remove : Add;
         }
     }
 
@@ -64,7 +66,7 @@ public class LedgerItem extends Item {
                     Codec.list(BlockPos.CODEC).fieldOf("knownIndices").forGetter(LedgerData::knownIndices),
                     BlockPos.CODEC.optionalFieldOf("selectedIndex").forGetter(LedgerData::selectedIndex),
                     Codec.STRING.xmap(
-                            name -> name.equals("remove") ? LedgerMode.REMOVE : LedgerMode.ADD,
+                            name -> name.equals("remove") ? LedgerMode.Remove : LedgerMode.Add,
                             LedgerMode::getName
                     ).fieldOf("mode").forGetter(LedgerData::mode)
             ).apply(instance, LedgerData::new)
@@ -84,7 +86,7 @@ public class LedgerItem extends Item {
             ByteBufCodecs.optional(BLOCKPOS_STREAM_CODEC),
             LedgerData::selectedIndex,
             ByteBufCodecs.STRING_UTF8.map(
-                    name -> name.equals("remove") ? LedgerMode.REMOVE : LedgerMode.ADD,
+                    name -> name.equals("remove") ? LedgerMode.Remove : LedgerMode.Add,
                     LedgerMode::getName
             ),
             LedgerData::mode,
@@ -104,7 +106,7 @@ public class LedgerItem extends Item {
     public LedgerItem(Properties properties) {
         super(properties.component(
                 LEDGER_DATA.value(),
-                new LedgerData(new ArrayList<>(), Optional.empty(), LedgerMode.ADD)
+                new LedgerData(new ArrayList<>(), Optional.empty(), LedgerMode.Add)
         ));
     }
 
@@ -122,7 +124,7 @@ public class LedgerItem extends Item {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         LedgerData data = ledger.get(LEDGER_DATA.value());
         if (data == null) {
-            data = new LedgerData(new ArrayList<>(), Optional.empty(), LedgerMode.ADD);
+            data = new LedgerData(new ArrayList<>(), Optional.empty(), LedgerMode.Add);
         }
 
         // Handle Filing Index interaction
@@ -139,7 +141,7 @@ public class LedgerItem extends Item {
     }
 
     private InteractionResult handleIndexInteraction(ItemStack ledger, LedgerData data, BlockPos indexPos, Player player) {
-        // NEW: Clean up broken indices first
+        // Clean up broken indices first
         data = cleanupBrokenIndices(data, player.level());
 
         List<BlockPos> knownIndices = new ArrayList<>(data.knownIndices());
@@ -164,6 +166,10 @@ public class LedgerItem extends Item {
                         .withStyle(ChatFormatting.YELLOW),
                 true
         );
+
+        // Play index selection sound
+        player.level().playSound(null, player.getX(), player.getY(), player.getZ(),
+                SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 1.0f, 1.0f);
 
         return InteractionResult.SUCCESS;
     }
@@ -202,23 +208,41 @@ public class LedgerItem extends Item {
                             .withStyle(ChatFormatting.RED),
                     true
             );
+            level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.NOTE_BLOCK_SNARE, SoundSource.PLAYERS, 1.0f, 1.0f);
             return InteractionResult.FAIL;
         }
 
         // Add or remove cabinet from index
-        if (data.mode() == LedgerMode.ADD) {
+        if (data.mode() == LedgerMode.Add) {
+            // Check if cabinet is already in ANY network
+            if (level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
+                if (cabinet.isInNetwork()) {
+                    player.displayClientMessage(
+                            Component.translatable("message.realfilingreborn.cabinet_already_in_network")
+                                    .withStyle(ChatFormatting.RED),
+                            true
+                    );
+                    return InteractionResult.FAIL;
+                }
+            }
+
             if (filingIndexEntity.addConnectedCabinet(cabinetPos)) {
                 player.displayClientMessage(
                         Component.translatable("message.realfilingreborn.ledger.cabinet_added")
                                 .withStyle(ChatFormatting.GREEN),
                         true
                 );
+                level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                        SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 1.0f, 1.0f);
             } else {
                 player.displayClientMessage(
                         Component.translatable("message.realfilingreborn.ledger.cabinet_already_connected")
                                 .withStyle(ChatFormatting.YELLOW),
                         true
                 );
+                level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                        SoundEvents.NOTE_BLOCK_SNARE.value(), SoundSource.PLAYERS, 1.0f, 1.0f);
             }
         } else {
             if (filingIndexEntity.removeConnectedCabinet(cabinetPos)) {
@@ -227,16 +251,44 @@ public class LedgerItem extends Item {
                                 .withStyle(ChatFormatting.GREEN),
                         true
                 );
+                level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                        SoundEvents.NOTE_BLOCK_BELL.value(), SoundSource.PLAYERS, 1.0f, 1.5f);
             } else {
                 player.displayClientMessage(
                         Component.translatable("message.realfilingreborn.ledger.cabinet_not_connected")
                                 .withStyle(ChatFormatting.YELLOW),
                         true
                 );
+                level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                        SoundEvents.NOTE_BLOCK_SNARE.value(), SoundSource.PLAYERS, 1.0f, 1.0f);
             }
         }
 
         return InteractionResult.SUCCESS;
+    }
+
+    private FilingIndexBlockEntity findCabinetInAnyNetwork(BlockPos cabinetPos, BlockPos excludeIndexPos, Level level) {
+        // Search in a reasonable area around the cabinet for other indices
+        int searchRange = 256; // Max possible range with netherite upgrade
+
+        for (int x = -searchRange; x <= searchRange; x += 16) {
+            for (int y = -searchRange; y <= searchRange; y += 16) {
+                for (int z = -searchRange; z <= searchRange; z += 16) {
+                    BlockPos searchPos = cabinetPos.offset(x, y, z);
+                    if (searchPos.equals(excludeIndexPos)) continue;
+
+                    if (level.isLoaded(searchPos)) {
+                        BlockEntity be = level.getBlockEntity(searchPos);
+                        if (be instanceof FilingIndexBlockEntity indexEntity) {
+                            if (indexEntity.isInNetwork(cabinetPos)) {
+                                return indexEntity;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return null;
     }
 
     private int getIndexRange(FilingIndexBlockEntity indexEntity) {
@@ -253,8 +305,7 @@ public class LedgerItem extends Item {
         return 16; // Base range
     }
 
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, net.minecraft.world.InteractionHand hand) {
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         if (level.isClientSide()) {
             return InteractionResultHolder.success(player.getItemInHand(hand));
         }
@@ -262,10 +313,10 @@ public class LedgerItem extends Item {
         ItemStack ledger = player.getItemInHand(hand);
         LedgerData data = ledger.get(LEDGER_DATA.value());
         if (data == null) {
-            data = new LedgerData(new ArrayList<>(), Optional.empty(), LedgerMode.ADD);
+            data = new LedgerData(new ArrayList<>(), Optional.empty(), LedgerMode.Add);
         }
 
-        // NEW: Clean up broken indices when toggling mode
+        // Clean up broken indices first
         data = cleanupBrokenIndices(data, level);
 
         // Toggle mode when right-clicking air
@@ -273,10 +324,19 @@ public class LedgerItem extends Item {
         LedgerData newData = new LedgerData(data.knownIndices(), data.selectedIndex(), newMode);
         ledger.set(LEDGER_DATA.value(), newData);
 
+        // Play sound based on mode
+        if (newMode == LedgerMode.Add) {
+            level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.VILLAGER_WORK_CARTOGRAPHER, SoundSource.PLAYERS, 1.0f, 0.5f);
+        } else {
+            level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                    SoundEvents.VILLAGER_WORK_CARTOGRAPHER, SoundSource.PLAYERS, 1.0F, 1.0f);
+        }
+
         player.displayClientMessage(
                 Component.translatable("message.realfilingreborn.ledger.mode_changed",
                                 newMode.getName().toUpperCase())
-                        .withStyle(newMode == LedgerMode.ADD ? ChatFormatting.GREEN : ChatFormatting.RED),
+                        .withStyle(newMode == LedgerMode.Add ? ChatFormatting.GREEN : ChatFormatting.RED),
                 true
         );
 
@@ -290,7 +350,7 @@ public class LedgerItem extends Item {
         if (data != null) {
             tooltip.add(Component.translatable("tooltip.realfilingreborn.ledger.mode",
                             data.mode().getName().toUpperCase())
-                    .withStyle(data.mode() == LedgerMode.ADD ? ChatFormatting.GREEN : ChatFormatting.RED));
+                    .withStyle(data.mode() == LedgerMode.Add ? ChatFormatting.GREEN : ChatFormatting.RED));
 
             if (data.selectedIndex().isPresent()) {
                 BlockPos pos = data.selectedIndex().get();

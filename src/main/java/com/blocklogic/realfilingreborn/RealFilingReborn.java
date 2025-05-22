@@ -75,6 +75,12 @@ public class RealFilingReborn
                 ModBlockEntities.FILING_CABINET_BE.get(),
                 (filingCabinetBE, side) -> filingCabinetBE.getCapabilityHandler(side)
         );
+
+        event.registerBlockEntity(
+                Capabilities.ItemHandler.BLOCK,
+                ModBlockEntities.FILING_INDEX_BE.get(),
+                (filingIndexBE, side) -> filingIndexBE.getCapabilityHandler(side)
+        );
     }
 
     @SubscribeEvent
@@ -109,6 +115,12 @@ public class RealFilingReborn
                     Capabilities.ItemHandler.BLOCK,
                     ModBlockEntities.FILING_CABINET_BE.get(),
                     (filingCabinetBE, side) -> filingCabinetBE.getCapabilityHandler(side)
+            );
+
+            event.registerBlockEntity(
+                    Capabilities.ItemHandler.BLOCK,
+                    ModBlockEntities.FILING_INDEX_BE.get(),
+                    (filingIndexBE, side) -> filingIndexBE.getCapabilityHandler(side)
             );
         }
     }

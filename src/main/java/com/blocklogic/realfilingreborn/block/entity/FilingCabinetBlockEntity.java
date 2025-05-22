@@ -37,6 +37,27 @@ import org.jetbrains.annotations.Nullable;
 import java.util.*;
 
 public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvider {
+
+    private Optional<BlockPos> connectedIndexPos = Optional.empty();
+
+    public boolean isInNetwork() {
+        return connectedIndexPos.isPresent();
+    }
+
+    public Optional<BlockPos> getConnectedIndex() {
+        return connectedIndexPos;
+    }
+
+    public void setConnectedIndex(BlockPos indexPos) {
+        this.connectedIndexPos = Optional.of(indexPos);
+        setChanged();
+    }
+
+    public void clearConnectedIndex() {
+        this.connectedIndexPos = Optional.empty();
+        setChanged();
+    }
+
     public final ItemStackHandler inventory = new ItemStackHandler(5) {
         @Override
         protected void onContentsChanged(int slot) {
@@ -82,12 +103,33 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", inventory.serializeNBT(registries));
+
+        if (connectedIndexPos.isPresent()) {
+            BlockPos pos = connectedIndexPos.get();
+            CompoundTag indexTag = new CompoundTag();
+            indexTag.putInt("x", pos.getX());
+            indexTag.putInt("y", pos.getY());
+            indexTag.putInt("z", pos.getZ());
+            tag.put("connectedIndex", indexTag);
+        }
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("inventory"));
+
+        if (tag.contains("connectedIndex")) {
+            CompoundTag indexTag = tag.getCompound("connectedIndex");
+            BlockPos pos = new BlockPos(
+                    indexTag.getInt("x"),
+                    indexTag.getInt("y"),
+                    indexTag.getInt("z")
+            );
+            connectedIndexPos = Optional.of(pos);
+        } else {
+            connectedIndexPos = Optional.empty();
+        }
     }
 
     @Override

@@ -1,8 +1,11 @@
 package com.blocklogic.realfilingreborn.block.entity;
 
+import com.blocklogic.realfilingreborn.item.custom.*;
 import com.blocklogic.realfilingreborn.screen.custom.FilingIndexMenu;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
@@ -15,52 +18,22 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider {
     private Set<BlockPos> connectedCabinets = new HashSet<>();
-
-    public boolean addConnectedCabinet(BlockPos cabinetPos) {
-        if (connectedCabinets.contains(cabinetPos)) {
-            return false;
-        }
-
-        if (level != null && level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity) {
-            connectedCabinets.add(cabinetPos);
-            setChanged();
-
-            if (!level.isClientSide()) {
-                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
-            }
-
-            return true;
-        }
-
-        return false;
-    }
-
-    public boolean removeConnectedCabinet(BlockPos cabinetPos) {
-        boolean removed = connectedCabinets.remove(cabinetPos);
-
-        if (removed) {
-            setChanged();
-
-            if (level != null && !level.isClientSide()) {
-                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
-            }
-        }
-
-        return removed;
-    }
+    private final Map<Direction, IItemHandler> handlers = new HashMap<>();
 
     public final ItemStackHandler inventory = new ItemStackHandler(1) {
         @Override
@@ -81,6 +54,75 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         super(ModBlockEntities.FILING_INDEX_BE.get(), pos, blockState);
     }
 
+    @Nullable
+    public IItemHandler getCapabilityHandler(@Nullable Direction side) {
+        return handlers.computeIfAbsent(side != null ? side : Direction.UP, s -> new FilingIndexNetworkHandler(this, s));
+    }
+
+    public void updateNetworkCapabilities() {
+        if (level != null && !level.isClientSide()) {
+            level.invalidateCapabilities(getBlockPos());
+        }
+    }
+
+    public boolean addConnectedCabinet(BlockPos cabinetPos) {
+        if (connectedCabinets.contains(cabinetPos)) {
+            return false;
+        }
+
+        if (level != null && level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
+            // Check if cabinet is already connected to ANY network
+            if (cabinet.isInNetwork()) {
+                return false; // Cabinet already in a network
+            }
+
+            connectedCabinets.add(cabinetPos);
+            cabinet.setConnectedIndex(getBlockPos()); // Tell cabinet it's connected to us
+            setChanged();
+
+            if (!level.isClientSide()) {
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+                updateNetworkCapabilities();
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    public boolean removeConnectedCabinet(BlockPos cabinetPos) {
+        boolean removed = connectedCabinets.remove(cabinetPos);
+
+        if (removed) {
+            // Tell cabinet it's no longer connected
+            if (level != null && level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
+                cabinet.clearConnectedIndex();
+            }
+
+            setChanged();
+
+            if (level != null && !level.isClientSide()) {
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+                updateNetworkCapabilities();
+            }
+        }
+
+        return removed;
+    }
+
+    public Set<BlockPos> getConnectedCabinets() {
+        return new HashSet<>(connectedCabinets);
+    }
+
+    public int getNetworkSize() {
+        return connectedCabinets.size();
+    }
+
+    public boolean isInNetwork(BlockPos cabinetPos) {
+        return connectedCabinets.contains(cabinetPos);
+    }
+
     public void clearContents() {
         inventory.setStackInSlot(0, ItemStack.EMPTY);
     }
@@ -96,7 +138,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         }
     }
 
-    // NEW: Cleanup method for broken cabinet connections
     private void cleanupBrokenConnections() {
         if (level == null) return;
 
@@ -117,6 +158,106 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         if (changed) {
             setChanged();
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+            updateNetworkCapabilities();
+        }
+    }
+
+    public List<FilingCabinetBlockEntity> getConnectedCabinetEntities() {
+        if (level == null) return new ArrayList<>();
+
+        return connectedCabinets.stream()
+                .map(pos -> level.getBlockEntity(pos))
+                .filter(be -> be instanceof FilingCabinetBlockEntity)
+                .map(be -> (FilingCabinetBlockEntity) be)
+                .collect(Collectors.toList());
+    }
+
+    public int getTotalNetworkSlots() {
+        return getConnectedCabinetEntities().size() * 5; // 5 slots per cabinet
+    }
+
+    public int getUsedNetworkSlots() {
+        return getConnectedCabinetEntities().stream()
+                .mapToInt(cabinet -> {
+                    int used = 0;
+                    for (int i = 0; i < 5; i++) {
+                        if (!cabinet.inventory.getStackInSlot(i).isEmpty()) {
+                            used++;
+                        }
+                    }
+                    return used;
+                })
+                .sum();
+    }
+
+    public List<ItemStack> findItemsInNetwork(Item targetItem) {
+        List<ItemStack> found = new ArrayList<>();
+
+        for (FilingCabinetBlockEntity cabinet : getConnectedCabinetEntities()) {
+            for (int slot = 0; slot < 5; slot++) {
+                ItemStack folderStack = cabinet.inventory.getStackInSlot(slot);
+                if (!folderStack.isEmpty()) {
+                    // Check regular folders
+                    if (folderStack.getItem() instanceof FilingFolderItem) {
+                        FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
+                        if (contents != null && contents.storedItemId().isPresent()) {
+                            Item storedItem = BuiltInRegistries.ITEM.get(contents.storedItemId().get());
+                            if (storedItem == targetItem && contents.count() > 0) {
+                                found.add(new ItemStack(storedItem, contents.count()));
+                            }
+                        }
+                    }
+                    // Check NBT folders
+                    else if (folderStack.getItem() instanceof NBTFilingFolderItem) {
+                        NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
+                        if (contents != null && contents.storedItemId().isPresent()) {
+                            Item storedItem = BuiltInRegistries.ITEM.get(contents.storedItemId().get());
+                            if (storedItem == targetItem && !contents.storedItems().isEmpty()) {
+                                for (NBTFilingFolderItem.SerializedItemStack serialized : contents.storedItems()) {
+                                    found.add(serialized.stack().copy());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return found;
+    }
+
+    private void cleanupSelectedIndexReferences() {
+        BlockPos thisPos = getBlockPos();
+
+        // Check all players for ledgers that have THIS index selected
+        for (Player player : level.players()) {
+            for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                ItemStack stack = player.getInventory().getItem(i);
+                if (stack.getItem() instanceof LedgerItem) {
+                    LedgerItem.LedgerData data = stack.get(LedgerItem.LEDGER_DATA.value());
+                    if (data != null && data.selectedIndex().isPresent() &&
+                            data.selectedIndex().get().equals(thisPos)) {
+
+                        // Clear ONLY the selected index, keep the known indices list
+                        LedgerItem.LedgerData newData = new LedgerItem.LedgerData(
+                                data.knownIndices(),
+                                Optional.empty(), // Clear selected
+                                data.mode()
+                        );
+                        stack.set(LedgerItem.LEDGER_DATA.value(), newData);
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+
+        if (level != null && !level.isClientSide()) {
+            // Only clean up ledgers if THIS index was selected somewhere
+            cleanupSelectedIndexReferences();
         }
     }
 
@@ -184,5 +325,107 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         return saveWithoutMetadata(registries);
+    }
+
+    private static class FilingIndexNetworkHandler implements IItemHandler {
+        private final FilingIndexBlockEntity indexEntity;
+        private final Direction side;
+
+        public FilingIndexNetworkHandler(FilingIndexBlockEntity indexEntity, @Nullable Direction side) {
+            this.indexEntity = indexEntity;
+            this.side = side;
+        }
+
+        @Override
+        public int getSlots() {
+            if (indexEntity.level == null) return 0;
+
+            // Calculate total slots across all connected cabinets
+            int totalSlots = 0;
+            for (BlockPos cabinetPos : indexEntity.connectedCabinets) {
+                if (indexEntity.level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
+                    IItemHandler cabinetHandler = cabinet.getCapabilityHandler(side);
+                    if (cabinetHandler != null) {
+                        totalSlots += cabinetHandler.getSlots();
+                    }
+                }
+            }
+            return totalSlots;
+        }
+
+        @Override
+        @NotNull
+        public ItemStack getStackInSlot(int slot) {
+            CabinetSlotMapping mapping = getCabinetAndSlot(slot);
+            if (mapping == null) return ItemStack.EMPTY;
+
+            return mapping.handler.getStackInSlot(mapping.localSlot);
+        }
+
+        @Override
+        @NotNull
+        public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
+            if (stack.isEmpty()) return stack;
+
+            // Try to insert into any compatible cabinet
+            for (BlockPos cabinetPos : indexEntity.connectedCabinets) {
+                if (indexEntity.level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
+                    IItemHandler cabinetHandler = cabinet.getCapabilityHandler(side);
+                    if (cabinetHandler != null) {
+                        ItemStack remaining = cabinetHandler.insertItem(slot % cabinetHandler.getSlots(), stack, simulate);
+                        if (remaining.getCount() < stack.getCount()) {
+                            return remaining; // Successfully inserted some/all
+                        }
+                    }
+                }
+            }
+            return stack; // Couldn't insert anywhere
+        }
+
+        @Override
+        @NotNull
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            CabinetSlotMapping mapping = getCabinetAndSlot(slot);
+            if (mapping == null) return ItemStack.EMPTY;
+
+            return mapping.handler.extractItem(mapping.localSlot, amount, simulate);
+        }
+
+        @Override
+        public int getSlotLimit(int slot) {
+            CabinetSlotMapping mapping = getCabinetAndSlot(slot);
+            if (mapping == null) return 0;
+
+            return mapping.handler.getSlotLimit(mapping.localSlot);
+        }
+
+        @Override
+        public boolean isItemValid(int slot, @NotNull ItemStack stack) {
+            CabinetSlotMapping mapping = getCabinetAndSlot(slot);
+            if (mapping == null) return false;
+
+            return mapping.handler.isItemValid(mapping.localSlot, stack);
+        }
+
+        private CabinetSlotMapping getCabinetAndSlot(int globalSlot) {
+            if (indexEntity.level == null) return null;
+
+            int currentSlot = 0;
+            for (BlockPos cabinetPos : indexEntity.connectedCabinets) {
+                if (indexEntity.level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
+                    IItemHandler cabinetHandler = cabinet.getCapabilityHandler(side);
+                    if (cabinetHandler != null) {
+                        int cabinetSlots = cabinetHandler.getSlots();
+                        if (globalSlot < currentSlot + cabinetSlots) {
+                            return new CabinetSlotMapping(cabinetHandler, globalSlot - currentSlot);
+                        }
+                        currentSlot += cabinetSlots;
+                    }
+                }
+            }
+            return null;
+        }
+
+        private record CabinetSlotMapping(IItemHandler handler, int localSlot) {}
     }
 }
