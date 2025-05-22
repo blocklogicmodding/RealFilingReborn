@@ -62,5 +62,22 @@
   "tooltip.realfilingreborn.jade.total_folders": "Total Folders: %d",
   "tooltip.realfilingreborn.jade.total_items": "Total Items: %s",
 
-  "config.jade.plugin_realfilingreborn.filing_cabinet_info": "Filing Cabinet Information"
+  "config.jade.plugin_realfilingreborn.filing_cabinet_info": "Filing Cabinet Information",
+
+  "message.realfilingreborn.ledger.index_registered": "Filing Index recorded at %s, %s, %s",
+  "message.realfilingreborn.ledger.index_selected": "Filing Index selected at %s, %s, %s",
+  "message.realfilingreborn.ledger.no_index_selected": "No Filing Index selected. Right-click a Filing Index first",
+  "message.realfilingreborn.ledger.index_not_found": "Selected Filing Index no longer exists",
+  "message.realfilingreborn.ledger.out_of_range": "Cabinet is out of range (%s blocks). Max range: %s blocks",
+  "message.realfilingreborn.ledger.cabinet_added": "Filing Cabinet connected to network",
+  "message.realfilingreborn.ledger.cabinet_already_connected": "Filing Cabinet is already connected",
+  "message.realfilingreborn.ledger.cabinet_removed": "Filing Cabinet removed from network",
+  "message.realfilingreborn.ledger.cabinet_not_connected": "Filing Cabinet is not connected to this network",
+  "message.realfilingreborn.ledger.mode_changed": "Ledger mode changed to %s",
+
+  "tooltip.realfilingreborn.ledger.mode": "Mode: %s",
+  "tooltip.realfilingreborn.ledger.selected_index": "Selected Index: %s, %s, %s",
+  "tooltip.realfilingreborn.ledger.no_index_selected": "No Index selected",
+  "tooltip.realfilingreborn.ledger.known_indices": "Recorded Indices: %s",
+  "tooltip.realfilingreborn.ledger.usage": "Right-click in the air to toggle mode, shift-right-click Cabinets to connect/disconnect"
 }

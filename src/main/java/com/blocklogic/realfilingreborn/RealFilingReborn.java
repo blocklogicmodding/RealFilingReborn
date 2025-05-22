@@ -6,6 +6,7 @@ import com.blocklogic.realfilingreborn.block.entity.renderer.FilingCabinetBlockE
 import com.blocklogic.realfilingreborn.item.ModCreativeModTab;
 import com.blocklogic.realfilingreborn.item.ModItems;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
+import com.blocklogic.realfilingreborn.item.custom.LedgerItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
 import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetScreen;
@@ -52,6 +53,7 @@ public class RealFilingReborn
 
         FilingFolderItem.DATA_COMPONENTS.register(modEventBus);
         NBTFilingFolderItem.DATA_COMPONENTS.register(modEventBus);
+        LedgerItem.DATA_COMPONENTS.register(modEventBus);
 
         modEventBus.addListener(this::addCreative);
 
