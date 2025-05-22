@@ -5,6 +5,9 @@
   "item.realfilingreborn.nbt_filing_folder": "NBT Folder",
   "item.realfilingreborn.eraser": "Eraser",
   "item.realfilingreborn.ledger": "Ledger",
+  "item.realfilingreborn.index_range_upgrade_iron": "Filing Index Iron Range Upgrade",
+  "item.realfilingreborn.index_range_upgrade_diamond": "Filing Index Diamond Range Upgrade",
+  "item.realfilingreborn.index_range_upgrade_netherite": "Filing Index Netherite Range Upgrade",
 
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
   "block.realfilingreborn.filing_index": "Filing Index",
@@ -14,6 +17,7 @@
   "blockentity.realfilingreborn.name": "Filing Cabinet",
 
   "menu.realfilingreborn.menu_title": "Filing Cabinet",
+  "menu.realfilingreborn.filing_index_menu_title": "Filing Index",
 
   "message.realfilingreborn.folder_erased": "Folder assignment erased",
   "message.realfilingreborn.folder_not_empty": "Folder must be empty to erase assignment",
@@ -28,6 +32,7 @@
   "message.realfilingreborn.nbt_folder_requires_nbt": "Folder can only store items with unique properties",
   "message.realfilingreborn.nbt_folder_full": "NBT Folder cannot store more than 64 items",
   "message.realfilingreborn.no_compatible_folder": "No folder available in the Cabinet for this item",
+  "message.realfilingreborn.index_full": "Filing Index already has an upgrade",
 
   "tooltip.realfilingreborn.eraser_info": "Right-click while holding an empty folder to erase its assignment",
   "tooltip.realfilingreborn.stored_item": "Assigned to (Contents): %s",
@@ -40,6 +45,10 @@
   "tooltip.realfilingreborn.nbt_items_stored": "Contains:",
   "tooltip.realfilingreborn.and_x_more": "...and %s more",
   "tooltip.realfilingreborn.nbt_unregistered_folder": "NBT Folder is unassigned. Add items with unique properties to assign it",
+  "tooltip.realfilingreborn.index_range_upgrade_iron_info": "Extends the Filing Index Connection Range to 32 Blocks",
+  "tooltip.realfilingreborn.index_range_upgrade_diamond_info": "Extends the Filing Index Connection Range to 64 Blocks",
+  "tooltip.realfilingreborn.index_range_upgrade_netherite_info": "Extends the Filing Index Connection Range to 128 Blocks",
+  "tooltip.realfilingreborn.ledger_info": "Connects or Removes Filing Cabinets from the Filing Index",
 
   "tooltip.realfilingreborn.jade.cabinet_title": "Filing Cabinet Contents",
   "tooltip.realfilingreborn.jade.empty_cabinet": "Cabinet is empty. Right click to insert folders",

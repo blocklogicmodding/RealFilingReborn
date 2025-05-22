@@ -8,14 +8,14 @@ import net.minecraft.world.item.TooltipFlag;
 
 import java.util.List;
 
-public class LedgerItem extends Item {
-    public LedgerItem(Properties properties) {
+public class IndexRangeUpgradeNetheriteItem extends Item {
+    public IndexRangeUpgradeNetheriteItem(Properties properties) {
         super(properties);
     }
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.realfilingreborn.ledger_info")
+        tooltip.add(Component.translatable("tooltip.realfilingreborn.index_range_upgrade_netherite_info")
                 .withStyle(ChatFormatting.GRAY));
         super.appendHoverText(stack, context, tooltip, flag);
     }

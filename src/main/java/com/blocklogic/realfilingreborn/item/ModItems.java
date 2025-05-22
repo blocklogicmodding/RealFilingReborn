@@ -24,6 +24,15 @@ public class ModItems {
     public static final DeferredItem<Item> LEDGER = ITEMS.register("ledger",
             () -> new LedgerItem(new Item.Properties()));
 
+    public static final DeferredItem<Item> INDEX_UPGRADE_IRON = ITEMS.register("index_range_upgrade_iron",
+            () -> new IndexRangeUpgradeIronItem(new Item.Properties()));
+
+    public static final DeferredItem<Item> INDEX_UPGRADE_DIAMOND = ITEMS.register("index_range_upgrade_diamond",
+            () -> new IndexRangeUpgradeDiamondItem(new Item.Properties()));
+
+    public static final DeferredItem<Item> INDEX_UPGRADE_NETHERITE = ITEMS.register("index_range_upgrade_netherite",
+            () -> new IndexRangeUpgradeNetheriteItem(new Item.Properties()));
+
     public static final DeferredItem<Item> ERASER = ITEMS.register("eraser",
             () -> new EraserItem(new Item.Properties().durability(64)));
 

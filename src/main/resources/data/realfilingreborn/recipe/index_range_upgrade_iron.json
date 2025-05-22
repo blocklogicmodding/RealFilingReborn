@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "item": "minecraft:iron_block"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "F": {
+      "item": "realfilingreborn:filing_cabinet"
+    }
+  },
+  "pattern": [
+    "RIR",
+    "IFI",
+    "RIR"
+  ],
+  "result": {
+    "id": "realfilingreborn:index_range_upgrade_iron",
+    "count": 1
+  }
+}

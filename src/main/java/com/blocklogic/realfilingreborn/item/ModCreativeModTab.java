@@ -25,6 +25,10 @@ public class ModCreativeModTab {
                         output.accept(ModItems.FILING_FOLDER);
                         output.accept(ModItems.NBT_FILING_FOLDER);
                         output.accept(ModItems.ERASER);
+
+                        output.accept(ModItems.INDEX_UPGRADE_IRON);
+                        output.accept(ModItems.INDEX_UPGRADE_DIAMOND);
+                        output.accept(ModItems.INDEX_UPGRADE_NETHERITE);
                     }).build());
 
     public static void register (IEventBus eventBus) {

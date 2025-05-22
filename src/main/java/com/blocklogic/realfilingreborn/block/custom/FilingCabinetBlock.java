@@ -15,6 +15,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -99,6 +100,7 @@ public class FilingCabinetBlock extends BaseEntityBlock {
         if (level.getBlockEntity(pos) instanceof FilingCabinetBlockEntity filingCabinetBlockEntity && player.isCrouching()) {
             if (!level.isClientSide()) {
                 openFilingCabinetMenu(filingCabinetBlockEntity, (ServerPlayer) player, pos);
+                level.playSound(player, pos, SoundEvents.VILLAGER_WORK_CARTOGRAPHER, SoundSource.BLOCKS,  1F, 1F);
             }
             return ItemInteractionResult.SUCCESS;
         }
@@ -242,6 +244,12 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                 player.displayClientMessage(Component.translatable("message.realfilingreborn.no_compatible_folder"), true);
                 return ItemInteractionResult.SUCCESS;
             }
+
+            if (!level.isClientSide()) {
+                openFilingCabinetMenu(filingCabinetBlockEntity, (ServerPlayer) player, pos);
+                level.playSound(player, pos, SoundEvents.VILLAGER_WORK_CARTOGRAPHER, SoundSource.BLOCKS,  1F, 1F);
+            }
+            return ItemInteractionResult.SUCCESS;
         }
         return ItemInteractionResult.FAIL;
     }
