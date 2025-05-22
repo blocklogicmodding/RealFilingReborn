@@ -66,7 +66,7 @@
 
   "message.realfilingreborn.ledger.index_registered": "Filing Index recorded at %s, %s, %s",
   "message.realfilingreborn.ledger.index_selected": "Filing Index selected at %s, %s, %s",
-  "message.realfilingreborn.ledger.no_index_selected": "No Filing Index selected. Right-click a Filing Index first",
+  "message.realfilingreborn.ledger.no_index_selected": "No Filing Index selected. Shift-Right-click a Filing Index first",
   "message.realfilingreborn.ledger.index_not_found": "Selected Filing Index no longer exists",
   "message.realfilingreborn.ledger.out_of_range": "Cabinet is out of range (%s blocks). Max range: %s blocks",
   "message.realfilingreborn.ledger.cabinet_added": "Filing Cabinet connected to network",
