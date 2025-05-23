@@ -13,9 +13,9 @@
     }
   },
   "pattern": [
-    "NIN",
-    "IFI",
-    "NIN"
+    "RNR",
+    "NFN",
+    "RNR"
   ],
   "result": {
     "id": "realfilingreborn:index_range_upgrade_netherite",

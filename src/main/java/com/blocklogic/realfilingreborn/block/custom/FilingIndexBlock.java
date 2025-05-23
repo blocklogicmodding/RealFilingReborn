@@ -37,7 +37,6 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 public class FilingIndexBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
@@ -173,7 +172,6 @@ public class FilingIndexBlock extends BaseEntityBlock {
     private ItemInteractionResult handleInventoryDump(FilingIndexBlockEntity indexEntity, Player player, Level level, BlockPos pos) {
         int totalItemsInserted = 0;
 
-        // Iterate through player's inventory
         for (int invSlot = 0; invSlot < player.getInventory().getContainerSize(); invSlot++) {
             ItemStack invStack = player.getInventory().getItem(invSlot);
 

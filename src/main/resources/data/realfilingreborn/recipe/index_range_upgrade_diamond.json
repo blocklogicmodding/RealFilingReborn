@@ -5,6 +5,9 @@
     "D": {
       "item": "minecraft:diamond_block"
     },
+    "I": {
+      "item": "minecraft:diamond"
+    },
     "R": {
       "item": "minecraft:redstone"
     },
@@ -13,9 +16,9 @@
     }
   },
   "pattern": [
-    "RDR",
+    "RIR",
     "DFD",
-    "RDR"
+    "RIR"
   ],
   "result": {
     "id": "realfilingreborn:index_range_upgrade_diamond",

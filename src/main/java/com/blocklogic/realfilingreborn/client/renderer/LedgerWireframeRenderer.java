@@ -6,6 +6,7 @@ import com.blocklogic.realfilingreborn.item.custom.IndexRangeUpgradeDiamondItem;
 import com.blocklogic.realfilingreborn.item.custom.IndexRangeUpgradeIronItem;
 import com.blocklogic.realfilingreborn.item.custom.IndexRangeUpgradeNetheriteItem;
 import com.blocklogic.realfilingreborn.item.custom.LedgerItem;
+import com.blocklogic.realfilingreborn.block.custom.FilingCabinetBlock;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.minecraft.client.Minecraft;
@@ -18,6 +19,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -63,7 +66,6 @@ public class LedgerWireframeRenderer {
         Vec3 cameraPos = event.getCamera().getPosition();
 
         poseStack.pushPose();
-
         poseStack.translate(-cameraPos.x, -cameraPos.y, -cameraPos.z);
 
         renderWireframeBox(poseStack, bufferSource, selectedIndexPos, 1.0f, 1.0f, 1.0f, 1.0f);
@@ -77,9 +79,98 @@ public class LedgerWireframeRenderer {
         int range = getIndexRange(filingIndex);
         renderRangeBox(poseStack, bufferSource, selectedIndexPos, range, 0.0f, 1.0f, 0.0f, 0.5f);
 
-        poseStack.popPose();
+        if (ledgerData.selectionMode() == LedgerItem.SelectionMode.Multiple) {
+            renderSelectionArea(poseStack, bufferSource, ledgerData, level, minecraft);
+        }
 
+        poseStack.popPose();
         bufferSource.endBatch();
+    }
+
+    private static void renderSelectionArea(PoseStack poseStack, MultiBufferSource bufferSource,
+                                            LedgerItem.LedgerData ledgerData, Level level, Minecraft minecraft) {
+        if (ledgerData.firstSelectionPos().isPresent()) {
+            BlockPos firstCorner = ledgerData.firstSelectionPos().get();
+
+            renderWireframeBox(poseStack, bufferSource, firstCorner, 0.0f, 1.0f, 1.0f, 1.0f);
+
+            if (ledgerData.secondSelectionPos().isPresent()) {
+                BlockPos secondCorner = ledgerData.secondSelectionPos().get();
+                renderSelectionAreaBox(poseStack, bufferSource, firstCorner, secondCorner, level);
+            } else {
+                HitResult hitResult = minecraft.hitResult;
+                if (hitResult != null && hitResult.getType() == HitResult.Type.BLOCK) {
+                    BlockHitResult blockHit = (BlockHitResult) hitResult;
+                    BlockPos mousePos = blockHit.getBlockPos();
+
+                    if (level.getBlockState(mousePos).getBlock() instanceof FilingCabinetBlock) {
+                        renderSelectionPreview(poseStack, bufferSource, firstCorner, mousePos, level);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void renderSelectionPreview(PoseStack poseStack, MultiBufferSource bufferSource,
+                                               BlockPos firstCorner, BlockPos mousePos, Level level) {
+        int minX = Math.min(firstCorner.getX(), mousePos.getX());
+        int maxX = Math.max(firstCorner.getX(), mousePos.getX());
+        int minY = Math.min(firstCorner.getY(), mousePos.getY());
+        int maxY = Math.max(firstCorner.getY(), mousePos.getY());
+        int minZ = Math.min(firstCorner.getZ(), mousePos.getZ());
+        int maxZ = Math.max(firstCorner.getZ(), mousePos.getZ());
+
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.lines());
+        LevelRenderer.renderLineBox(poseStack, vertexConsumer,
+                minX, minY, minZ,
+                maxX + 1, maxY + 1, maxZ + 1,
+                1.0f, 0.8f, 0.0f, 0.6f);
+
+        int cabinetCount = 0;
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    BlockPos pos = new BlockPos(x, y, z);
+                    if (level.getBlockState(pos).getBlock() instanceof FilingCabinetBlock &&
+                            level.getBlockEntity(pos) instanceof FilingCabinetBlockEntity) {
+                        renderWireframeBox(poseStack, bufferSource, pos, 1.0f, 1.0f, 0.0f, 0.8f);
+                        cabinetCount++;
+                    }
+                }
+            }
+        }
+
+        if (level.getBlockState(mousePos).getBlock() instanceof FilingCabinetBlock) {
+            renderWireframeBox(poseStack, bufferSource, mousePos, 1.0f, 0.5f, 0.0f, 1.0f);
+        }
+    }
+
+    private static void renderSelectionAreaBox(PoseStack poseStack, MultiBufferSource bufferSource,
+                                               BlockPos corner1, BlockPos corner2, Level level) {
+        int minX = Math.min(corner1.getX(), corner2.getX());
+        int maxX = Math.max(corner1.getX(), corner2.getX());
+        int minY = Math.min(corner1.getY(), corner2.getY());
+        int maxY = Math.max(corner1.getY(), corner2.getY());
+        int minZ = Math.min(corner1.getZ(), corner2.getZ());
+        int maxZ = Math.max(corner1.getZ(), corner2.getZ());
+
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.lines());
+        LevelRenderer.renderLineBox(poseStack, vertexConsumer,
+                minX, minY, minZ,
+                maxX + 1, maxY + 1, maxZ + 1,
+                1.0f, 0.0f, 1.0f, 0.8f);
+
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    BlockPos pos = new BlockPos(x, y, z);
+                    if (level.getBlockState(pos).getBlock() instanceof FilingCabinetBlock &&
+                            level.getBlockEntity(pos) instanceof FilingCabinetBlockEntity) {
+                        renderWireframeBox(poseStack, bufferSource, pos, 0.0f, 1.0f, 1.0f, 1.0f);
+                    }
+                }
+            }
+        }
     }
 
     private static void renderWireframeBox(PoseStack poseStack, MultiBufferSource bufferSource,

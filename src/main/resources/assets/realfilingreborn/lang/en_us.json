@@ -66,7 +66,7 @@
 
   "message.realfilingreborn.ledger.index_registered": "Filing Index recorded at %s, %s, %s",
   "message.realfilingreborn.ledger.index_selected": "Filing Index selected at %s, %s, %s",
-  "message.realfilingreborn.ledger.no_index_selected": "No Filing Index selected. Shift-Right-click a Filing Index first",
+  "message.realfilingreborn.ledger.no_index_selected": "No Filing Index selected. Right-click a Filing Index first",
   "message.realfilingreborn.ledger.index_not_found": "Selected Filing Index no longer exists",
   "message.realfilingreborn.ledger.out_of_range": "Cabinet is out of range (%s blocks). Max range: %s blocks",
   "message.realfilingreborn.ledger.cabinet_added": "Filing Cabinet connected to network",
@@ -77,9 +77,21 @@
   "message.realfilingreborn.cabinet_already_in_network": "Cabinet is already connected to another network. Remove it first!",
   "message.realfilingreborn.items_inserted": "Inserted %s items into the filing network",
 
+  "message.realfilingreborn.ledger.selection_mode_changed": "Selection mode changed to %s",
+  "message.realfilingreborn.ledger.first_corner_selected": "First corner selected at %s, %s, %s. Click another cabinet to complete selection",
+  "message.realfilingreborn.ledger.no_cabinets_in_area": "No Filing Cabinets found in the selected area",
+  "message.realfilingreborn.ledger.bulk_cabinets_added": "Connected %s of %s cabinets to the network",
+  "message.realfilingreborn.ledger.bulk_cabinets_removed": "Removed %s of %s cabinets from the network",
+  "message.realfilingreborn.ledger.no_operations_performed": "No cabinets were affected by the operation",
+
   "tooltip.realfilingreborn.ledger.mode": "Mode: %s",
+  "tooltip.realfilingreborn.ledger.selection_mode": "Selection: %s",
   "tooltip.realfilingreborn.ledger.selected_index": "Selected Index: %s, %s, %s",
   "tooltip.realfilingreborn.ledger.no_index_selected": "No Index selected",
   "tooltip.realfilingreborn.ledger.known_indices": "Recorded Indices: %s",
-  "tooltip.realfilingreborn.ledger.usage": "Right-click in the air to toggle mode, shift-right-click Cabinets to connect/disconnect"
+  "tooltip.realfilingreborn.ledger.first_corner": "First Corner: %s, %s, %s",
+  "tooltip.realfilingreborn.ledger.awaiting_second_corner": "Click a cabinet to complete area selection",
+  "tooltip.realfilingreborn.ledger.awaiting_first_corner": "Click a cabinet to start area selection",
+  "tooltip.realfilingreborn.ledger.usage": "Right-click in air to toggle mode, right-click cabinets to connect/disconnect",
+  "tooltip.realfilingreborn.ledger.shift_usage": "Shift+right-click in air to toggle Single/Multiple selection mode"
 }

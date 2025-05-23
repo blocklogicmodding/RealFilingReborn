@@ -364,7 +364,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             this.side = side;
         }
 
-        // Direct cabinet addition - O(1) operation
         public void addCabinet(BlockPos cabinetPos) {
             if (cachedSlotMappings == null) {
                 return;
