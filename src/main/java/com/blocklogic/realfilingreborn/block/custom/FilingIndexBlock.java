@@ -81,7 +81,6 @@ public class FilingIndexBlock extends BaseEntityBlock {
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.getBlock() != newState.getBlock()) {
             if (level.getBlockEntity(pos) instanceof FilingIndexBlockEntity filingIndexBlockEntity)  {
-                // Disconnect all cabinets before removing the index
                 filingIndexBlockEntity.disconnectAllCabinets();
                 filingIndexBlockEntity.drops();
                 level.updateNeighbourForOutputSignal(pos, this);
