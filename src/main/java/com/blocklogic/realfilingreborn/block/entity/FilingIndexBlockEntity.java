@@ -36,6 +36,10 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     private Set<BlockPos> connectedCabinets = new HashSet<>();
     private final Map<Direction, IItemHandler> handlers = new HashMap<>();
 
+    public Set<BlockPos> getConnectedCabinets() {
+        return new HashSet<>(connectedCabinets);
+    }
+
     public final ItemStackHandler inventory = new ItemStackHandler(1) {
         @Override
         public int getSlotLimit(int slot) {
