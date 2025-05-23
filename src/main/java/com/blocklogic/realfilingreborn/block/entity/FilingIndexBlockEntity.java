@@ -114,6 +114,28 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         return removed;
     }
 
+    public void disconnectAllCabinets() {
+        if (level == null) return;
+
+        // Create a copy of the set to avoid concurrent modification
+        Set<BlockPos> cabinetsCopy = new HashSet<>(connectedCabinets);
+
+        for (BlockPos cabinetPos : cabinetsCopy) {
+            if (level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
+                cabinet.clearConnectedIndex();
+            }
+        }
+
+        // Clear the connections set
+        connectedCabinets.clear();
+
+        // Update network state
+        updateNetworkCapabilities();
+        invalidateHandlerCaches();
+
+        setChanged();
+    }
+
     private void updateBlockStateConnection() {
         if (level != null && !level.isClientSide() &&
                 getBlockState().getBlock() instanceof FilingIndexBlock indexBlock) {
