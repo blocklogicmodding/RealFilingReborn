@@ -34,7 +34,7 @@ import java.util.Optional;
 public class NBTFilingFolderItem extends Item {
 
     public record SerializedItemStack(ItemStack stack) {}
-    public static final int MAX_NBT_ITEMS = 64;
+    public static final int MAX_NBT_ITEMS = 128;
 
     public record NBTFolderContents(
             Optional<ResourceLocation> storedItemId,
