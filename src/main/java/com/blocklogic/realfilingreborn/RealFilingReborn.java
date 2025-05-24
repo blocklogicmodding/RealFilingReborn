@@ -56,6 +56,7 @@ public class RealFilingReborn
         LedgerItem.DATA_COMPONENTS.register(modEventBus);
 
         modEventBus.addListener(this::addCreative);
+        modEventBus.addListener(this::registerCapabilities);
 
         modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }

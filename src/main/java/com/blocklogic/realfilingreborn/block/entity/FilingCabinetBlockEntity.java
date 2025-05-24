@@ -64,9 +64,22 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
             if (level != null && !level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+
+                // NEW: Notify the connected index that our contents changed!
+                notifyIndexOfContentChange();
             }
         }
     };
+
+    private void notifyIndexOfContentChange() {
+        if (connectedIndexPos.isPresent() && level != null) {
+            BlockPos indexPos = connectedIndexPos.get();
+            if (level.getBlockEntity(indexPos) instanceof FilingIndexBlockEntity indexEntity) {
+                // Tell the index to refresh our virtual folder mappings
+                indexEntity.onCabinetContentsChanged(getBlockPos());
+            }
+        }
+    }
 
     private final Map<Direction, IItemHandler> handlers = new HashMap<>();
 

@@ -84,18 +84,18 @@ public class FilingCabinetBlockEntityRenderer implements BlockEntityRenderer<Fil
         poseStack.mulPose(Axis.YP.rotationDegrees(180));
 
         if (facing == Direction.NORTH) {
-            poseStack.translate(0, 0.025, 0.49);
+            poseStack.translate(0, 0.025, 0.535);
         }
         else if (facing == Direction.EAST) {
-            poseStack.translate(-0.49, 0.025, 0);
+            poseStack.translate(-0.535, 0.025, 0);
             poseStack.mulPose(Axis.YP.rotationDegrees(-90));
         }
         else if (facing == Direction.SOUTH) {
-            poseStack.translate(0, 0.025, -0.49);
+            poseStack.translate(0, 0.025, -0.535);
             poseStack.mulPose(Axis.YP.rotationDegrees(180));
         }
         else if (facing == Direction.WEST) {
-            poseStack.translate(0.49, 0.025, 0);
+            poseStack.translate(0.535, 0.025, 0);
             poseStack.mulPose(Axis.YP.rotationDegrees(90));
         }
 
@@ -109,7 +109,7 @@ public class FilingCabinetBlockEntityRenderer implements BlockEntityRenderer<Fil
         poseStack.translate(offsetX, -0.2f, 0);
 
         poseStack.pushPose();
-        poseStack.scale(0.2f, 0.2f, 0.2f);
+        poseStack.scale(0.15f, 0.15f, 0.15f);
         Minecraft.getInstance().getItemRenderer().renderStatic(
                 stack,
                 ItemDisplayContext.FIXED,
@@ -134,7 +134,7 @@ public class FilingCabinetBlockEntityRenderer implements BlockEntityRenderer<Fil
 
         poseStack.pushPose();
 
-        poseStack.translate(0, -0.08f, 0.05f);
+        poseStack.translate(0, -0.08f, 0.001f);
 
         poseStack.scale(0.004f, 0.0045f, 0.004f);
         poseStack.mulPose(Axis.XP.rotationDegrees(180));

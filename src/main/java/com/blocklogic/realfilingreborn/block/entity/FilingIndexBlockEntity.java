@@ -1,7 +1,9 @@
+// Ultra-Optimized FilingIndexBlockEntity with Tick-Based Sync
 package com.blocklogic.realfilingreborn.block.entity;
 
 import com.blocklogic.realfilingreborn.block.custom.FilingIndexBlock;
-import com.blocklogic.realfilingreborn.item.custom.*;
+import com.blocklogic.realfilingreborn.network.VirtualNetworkManager;
+import com.blocklogic.realfilingreborn.network.VirtualFolder;
 import com.blocklogic.realfilingreborn.screen.custom.FilingIndexMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -13,13 +15,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -30,15 +32,22 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider {
+    // Traditional cabinet tracking
     private Set<BlockPos> connectedCabinets = new HashSet<>();
+
+    // High-performance virtual network
+    private final VirtualNetworkManager networkManager = new VirtualNetworkManager();
+
+    // Capability handlers cache
     private final Map<Direction, IItemHandler> handlers = new HashMap<>();
 
-    public Set<BlockPos> getConnectedCabinets() {
-        return new HashSet<>(connectedCabinets);
-    }
+    // Performance optimization
+    private long lastSyncTime = 0;
+    private long lastCleanupTime = 0;
+    private static final long SYNC_INTERVAL = 100; // 5 ticks
+    private static final long CLEANUP_INTERVAL = 2000; // 100 ticks
 
     public final ItemStackHandler inventory = new ItemStackHandler(1) {
         @Override
@@ -49,7 +58,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
-            if (!level.isClientSide()) {
+            if (level != null && !level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
             }
         }
@@ -61,13 +70,8 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
 
     @Nullable
     public IItemHandler getCapabilityHandler(@Nullable Direction side) {
-        return handlers.computeIfAbsent(side != null ? side : Direction.UP, s -> new FilingIndexNetworkHandler(this, s));
-    }
-
-    public void updateNetworkCapabilities() {
-        if (level != null && !level.isClientSide()) {
-            level.invalidateCapabilities(getBlockPos());
-        }
+        return handlers.computeIfAbsent(side != null ? side : Direction.UP,
+                s -> new OptimizedNetworkHandler(this, s));
     }
 
     public boolean addConnectedCabinet(BlockPos cabinetPos) {
@@ -80,17 +84,17 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
                 return false;
             }
 
+            // Add to traditional tracking
             connectedCabinets.add(cabinetPos);
             cabinet.setConnectedIndex(getBlockPos());
+
+            // Smart refresh - only if cabinet actually changed
+            networkManager.refreshCabinet(level, cabinetPos, cabinet);
+
             setChanged();
+            updateBlockStateConnection();
 
-            if (!level.isClientSide()) {
-                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
-                updateNetworkCapabilities();
-                addCabinetToHandlerCaches(cabinetPos);
-                updateBlockStateConnection();
-            }
-
+            System.out.println("Added cabinet to network: " + cabinetPos + " - " + networkManager.getStats());
             return true;
         }
 
@@ -105,36 +109,39 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
                 cabinet.clearConnectedIndex();
             }
 
-            setChanged();
+            // Remove from virtual network
+            networkManager.refreshCabinet(level, cabinetPos, null);
 
-            if (level != null && !level.isClientSide()) {
-                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
-                updateNetworkCapabilities();
-                removeCabinetFromHandlerCaches(cabinetPos);
-                updateBlockStateConnection();
-            }
+            setChanged();
+            updateBlockStateConnection();
+
+            System.out.println("Removed cabinet from network: " + cabinetPos + " - " + networkManager.getStats());
         }
 
         return removed;
+    }
+
+    /**
+     * Optimized cabinet content change notification - batched processing
+     */
+    public void onCabinetContentsChanged(BlockPos cabinetPos) {
+        // Don't process immediately - let tick handle it for batching
+        if (connectedCabinets.contains(cabinetPos)) {
+            // Mark for next sync cycle
+            lastSyncTime = 0; // Force sync on next tick
+        }
     }
 
     public void disconnectAllCabinets() {
         if (level == null) return;
 
         Set<BlockPos> cabinetsCopy = new HashSet<>(connectedCabinets);
-
         for (BlockPos cabinetPos : cabinetsCopy) {
-            if (level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
-                cabinet.clearConnectedIndex();
-            }
+            removeConnectedCabinet(cabinetPos);
         }
 
         connectedCabinets.clear();
-
-        updateNetworkCapabilities();
-        invalidateHandlerCaches();
-
-        setChanged();
+        networkManager.clearNetwork();
     }
 
     private void updateBlockStateConnection() {
@@ -145,54 +152,49 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         }
     }
 
-    private void addCabinetToHandlerCaches(BlockPos cabinetPos) {
-        for (IItemHandler handler : handlers.values()) {
-            if (handler instanceof FilingIndexNetworkHandler networkHandler) {
-                networkHandler.addCabinet(cabinetPos);
-            }
-        }
-    }
-
-    private void removeCabinetFromHandlerCaches(BlockPos cabinetPos) {
-        for (IItemHandler handler : handlers.values()) {
-            if (handler instanceof FilingIndexNetworkHandler networkHandler) {
-                networkHandler.removeCabinet(cabinetPos);
-            }
-        }
-    }
-
-    private void invalidateHandlerCaches() {
-        for (IItemHandler handler : handlers.values()) {
-            if (handler instanceof FilingIndexNetworkHandler networkHandler) {
-                networkHandler.invalidateCache();
-            }
-        }
-    }
-
-    public boolean isInNetwork(BlockPos cabinetPos) {
-        return connectedCabinets.contains(cabinetPos);
-    }
-
-    public void clearContents() {
-        inventory.setStackInSlot(0, ItemStack.EMPTY);
-    }
-
-    public static void tick(Level level, BlockPos pos, BlockState state, FilingIndexBlockEntity blockEntity) {
+    public static void tick(Level level, BlockPos pos, BlockState state, FilingIndexBlockEntity blockEntity)  {
         if (level.isClientSide()) {
             return;
         }
 
-        if ((level.getGameTime() + pos.hashCode()) % 100 == 0) {
-            blockEntity.cleanupBrokenConnections();
+        long currentTime = level.getGameTime();
+
+        // High-frequency sync for virtual network
+        if (currentTime - blockEntity.lastSyncTime >= SYNC_INTERVAL) {
+            blockEntity.performNetworkSync();
+            blockEntity.lastSyncTime = currentTime;
+        }
+
+        // Low-frequency cleanup
+        if (currentTime - blockEntity.lastCleanupTime >= CLEANUP_INTERVAL) {
+            blockEntity.performNetworkCleanup();
+            blockEntity.lastCleanupTime = currentTime;
         }
     }
 
-    private void cleanupBrokenConnections() {
+    /**
+     * Efficient network sync - only sync folders that need it
+     */
+    private void performNetworkSync() {
         if (level == null) return;
 
+        Set<BlockPos> changedCabinets = networkManager.syncAllFolders(level);
+
+        // Force BER updates for changed cabinets
+        for (BlockPos cabinetPos : changedCabinets) {
+            level.sendBlockUpdated(cabinetPos, level.getBlockState(cabinetPos), level.getBlockState(cabinetPos), 3);
+        }
+    }
+
+    /**
+     * Periodic cleanup and optimization
+     */
+    private void performNetworkCleanup() {
+        if (level == null) return;
+
+        // Clean up broken connections
         Iterator<BlockPos> iterator = connectedCabinets.iterator();
         boolean changed = false;
-        List<BlockPos> removedCabinets = new ArrayList<>();
 
         while (iterator.hasNext()) {
             BlockPos cabinetPos = iterator.next();
@@ -200,22 +202,26 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             if (!level.isLoaded(cabinetPos) ||
                     !(level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity)) {
                 iterator.remove();
-                removedCabinets.add(cabinetPos);
                 changed = true;
             }
         }
 
         if (changed) {
-            setChanged();
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
-            updateNetworkCapabilities();
-
-            for (BlockPos removedCabinet : removedCabinets) {
-                removeCabinetFromHandlerCaches(removedCabinet);
+            // Rebuild the virtual network efficiently
+            for (BlockPos cabinetPos : connectedCabinets) {
+                if (level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
+                    networkManager.refreshCabinet(level, cabinetPos, cabinet);
+                }
             }
 
+            setChanged();
             updateBlockStateConnection();
         }
+    }
+
+    // Legacy compatibility methods
+    public Set<BlockPos> getConnectedCabinets() {
+        return new HashSet<>(connectedCabinets);
     }
 
     public List<FilingCabinetBlockEntity> getConnectedCabinetEntities() {
@@ -225,76 +231,10 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
                 .map(pos -> level.getBlockEntity(pos))
                 .filter(be -> be instanceof FilingCabinetBlockEntity)
                 .map(be -> (FilingCabinetBlockEntity) be)
-                .collect(Collectors.toList());
+                .toList();
     }
 
-    public int getTotalNetworkSlots() {
-        return getConnectedCabinetEntities().size() * 5; // 5 slots per cabinet
-    }
-
-    public int getUsedNetworkSlots() {
-        return getConnectedCabinetEntities().stream()
-                .mapToInt(cabinet -> {
-                    int used = 0;
-                    for (int i = 0; i < 5; i++) {
-                        if (!cabinet.inventory.getStackInSlot(i).isEmpty()) {
-                            used++;
-                        }
-                    }
-                    return used;
-                })
-                .sum();
-    }
-
-    public List<ItemStack> findItemsInNetwork(Item targetItem) {
-        List<ItemStack> found = new ArrayList<>();
-
-        for (FilingCabinetBlockEntity cabinet : getConnectedCabinetEntities()) {
-            for (int slot = 0; slot < 5; slot++) {
-                ItemStack folderStack = cabinet.inventory.getStackInSlot(slot);
-                if (!folderStack.isEmpty()) {
-                    if (folderStack.getItem() instanceof FilingFolderItem) {
-                        FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
-                        if (contents != null && contents.storedItemId().isPresent()) {
-                            Item storedItem = BuiltInRegistries.ITEM.get(contents.storedItemId().get());
-                            if (storedItem == targetItem && contents.count() > 0) {
-                                found.add(new ItemStack(storedItem, contents.count()));
-                            }
-                        }
-                    }
-                    else if (folderStack.getItem() instanceof NBTFilingFolderItem) {
-                        NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
-                        if (contents != null && contents.storedItemId().isPresent()) {
-                            Item storedItem = BuiltInRegistries.ITEM.get(contents.storedItemId().get());
-                            if (storedItem == targetItem && !contents.storedItems().isEmpty()) {
-                                for (NBTFilingFolderItem.SerializedItemStack serialized : contents.storedItems()) {
-                                    found.add(serialized.stack().copy());
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        return found;
-    }
-
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-    }
-
-    public void drops() {
-        SimpleContainer inv = new SimpleContainer(inventory.getSlots());
-
-        for (int i = 0; i < inventory.getSlots(); i++) {
-            inv.setItem(i, inventory.getStackInSlot(i));
-        }
-
-        Containers.dropContents(this.level, this.worldPosition, inv);
-    }
-
+    // Save/Load
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
@@ -327,8 +267,26 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             );
             connectedCabinets.add(pos);
         }
+    }
 
-        invalidateHandlerCaches();
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        // Rebuild network when chunk loads - but efficiently
+        if (level != null && !level.isClientSide()) {
+            // Delay network rebuild to next tick to avoid chunk loading issues
+            lastSyncTime = 0;
+            lastCleanupTime = 0;
+        }
+    }
+
+    // Standard BlockEntity methods
+    public void drops() {
+        SimpleContainer inv = new SimpleContainer(inventory.getSlots());
+        for (int i = 0; i < inventory.getSlots(); i++) {
+            inv.setItem(i, inventory.getStackInSlot(i));
+        }
+        Containers.dropContents(this.level, this.worldPosition, inv);
     }
 
     @Override
@@ -353,102 +311,45 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         return saveWithoutMetadata(registries);
     }
 
-    private static class FilingIndexNetworkHandler implements IItemHandler {
+    /**
+     * Ultra-optimized network handler with smart external mod support
+     */
+    private static class OptimizedNetworkHandler implements IItemHandler {
         private final FilingIndexBlockEntity indexEntity;
         private final Direction side;
-        private int cachedTotalSlots = -1;
-        private List<CabinetSlotMapping> cachedSlotMappings = null;
 
-        public FilingIndexNetworkHandler(FilingIndexBlockEntity indexEntity, @Nullable Direction side) {
+        // Cache for external mod compatibility
+        private VirtualFolder[] cachedFolderSnapshot = null;
+        private long lastSnapshotTime = 0;
+        private static final long SNAPSHOT_TTL = 1000; // 1 second
+
+        public OptimizedNetworkHandler(FilingIndexBlockEntity indexEntity, @Nullable Direction side) {
             this.indexEntity = indexEntity;
             this.side = side;
         }
 
-        public void addCabinet(BlockPos cabinetPos) {
-            if (cachedSlotMappings == null) {
-                return;
-            }
-
-            if (indexEntity.level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
-                IItemHandler cabinetHandler = cabinet.getCapabilityHandler(side);
-                if (cabinetHandler != null) {
-                    int cabinetSlots = cabinetHandler.getSlots();
-                    for (int i = 0; i < cabinetSlots; i++) {
-                        cachedSlotMappings.add(new CabinetSlotMapping(cabinetHandler, i, cabinetPos));
-                    }
-                    cachedTotalSlots += cabinetSlots;
-                }
-            }
-        }
-
-        public void removeCabinet(BlockPos cabinetPos) {
-            if (cachedSlotMappings == null) {
-                return;
-            }
-
-            int removedSlots = 0;
-            Iterator<CabinetSlotMapping> iterator = cachedSlotMappings.iterator();
-            while (iterator.hasNext()) {
-                CabinetSlotMapping mapping = iterator.next();
-                if (mapping.cabinetPos.equals(cabinetPos)) {
-                    iterator.remove();
-                    removedSlots++;
-                }
-            }
-
-            cachedTotalSlots -= removedSlots;
-        }
-
-        public void invalidateCache() {
-            cachedTotalSlots = -1;
-            cachedSlotMappings = null;
-        }
-
-        private void buildSlotMappings() {
-            if (cachedSlotMappings != null) return;
-
-            cachedSlotMappings = new ArrayList<>();
-            cachedTotalSlots = 0;
-
-            for (BlockPos cabinetPos : indexEntity.connectedCabinets) {
-                if (indexEntity.level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
-                    IItemHandler cabinetHandler = cabinet.getCapabilityHandler(side);
-                    if (cabinetHandler != null) {
-                        int cabinetSlots = cabinetHandler.getSlots();
-                        for (int i = 0; i < cabinetSlots; i++) {
-                            cachedSlotMappings.add(new CabinetSlotMapping(cabinetHandler, i, cabinetPos));
-                        }
-                        cachedTotalSlots += cabinetSlots;
-                    }
-                }
-            }
-        }
-
         @Override
         public int getSlots() {
-            if (cachedTotalSlots == -1) {
-                buildSlotMappings();
-            }
-            return cachedTotalSlots;
-        }
-
-        private CabinetSlotMapping getCabinetAndSlot(int globalSlot) {
-            buildSlotMappings();
-
-            if (globalSlot < 0 || globalSlot >= cachedSlotMappings.size()) {
-                return null;
-            }
-
-            return cachedSlotMappings.get(globalSlot);
+            // Dynamic slot count based on network size (capped for performance)
+            int networkSize = indexEntity.networkManager.getStats().uniqueItemTypes;
+            return Math.min(networkSize, 54); // Max 54 slots like double chest
         }
 
         @Override
         @NotNull
         public ItemStack getStackInSlot(int slot) {
-            CabinetSlotMapping mapping = getCabinetAndSlot(slot);
-            if (mapping == null) return ItemStack.EMPTY;
-
-            return mapping.handler.getStackInSlot(mapping.localSlot);
+            VirtualFolder[] snapshot = getCachedSnapshot();
+            if (slot >= 0 && slot < snapshot.length) {
+                VirtualFolder folder = snapshot[slot];
+                if (folder.getCurrentCount() > 0) {
+                    ItemStack representative = new ItemStack(
+                            BuiltInRegistries.ITEM.get(folder.getItemType()),
+                            Math.min(folder.getCurrentCount(), 64)
+                    );
+                    return representative;
+                }
+            }
+            return ItemStack.EMPTY;
         }
 
         @Override
@@ -456,42 +357,70 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
             if (stack.isEmpty()) return stack;
 
-            buildSlotMappings();
-
-            for (CabinetSlotMapping mapping : cachedSlotMappings) {
-                ItemStack remaining = mapping.handler.insertItem(mapping.localSlot, stack, simulate);
-                if (remaining.getCount() < stack.getCount()) {
-                    return remaining;
-                }
+            if (simulate) {
+                // Fast simulation check
+                ResourceLocation itemType = BuiltInRegistries.ITEM.getKey(stack.getItem());
+                List<VirtualFolder> folders = indexEntity.networkManager.getFoldersForItem(itemType);
+                return folders.isEmpty() ? stack : ItemStack.EMPTY;
             }
-            return stack;
+
+            // THE MAGIC - O(1) insertion!
+            return indexEntity.networkManager.insertItem(indexEntity.level, stack);
         }
 
         @Override
         @NotNull
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            CabinetSlotMapping mapping = getCabinetAndSlot(slot);
-            if (mapping == null) return ItemStack.EMPTY;
-
-            return mapping.handler.extractItem(mapping.localSlot, amount, simulate);
+            VirtualFolder[] snapshot = getCachedSnapshot();
+            if (slot >= 0 && slot < snapshot.length) {
+                VirtualFolder folder = snapshot[slot];
+                if (folder.getCurrentCount() > 0) {
+                    if (simulate) {
+                        // Fast simulation
+                        int available = folder.getCurrentCount();
+                        int extractAmount = Math.min(amount, Math.min(available, 64));
+                        if (extractAmount > 0) {
+                            return new ItemStack(BuiltInRegistries.ITEM.get(folder.getItemType()), extractAmount);
+                        }
+                    } else {
+                        // Real extraction
+                        return indexEntity.networkManager.extractItem(indexEntity.level, folder.getItemType(), amount);
+                    }
+                }
+            }
+            return ItemStack.EMPTY;
         }
 
         @Override
         public int getSlotLimit(int slot) {
-            CabinetSlotMapping mapping = getCabinetAndSlot(slot);
-            if (mapping == null) return 0;
-
-            return mapping.handler.getSlotLimit(mapping.localSlot);
+            return Integer.MAX_VALUE;
         }
 
         @Override
         public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-            CabinetSlotMapping mapping = getCabinetAndSlot(slot);
-            if (mapping == null) return false;
-
-            return mapping.handler.isItemValid(mapping.localSlot, stack);
+            return true;
         }
 
-        private record CabinetSlotMapping(IItemHandler handler, int localSlot, BlockPos cabinetPos) {}
+        /**
+         * Get cached snapshot of folders for external mod compatibility
+         */
+        private VirtualFolder[] getCachedSnapshot() {
+            long currentTime = System.currentTimeMillis();
+
+            if (cachedFolderSnapshot == null || currentTime - lastSnapshotTime > SNAPSHOT_TTL) {
+                List<VirtualFolder> allFolders = new ArrayList<>();
+                for (List<VirtualFolder> folders : indexEntity.networkManager.getItemToFoldersMap().values()) {
+                    allFolders.addAll(folders);
+                }
+
+                // Sort by item type for consistent ordering
+                allFolders.sort(Comparator.comparing(f -> f.getItemType().toString()));
+
+                cachedFolderSnapshot = allFolders.toArray(new VirtualFolder[0]);
+                lastSnapshotTime = currentTime;
+            }
+
+            return cachedFolderSnapshot;
+        }
     }
 }
