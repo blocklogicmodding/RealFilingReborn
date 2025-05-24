@@ -117,6 +117,14 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         super.setRemoved();
     }
 
+    // Helper method to trigger client updates when folder contents change
+    private void notifyFolderContentsChanged() {
+        if (level != null && !level.isClientSide()) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            setChanged();
+        }
+    }
+
     private static class FilingCabinetItemHandler implements IItemHandler {
         private final FilingCabinetBlockEntity cabinet;
         private final Direction side;
@@ -212,7 +220,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                                         contents.count() + toAdd
                                 );
                                 folderStack.set(FilingFolderItem.FOLDER_CONTENTS.value(), newContents);
-                                cabinet.setChanged();
+                                cabinet.notifyFolderContentsChanged();
                             }
 
                             ItemStack remaining = stack.copy();
@@ -265,7 +273,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                                             newItems
                                     );
                                     folderStack.set(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value(), newContents);
-                                    cabinet.setChanged();
+                                    cabinet.notifyFolderContentsChanged();
 
                                     if (itemsToAdd < stack.getCount()) {
                                         ItemStack remaining = stack.copy();
@@ -309,7 +317,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                                 toAdd
                         );
                         folderStack.set(FilingFolderItem.FOLDER_CONTENTS.value(), newContents);
-                        cabinet.setChanged();
+                        cabinet.notifyFolderContentsChanged();
                     }
 
                     ItemStack remaining = stack.copy();
@@ -341,7 +349,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                             contents.count() + toAdd
                     );
                     folderStack.set(FilingFolderItem.FOLDER_CONTENTS.value(), newContents);
-                    cabinet.setChanged();
+                    cabinet.notifyFolderContentsChanged();
                 }
 
                 ItemStack remaining = stack.copy();
@@ -383,7 +391,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                                 newItems
                         );
                         folderStack.set(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value(), newContents);
-                        cabinet.setChanged();
+                        cabinet.notifyFolderContentsChanged();
 
                         if (itemsToAdd < stack.getCount()) {
                             ItemStack remaining = stack.copy();
@@ -424,7 +432,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                             newItems
                     );
                     folderStack.set(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value(), newContents);
-                    cabinet.setChanged();
+                    cabinet.notifyFolderContentsChanged();
 
                     if (itemsToAdd < stack.getCount()) {
                         ItemStack remaining = stack.copy();
@@ -495,7 +503,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                             newCount
                     );
                     folderStack.set(FilingFolderItem.FOLDER_CONTENTS.value(), newContents);
-                    cabinet.setChanged();
+                    cabinet.notifyFolderContentsChanged();
                 }
 
                 return result;
@@ -531,7 +539,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                             items
                     );
                     folderStack.set(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value(), newContents);
-                    cabinet.setChanged();
+                    cabinet.notifyFolderContentsChanged();
                 }
 
                 return extracted;
