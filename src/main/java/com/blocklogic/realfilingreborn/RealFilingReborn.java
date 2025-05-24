@@ -6,11 +6,9 @@ import com.blocklogic.realfilingreborn.block.entity.renderer.FilingCabinetBlockE
 import com.blocklogic.realfilingreborn.item.ModCreativeModTab;
 import com.blocklogic.realfilingreborn.item.ModItems;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
-import com.blocklogic.realfilingreborn.item.custom.LedgerItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
 import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetScreen;
-import com.blocklogic.realfilingreborn.screen.custom.FilingIndexScreen;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -53,7 +51,6 @@ public class RealFilingReborn
 
         FilingFolderItem.DATA_COMPONENTS.register(modEventBus);
         NBTFilingFolderItem.DATA_COMPONENTS.register(modEventBus);
-        LedgerItem.DATA_COMPONENTS.register(modEventBus);
 
         modEventBus.addListener(this::addCreative);
         modEventBus.addListener(this::registerCapabilities);
@@ -75,12 +72,6 @@ public class RealFilingReborn
                 Capabilities.ItemHandler.BLOCK,
                 ModBlockEntities.FILING_CABINET_BE.get(),
                 (filingCabinetBE, side) -> filingCabinetBE.getCapabilityHandler(side)
-        );
-
-        event.registerBlockEntity(
-                Capabilities.ItemHandler.BLOCK,
-                ModBlockEntities.FILING_INDEX_BE.get(),
-                (filingIndexBE, side) -> filingIndexBE.getCapabilityHandler(side)
         );
     }
 
@@ -107,7 +98,6 @@ public class RealFilingReborn
         @SubscribeEvent
         public static void registerScreens(RegisterMenuScreensEvent event) {
             event.register(ModMenuTypes.FILING_CABINET_MENU.get(), FilingCabinetScreen::new);
-            event.register(ModMenuTypes.FILING_INDEX_MENU.get(), FilingIndexScreen::new);
         }
 
         @SubscribeEvent
@@ -116,12 +106,6 @@ public class RealFilingReborn
                     Capabilities.ItemHandler.BLOCK,
                     ModBlockEntities.FILING_CABINET_BE.get(),
                     (filingCabinetBE, side) -> filingCabinetBE.getCapabilityHandler(side)
-            );
-
-            event.registerBlockEntity(
-                    Capabilities.ItemHandler.BLOCK,
-                    ModBlockEntities.FILING_INDEX_BE.get(),
-                    (filingIndexBE, side) -> filingIndexBE.getCapabilityHandler(side)
             );
         }
     }

@@ -1,7 +1,6 @@
 {
   "replace": false,
   "values": [
-    "realfilingreborn:filing_cabinet",
-    "realfilingreborn:filing_index"
+    "realfilingreborn:filing_cabinet"
   ]
 }

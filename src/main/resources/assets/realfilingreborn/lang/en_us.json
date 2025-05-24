@@ -4,20 +4,12 @@
   "item.realfilingreborn.filing_folder": "Folder",
   "item.realfilingreborn.nbt_filing_folder": "NBT Folder",
   "item.realfilingreborn.eraser": "Eraser",
-  "item.realfilingreborn.ledger": "Ledger",
-  "item.realfilingreborn.index_range_upgrade_iron": "Filing Index Iron Range Upgrade",
-  "item.realfilingreborn.index_range_upgrade_diamond": "Filing Index Diamond Range Upgrade",
-  "item.realfilingreborn.index_range_upgrade_netherite": "Filing Index Netherite Range Upgrade",
 
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
-  "block.realfilingreborn.filing_index": "Filing Index",
-  "block.realfilingreborn.test_blocks_generator": "Test Blocks Generator",
-  "block.realfilingreborn.test_nbt_items_generator": "Test NBT Items Generator",
 
   "blockentity.realfilingreborn.name": "Filing Cabinet",
 
   "menu.realfilingreborn.menu_title": "Filing Cabinet",
-  "menu.realfilingreborn.filing_index_menu_title": "Filing Index",
 
   "message.realfilingreborn.folder_erased": "Folder assignment erased",
   "message.realfilingreborn.folder_not_empty": "Folder must be empty to erase assignment",
@@ -31,8 +23,6 @@
   "message.realfilingreborn.standard_folder_no_nbt": "Folder cannot store items with unique properties. Use NBT Folder",
   "message.realfilingreborn.nbt_folder_requires_nbt": "Folder can only store items with unique properties",
   "message.realfilingreborn.nbt_folder_full": "NBT Folder cannot store more than 64 items",
-  "message.realfilingreborn.no_compatible_folder": "No folder available in the Cabinet for this item",
-  "message.realfilingreborn.index_full": "Filing Index already has an upgrade",
 
   "tooltip.realfilingreborn.eraser_info": "Right-click while holding an empty folder to erase its assignment",
   "tooltip.realfilingreborn.stored_item": "Assigned to (Contents): %s",
@@ -45,10 +35,6 @@
   "tooltip.realfilingreborn.nbt_items_stored": "Contains:",
   "tooltip.realfilingreborn.and_x_more": "...and %s more",
   "tooltip.realfilingreborn.nbt_unregistered_folder": "NBT Folder is unassigned. Add items with unique properties to assign it",
-  "tooltip.realfilingreborn.index_range_upgrade_iron_info": "Extends the Filing Index Connection Range to 32 Blocks",
-  "tooltip.realfilingreborn.index_range_upgrade_diamond_info": "Extends the Filing Index Connection Range to 64 Blocks",
-  "tooltip.realfilingreborn.index_range_upgrade_netherite_info": "Extends the Filing Index Connection Range to 128 Blocks",
-  "tooltip.realfilingreborn.ledger_info": "Connects or Removes Filing Cabinets from the Filing Index",
 
   "tooltip.realfilingreborn.jade.cabinet_title": "Filing Cabinet Contents",
   "tooltip.realfilingreborn.jade.empty_cabinet": "Cabinet is empty. Right click to insert folders",
@@ -62,36 +48,5 @@
   "tooltip.realfilingreborn.jade.total_folders": "Total Folders: %d",
   "tooltip.realfilingreborn.jade.total_items": "Total Items: %s",
 
-  "config.jade.plugin_realfilingreborn.filing_cabinet_info": "Filing Cabinet Information",
-
-  "message.realfilingreborn.ledger.index_registered": "Filing Index recorded at %s, %s, %s",
-  "message.realfilingreborn.ledger.index_selected": "Filing Index selected at %s, %s, %s",
-  "message.realfilingreborn.ledger.no_index_selected": "No Filing Index selected. Right-click a Filing Index first",
-  "message.realfilingreborn.ledger.index_not_found": "Selected Filing Index no longer exists",
-  "message.realfilingreborn.ledger.out_of_range": "Cabinet is out of range (%s blocks). Max range: %s blocks",
-  "message.realfilingreborn.ledger.cabinet_added": "Filing Cabinet connected to network",
-  "message.realfilingreborn.ledger.cabinet_already_connected": "Filing Cabinet is already connected",
-  "message.realfilingreborn.ledger.cabinet_removed": "Filing Cabinet removed from network",
-  "message.realfilingreborn.ledger.cabinet_not_connected": "Filing Cabinet is not connected to this network",
-  "message.realfilingreborn.ledger.mode_changed": "Ledger mode changed to %s",
-  "message.realfilingreborn.cabinet_already_in_network": "Cabinet is already connected to another network. Remove it first!",
-  "message.realfilingreborn.items_inserted": "Inserted %s items into the filing network",
-
-  "message.realfilingreborn.ledger.selection_mode_changed": "Selection mode changed to %s",
-  "message.realfilingreborn.ledger.first_corner_selected": "First corner selected at %s, %s, %s. Click another cabinet to complete selection",
-  "message.realfilingreborn.ledger.no_cabinets_in_area": "No Filing Cabinets found in the selected area",
-  "message.realfilingreborn.ledger.bulk_cabinets_added": "Connected %s of %s cabinets to the network",
-  "message.realfilingreborn.ledger.bulk_cabinets_removed": "Removed %s of %s cabinets from the network",
-  "message.realfilingreborn.ledger.no_operations_performed": "No cabinets were affected by the operation",
-
-  "tooltip.realfilingreborn.ledger.mode": "Mode: %s",
-  "tooltip.realfilingreborn.ledger.selection_mode": "Selection: %s",
-  "tooltip.realfilingreborn.ledger.selected_index": "Selected Index: %s, %s, %s",
-  "tooltip.realfilingreborn.ledger.no_index_selected": "No Index selected",
-  "tooltip.realfilingreborn.ledger.known_indices": "Recorded Indices: %s",
-  "tooltip.realfilingreborn.ledger.first_corner": "First Corner: %s, %s, %s",
-  "tooltip.realfilingreborn.ledger.awaiting_second_corner": "Click a cabinet to complete area selection",
-  "tooltip.realfilingreborn.ledger.awaiting_first_corner": "Click a cabinet to start area selection",
-  "tooltip.realfilingreborn.ledger.usage": "Right-click in air to toggle mode, right-click cabinets to connect/disconnect",
-  "tooltip.realfilingreborn.ledger.shift_usage": "Shift+right-click in air to toggle Single/Multiple selection mode"
+  "config.jade.plugin_realfilingreborn.filing_cabinet_info": "Filing Cabinet Information"
 }
