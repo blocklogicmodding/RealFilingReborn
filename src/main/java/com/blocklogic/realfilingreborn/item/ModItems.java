@@ -19,6 +19,12 @@ public class ModItems {
     public static final DeferredItem<Item> ERASER = ITEMS.register("eraser",
             () -> new EraserItem(new Item.Properties().durability(64)));
 
+    public static final DeferredItem<Item> FLUID_CANISTER = ITEMS.register("fluid_canister",
+            () -> new FluidCanisterItem(new Item.Properties()));
+
+    public static final DeferredItem<Item> CABINET_CONVERSION_KIT = ITEMS.register("cabinet_conversion_kit",
+            () -> new CabinetConversionItem(new Item.Properties()));
+
     public static void register (IEventBus eventBus) {
         ITEMS.register(eventBus);
     }

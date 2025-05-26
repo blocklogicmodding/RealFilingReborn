@@ -4,12 +4,17 @@
   "item.realfilingreborn.filing_folder": "Folder",
   "item.realfilingreborn.nbt_filing_folder": "NBT Folder",
   "item.realfilingreborn.eraser": "Eraser",
+  "item.realfilingreborn.fluid_canister": "Fluid Canister",
+  "item.realfilingreborn.cabinet_conversion_kit": "Cabinet Conversion Kit",
 
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
+  "block.realfilingreborn.fluid_cabinet": "Fluid Cabinet",
 
   "blockentity.realfilingreborn.name": "Filing Cabinet",
+  "blockentity.realfilingreborn.fluid_cabinet_name": "Fluid Cabinet",
 
   "menu.realfilingreborn.menu_title": "Filing Cabinet",
+  "menu.realfilingreborn.fluid_cabinet_menu_title": "Fluid Cabinet",
 
   "message.realfilingreborn.folder_erased": "Folder assignment erased",
   "message.realfilingreborn.folder_not_empty": "Folder must be empty to erase assignment",
@@ -24,6 +29,8 @@
   "message.realfilingreborn.nbt_folder_requires_nbt": "Folder can only store items with unique properties",
   "message.realfilingreborn.nbt_folder_full": "NBT Folder cannot store more than 128 items",
 
+  "message.realfilingreborn.canisters_full": "Fluid Cabinet is full (5 canisters)",
+
   "tooltip.realfilingreborn.eraser_info": "Right-click while holding an empty folder to erase its assignment",
   "tooltip.realfilingreborn.stored_item": "Assigned to (Contents): %s",
   "tooltip.realfilingreborn.item_count": "Count: %s",
@@ -35,6 +42,9 @@
   "tooltip.realfilingreborn.nbt_items_stored": "Contains:",
   "tooltip.realfilingreborn.and_x_more": "...and %s more",
   "tooltip.realfilingreborn.nbt_unregistered_folder": "NBT Folder is unassigned. Add items with unique properties to assign it",
+
+  "tooltip.realfilingreborn.cabinet_conversion_kit_info": "Item used to convert a Filing Cabinet into a Fluid Cabinet. Consumed on use",
+  "tooltip.realfilingreborn.canister_info": "Canister that holds near infinite amounts of a single fluid type",
 
   "tooltip.realfilingreborn.jade.cabinet_title": "Filing Cabinet Contents",
   "tooltip.realfilingreborn.jade.empty_cabinet": "Cabinet is empty. Right click to insert folders",

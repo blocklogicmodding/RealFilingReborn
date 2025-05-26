@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "I": {
+      "item": "minecraft:iron_block"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "F": {
+      "item": "realfilingreborn:fluid_canister"
+    }
+  },
+  "pattern": [
+    "CFC",
+    "FIF",
+    "CFC"
+  ],
+  "result": {
+    "id": "realfilingreborn:fluid_cabinet",
+    "count": 1
+  }
+}

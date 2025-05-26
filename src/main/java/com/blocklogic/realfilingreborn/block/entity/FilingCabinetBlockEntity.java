@@ -63,12 +63,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         return handlers.computeIfAbsent(side != null ? side : Direction.UP, s -> new FilingCabinetItemHandler(this, s));
     }
 
-    public void updateIndexLinking() {
-        if (level != null && !level.isClientSide()) {
-            level.invalidateCapabilities(getBlockPos());
-        }
-    }
-
     public void drops() {
         SimpleContainer inv = new SimpleContainer(inventory.getSlots());
         for(int i = 0; i < inventory.getSlots(); i++) {
@@ -101,23 +95,11 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         return new FilingCabinetMenu(i, inventory, this);
     }
 
-    @Nullable
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
-        return saveWithoutMetadata(pRegistries);
-    }
-
     @Override
     public void setRemoved() {
         super.setRemoved();
     }
 
-    // Helper method to trigger client updates when folder contents change
     private void notifyFolderContentsChanged() {
         if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
@@ -557,5 +539,16 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         public boolean isItemValid(int slot, ItemStack stack) {
             return stack.getItem() instanceof FilingFolderItem;
         }
+    }
+
+    @Nullable
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
+        return saveWithoutMetadata(pRegistries);
     }
 }

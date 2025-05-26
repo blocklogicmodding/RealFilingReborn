@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": {
+      "item": "minecraft:glass"
+    },
+    "P": {
+      "item": "minecraft:bucket"
+    }
+  },
+  "pattern": [
+    "   ",
+    "PGP",
+    " P "
+  ],
+  "result": {
+    "id": "realfilingreborn:fluid_canister",
+    "count": 8
+  }
+}

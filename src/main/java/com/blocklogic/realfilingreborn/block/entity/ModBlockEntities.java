@@ -15,6 +15,9 @@ public class ModBlockEntities {
     public static final Supplier<BlockEntityType<FilingCabinetBlockEntity>> FILING_CABINET_BE = BLOCK_ENTITIES.register("filing_cabinet_be", () -> BlockEntityType.Builder.of(
             FilingCabinetBlockEntity::new, ModBlocks.FILING_CABINET.get()).build(null));
 
+    public static final Supplier<BlockEntityType<FluidCabinetBlockEntity>> FLUID_CABINET_BE = BLOCK_ENTITIES.register("fluid_cabinet_be", () -> BlockEntityType.Builder.of(
+            FluidCabinetBlockEntity::new, ModBlocks.FLUID_CABINET.get()).build(null));
+
     public static void register (IEventBus eventBus) {
         BLOCK_ENTITIES.register(eventBus);
     }
