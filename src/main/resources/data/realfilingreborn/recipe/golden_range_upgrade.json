@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": {
+      "item": "minecraft:gold_ingot"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "F": {
+      "item": "realfilingreborn:filing_folder"
+    }
+  },
+  "pattern": [
+    "GRG",
+    "RFR",
+    "GRG"
+  ],
+  "result": {
+    "id": "realfilingreborn:golden_range_upgrade",
+    "count": 1
+  }
+}
