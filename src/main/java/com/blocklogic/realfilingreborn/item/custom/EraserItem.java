@@ -24,66 +24,85 @@ public class EraserItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack eraserStack = player.getItemInHand(hand);
-        ItemStack folderStack = player.getItemInHand(InteractionHand.OFF_HAND);
+        ItemStack itemInOffHand = player.getItemInHand(InteractionHand.OFF_HAND);
 
-        if (folderStack.isEmpty() ||
-                (!(folderStack.getItem() instanceof FilingFolderItem) &&
-                        !(folderStack.getItem() instanceof NBTFilingFolderItem))) {
+        if (itemInOffHand.isEmpty() ||
+                (!(itemInOffHand.getItem() instanceof FilingFolderItem) &&
+                        !(itemInOffHand.getItem() instanceof NBTFilingFolderItem) &&
+                        !(itemInOffHand.getItem() instanceof FluidCanisterItem))) {
             return InteractionResultHolder.pass(eraserStack);
         }
 
-        boolean hasFolderContents = false;
+        boolean hasContents = false;
         boolean isUnassigned = false;
 
-        if (folderStack.getItem() instanceof NBTFilingFolderItem) {
-            NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
+
+        if (itemInOffHand.getItem() instanceof NBTFilingFolderItem) {
+            NBTFilingFolderItem.NBTFolderContents contents = itemInOffHand.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
             if (contents != null && contents.storedItems() != null && !contents.storedItems().isEmpty()) {
-                hasFolderContents = true;
-            }
-            if (contents == null || contents.storedItemId().isEmpty()) {
-                isUnassigned = true;
-            }
-        } else {
-            FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
-            if (contents != null && contents.count() > 0) {
-                hasFolderContents = true;
+                hasContents = true;
             }
             if (contents == null || contents.storedItemId().isEmpty()) {
                 isUnassigned = true;
             }
         }
 
-        if (hasFolderContents) {
+        else if (itemInOffHand.getItem() instanceof FilingFolderItem) {
+            FilingFolderItem.FolderContents contents = itemInOffHand.get(FilingFolderItem.FOLDER_CONTENTS.value());
+            if (contents != null && contents.count() > 0) {
+                hasContents = true;
+            }
+            if (contents == null || contents.storedItemId().isEmpty()) {
+                isUnassigned = true;
+            }
+        }
+
+        else if (itemInOffHand.getItem() instanceof FluidCanisterItem) {
+            FluidCanisterItem.CanisterContents contents = itemInOffHand.get(FluidCanisterItem.CANISTER_CONTENTS.value());
+            if (contents != null && contents.amount() > 0) {
+                hasContents = true;
+            }
+            if (contents == null || contents.storedFluidId().isEmpty()) {
+                isUnassigned = true;
+            }
+        }
+
+        if (hasContents) {
             if (!level.isClientSide()) {
-                player.displayClientMessage(Component.translatable("message.realfilingreborn.folder_not_empty")
-                        .withStyle(ChatFormatting.RED), true);
+                if (itemInOffHand.getItem() instanceof FluidCanisterItem) {
+                    player.displayClientMessage(Component.translatable("message.realfilingreborn.canister_not_empty")
+                            .withStyle(ChatFormatting.RED), true);
+                } else {
+                    player.displayClientMessage(Component.translatable("message.realfilingreborn.folder_not_empty")
+                            .withStyle(ChatFormatting.RED), true);
+                }
             }
             return InteractionResultHolder.consume(eraserStack);
         }
 
         if (isUnassigned) {
             if (!level.isClientSide()) {
-                player.displayClientMessage(Component.translatable("message.realfilingreborn.folder_not_assigned")
-                        .withStyle(ChatFormatting.RED), true);
+                if (itemInOffHand.getItem() instanceof FluidCanisterItem) {
+                    player.displayClientMessage(Component.translatable("message.realfilingreborn.canister_not_assigned")
+                            .withStyle(ChatFormatting.RED), true);
+                } else {
+                    player.displayClientMessage(Component.translatable("message.realfilingreborn.folder_not_assigned")
+                            .withStyle(ChatFormatting.RED), true);
+                }
             }
             return InteractionResultHolder.consume(eraserStack);
         }
 
-        if (folderStack.getItem() instanceof NBTFilingFolderItem) {
-            NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
+        if (itemInOffHand.getItem() instanceof NBTFilingFolderItem) {
+            NBTFilingFolderItem.NBTFolderContents contents = itemInOffHand.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
 
             if (contents != null && contents.storedItemId().isPresent()) {
-                folderStack.remove(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
-                folderStack.set(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value(),
+                itemInOffHand.remove(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
+                itemInOffHand.set(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value(),
                         new NBTFilingFolderItem.NBTFolderContents(Optional.empty(), new ArrayList<>()));
 
                 if (!player.getAbilities().instabuild) {
-                    int currentDamage = eraserStack.getDamageValue();
-                    int maxDamage = eraserStack.getMaxDamage();
-
-                    if (currentDamage < maxDamage) {
-                        eraserStack.setDamageValue(currentDamage + 1);
-                    }
+                    damageEraser(eraserStack);
                 }
 
                 if (!level.isClientSide()) {
@@ -95,25 +114,45 @@ public class EraserItem extends Item {
 
                 return InteractionResultHolder.success(eraserStack);
             }
-        } else {
-            FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
+        }
+
+        else if (itemInOffHand.getItem() instanceof FilingFolderItem) {
+            FilingFolderItem.FolderContents contents = itemInOffHand.get(FilingFolderItem.FOLDER_CONTENTS.value());
 
             if (contents != null && contents.storedItemId().isPresent()) {
-                ItemStack freshFolder = new ItemStack(folderStack.getItem());
-                freshFolder.setCount(folderStack.getCount());
+                ItemStack freshFolder = new ItemStack(itemInOffHand.getItem());
+                freshFolder.setCount(itemInOffHand.getCount());
                 player.setItemInHand(InteractionHand.OFF_HAND, freshFolder);
 
                 if (!player.getAbilities().instabuild) {
-                    int currentDamage = eraserStack.getDamageValue();
-                    int maxDamage = eraserStack.getMaxDamage();
-
-                    if (currentDamage < maxDamage) {
-                        eraserStack.setDamageValue(currentDamage + 1);
-                    }
+                    damageEraser(eraserStack);
                 }
 
                 if (!level.isClientSide()) {
                     player.displayClientMessage(Component.translatable("message.realfilingreborn.folder_erased")
+                            .withStyle(ChatFormatting.GREEN), true);
+                    level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                            SoundEvents.VILLAGER_WORK_CARTOGRAPHER, SoundSource.PLAYERS, 0.5f, 1.0f);
+                }
+
+                return InteractionResultHolder.success(eraserStack);
+            }
+        }
+
+        else if (itemInOffHand.getItem() instanceof FluidCanisterItem) {
+            FluidCanisterItem.CanisterContents contents = itemInOffHand.get(FluidCanisterItem.CANISTER_CONTENTS.value());
+
+            if (contents != null && contents.storedFluidId().isPresent()) {
+                itemInOffHand.remove(FluidCanisterItem.CANISTER_CONTENTS.value());
+                itemInOffHand.set(FluidCanisterItem.CANISTER_CONTENTS.value(),
+                        new FluidCanisterItem.CanisterContents(Optional.empty(), 0));
+
+                if (!player.getAbilities().instabuild) {
+                    damageEraser(eraserStack);
+                }
+
+                if (!level.isClientSide()) {
+                    player.displayClientMessage(Component.translatable("message.realfilingreborn.canister_erased")
                             .withStyle(ChatFormatting.GREEN), true);
                     level.playSound(null, player.getX(), player.getY(), player.getZ(),
                             SoundEvents.VILLAGER_WORK_CARTOGRAPHER, SoundSource.PLAYERS, 0.5f, 1.0f);
@@ -124,6 +163,15 @@ public class EraserItem extends Item {
         }
 
         return InteractionResultHolder.pass(eraserStack);
+    }
+
+    private void damageEraser(ItemStack eraserStack) {
+        int currentDamage = eraserStack.getDamageValue();
+        int maxDamage = eraserStack.getMaxDamage();
+
+        if (currentDamage < maxDamage) {
+            eraserStack.setDamageValue(currentDamage + 1);
+        }
     }
 
     @Override

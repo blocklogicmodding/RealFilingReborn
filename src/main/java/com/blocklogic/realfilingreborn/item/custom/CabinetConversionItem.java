@@ -37,15 +37,12 @@ public class CabinetConversionItem extends Item {
             return InteractionResult.PASS;
         }
 
-        // Check if the block is a filing cabinet
         if (state.getBlock() instanceof FilingCabinetBlock) {
             if (level.isClientSide()) {
                 return InteractionResult.SUCCESS;
             }
 
-            // Get the block entity to check if it's empty
             if (level.getBlockEntity(pos) instanceof FilingCabinetBlockEntity filingCabinetEntity) {
-                // Check if the filing cabinet has any items in it
                 boolean hasItems = false;
                 for (int i = 0; i < filingCabinetEntity.inventory.getSlots(); i++) {
                     if (!filingCabinetEntity.inventory.getStackInSlot(i).isEmpty()) {
@@ -60,29 +57,23 @@ public class CabinetConversionItem extends Item {
                     return InteractionResult.FAIL;
                 }
 
-                // Get the facing direction from the original cabinet
                 BlockState newState = ModBlocks.FLUID_CABINET.get().defaultBlockState()
                         .setValue(FilingCabinetBlock.FACING, state.getValue(FilingCabinetBlock.FACING));
 
-                // Replace the block
                 level.setBlock(pos, newState, Block.UPDATE_ALL);
 
-                // Play conversion sound
                 level.playSound(null, pos, SoundEvents.ANVIL_USE, SoundSource.BLOCKS, 1.0f, 1.2f);
 
-                // Consume the conversion kit
                 if (!player.getAbilities().instabuild) {
                     stack.shrink(1);
                 }
 
-                // Success message
                 player.displayClientMessage(Component.translatable("message.realfilingreborn.cabinet_converted")
                         .withStyle(ChatFormatting.GREEN), true);
 
                 return InteractionResult.SUCCESS;
             }
         }
-        // Check if trying to use on fluid cabinet (show message)
         else if (state.is(ModBlocks.FLUID_CABINET.get())) {
             if (!level.isClientSide()) {
                 player.displayClientMessage(Component.translatable("message.realfilingreborn.already_fluid_cabinet")
@@ -90,7 +81,6 @@ public class CabinetConversionItem extends Item {
             }
             return InteractionResult.FAIL;
         }
-        // Wrong block type
         else {
             if (!level.isClientSide()) {
                 player.displayClientMessage(Component.translatable("message.realfilingreborn.conversion_only_filing_cabinet")

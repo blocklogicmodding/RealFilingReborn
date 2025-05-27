@@ -17,6 +17,7 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -28,6 +29,7 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -105,6 +107,20 @@ public class FluidCabinetBlock extends BaseEntityBlock {
 
         if (level.getBlockEntity(pos) instanceof FluidCabinetBlockEntity fluidCabinetBlockEntity) {
             ItemStack heldItem = player.getItemInHand(hand);
+
+            Direction facing = state.getValue(FACING);
+            if (hitResult.getDirection() == facing) {
+                if (heldItem.getItem() == Items.BUCKET) {
+                    if (level.isClientSide()) {
+                        return ItemInteractionResult.SUCCESS;
+                    }
+
+                    int targetSlot = getQuadFromHitResult(hitResult, facing);
+                    if (targetSlot >= 0 && targetSlot < 4) {
+                        return extractFromSlot(fluidCabinetBlockEntity, targetSlot, player, level, pos, state);
+                    }
+                }
+            }
 
             if (heldItem.getItem() instanceof FluidCanisterItem) {
                 if (level.isClientSide()) {
@@ -197,5 +213,111 @@ public class FluidCabinetBlock extends BaseEntityBlock {
             return ItemInteractionResult.SUCCESS;
         }
         return ItemInteractionResult.FAIL;
+    }
+
+    private int getQuadFromHitResult(BlockHitResult hitResult, Direction facing) {
+        Vec3 hitPos = hitResult.getLocation();
+
+        double relativeX = hitPos.x - Math.floor(hitPos.x);
+        double relativeY = hitPos.y - Math.floor(hitPos.y);
+        double relativeZ = hitPos.z - Math.floor(hitPos.z);
+
+        double faceX, faceY;
+
+        switch (facing) {
+            case NORTH:
+                faceX = 1.0 - relativeX;
+                faceY = relativeY;
+                break;
+            case SOUTH:
+                faceX = relativeX;
+                faceY = relativeY;
+                break;
+            case EAST:
+                faceX = 1.0 - relativeZ;
+                faceY = relativeY;
+                break;
+            case WEST:
+                faceX = relativeZ;
+                faceY = relativeY;
+                break;
+            default:
+                return -1;
+        }
+
+        boolean isLeft = faceX < 0.5;
+        boolean isTop = faceY > 0.5;
+
+        if (isTop && isLeft) return 0;
+        if (isTop && !isLeft) return 1;
+        if (!isTop && isLeft) return 2;
+        if (!isTop && !isLeft) return 3;
+
+        return -1;
+    }
+
+    private ItemInteractionResult extractFromSlot(FluidCabinetBlockEntity blockEntity, int slot, Player player,
+                                                  Level level, BlockPos pos, BlockState state) {
+        ItemStack canisterStack = blockEntity.inventory.getStackInSlot(slot);
+
+        if (canisterStack.isEmpty() || !(canisterStack.getItem() instanceof FluidCanisterItem)) {
+            player.displayClientMessage(Component.translatable("message.realfilingreborn.no_fluid_in_slot"), true);
+            return ItemInteractionResult.SUCCESS;
+        }
+
+        FluidCanisterItem.CanisterContents contents = canisterStack.get(FluidCanisterItem.CANISTER_CONTENTS.value());
+        if (contents == null || contents.storedFluidId().isEmpty() || contents.amount() < 1000) {
+            player.displayClientMessage(Component.translatable("message.realfilingreborn.not_enough_fluid_in_slot"), true);
+            return ItemInteractionResult.SUCCESS;
+        }
+
+        ResourceLocation fluidId = contents.storedFluidId().get();
+        ItemStack bucketToGive = getBucketForFluid(fluidId);
+
+        if (bucketToGive.isEmpty()) {
+            player.displayClientMessage(Component.translatable("message.realfilingreborn.no_bucket_for_fluid"), true);
+            return ItemInteractionResult.SUCCESS;
+        }
+
+        FluidCanisterItem.CanisterContents newContents = new FluidCanisterItem.CanisterContents(
+                contents.storedFluidId(),
+                contents.amount() - 1000
+        );
+        canisterStack.set(FluidCanisterItem.CANISTER_CONTENTS.value(), newContents);
+
+        player.getItemInHand(InteractionHand.MAIN_HAND).shrink(1);
+
+        if (!player.getInventory().add(bucketToGive)) {
+            player.drop(bucketToGive, false);
+        }
+
+        level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1f, 1.5f);
+        level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+        blockEntity.setChanged();
+
+        player.displayClientMessage(Component.translatable("message.realfilingreborn.fluid_extracted"), true);
+        return ItemInteractionResult.SUCCESS;
+    }
+
+    private ItemStack getBucketForFluid(ResourceLocation fluidId) {
+        if (fluidId.equals(Fluids.WATER.builtInRegistryHolder().key().location())) {
+            return new ItemStack(Items.WATER_BUCKET);
+        } else if (fluidId.equals(Fluids.LAVA.builtInRegistryHolder().key().location())) {
+            return new ItemStack(Items.LAVA_BUCKET);
+        }
+
+        try {
+            Fluid fluid = net.minecraft.core.registries.BuiltInRegistries.FLUID.get(fluidId);
+            if (fluid != null && fluid != Fluids.EMPTY) {
+                for (net.minecraft.world.item.Item item : net.minecraft.core.registries.BuiltInRegistries.ITEM) {
+                    if (item instanceof BucketItem bucketItem && bucketItem.content == fluid) {
+                        return new ItemStack(item);
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+
+        return ItemStack.EMPTY;
     }
 }

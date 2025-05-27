@@ -356,7 +356,7 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
 
                         if (canisterFluidId.equals(fluidId)) {
                             int maxToAdd = Integer.MAX_VALUE - contents.amount();
-                            int toAdd = Math.min(1000 * stack.getCount(), maxToAdd); // 1000mB per bucket
+                            int toAdd = Math.min(1000 * stack.getCount(), maxToAdd);
                             int bucketsToConsume = toAdd / 1000;
 
                             if (bucketsToConsume <= 0) {

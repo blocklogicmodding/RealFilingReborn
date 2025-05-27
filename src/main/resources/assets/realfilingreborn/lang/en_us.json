@@ -1,26 +1,30 @@
 {
+  "_comment": "=== CREATIVE TAB ===",
   "creativetab.realfilingreborn.real_filing_reborn": "Real Filing Reborn",
 
+  "_comment1": "=== ITEMS ===",
   "item.realfilingreborn.filing_folder": "Folder",
   "item.realfilingreborn.nbt_filing_folder": "NBT Folder",
   "item.realfilingreborn.eraser": "Eraser",
   "item.realfilingreborn.fluid_canister": "Fluid Canister",
   "item.realfilingreborn.cabinet_conversion_kit": "Cabinet Conversion Kit",
 
+  "_comment2": "=== BLOCKS ===",
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
   "block.realfilingreborn.fluid_cabinet": "Fluid Cabinet",
 
+  "_comment3": "=== BLOCK ENTITIES ===",
   "blockentity.realfilingreborn.name": "Filing Cabinet",
   "blockentity.realfilingreborn.fluid_cabinet_name": "Fluid Cabinet",
 
+  "_comment4": "=== MENUS/GUIS ===",
   "menu.realfilingreborn.menu_title": "Filing Cabinet",
   "menu.realfilingreborn.fluid_cabinet_menu_title": "Fluid Cabinet",
 
+  "_comment5": "=== FILING FOLDER MESSAGES ===",
   "message.realfilingreborn.folder_erased": "Folder assignment erased",
   "message.realfilingreborn.folder_not_empty": "Folder must be empty to erase assignment",
   "message.realfilingreborn.folder_not_assigned": "Folder is not assigned to any item",
-  "message.realfilingreborn.folders_full": "Filing Cabinet is full (5 folders)",
-  "message.realfilingreborn.no_folders": "Filing Cabinet can only accept folders",
   "message.realfilingreborn.folder_empty": "Folder is empty. Hold item in off hand and folder in main hand to add items",
   "message.realfilingreborn.wrong_item_type": "Folder assigned to: %s",
   "message.realfilingreborn.folder_full": "Folder cannot store any more items",
@@ -28,41 +32,68 @@
   "message.realfilingreborn.standard_folder_no_nbt": "Folder cannot store items with unique properties. Use NBT Folder",
   "message.realfilingreborn.nbt_folder_requires_nbt": "Folder can only store items with unique properties",
   "message.realfilingreborn.nbt_folder_full": "NBT Folder cannot store more than 128 items",
+  "message.realfilingreborn.no_items_in_slot": "No items in this slot",
+  "message.realfilingreborn.items_extracted": "Items extracted",
+  "message.realfilingreborn.no_folder_in_slot": "No folder in this slot",
+
+  "_comment6": "=== FILING CABINET MESSAGES ===",
+  "message.realfilingreborn.folders_full": "Filing Cabinet is full (5 folders)",
+  "message.realfilingreborn.no_folders": "Filing Cabinet can only accept folders",
   "message.realfilingreborn.no_compatible_folder": "No folder for this item available",
 
-  "message.realfilingreborn.canisters_full": "Fluid Cabinet is full (4 canisters)",
+  "_comment7": "=== FLUID CANISTER MESSAGES ===",
   "message.realfilingreborn.canister_empty": "Canister is empty. Hold bucket in off hand and canister in main hand to add fluid",
   "message.realfilingreborn.no_bucket_for_fluid": "No bucket available for this fluid type",
   "message.realfilingreborn.not_enough_fluid": "Not enough fluid to fill a bucket (need 1000mB)",
   "message.realfilingreborn.wrong_fluid_type": "Canister assigned to: %s",
   "message.realfilingreborn.canister_full": "Canister cannot store any more fluid",
+  "message.realfilingreborn.need_empty_bucket": "Need an empty bucket in inventory to extract fluid",
+  "message.realfilingreborn.canister_not_empty": "Canister must be empty to erase assignment",
+  "message.realfilingreborn.canister_not_assigned": "Canister is not assigned to any fluid",
+  "message.realfilingreborn.canister_erased": "Canister assignment erased",
+  "message.realfilingreborn.no_fluid_in_slot": "No fluid in this slot",
+  "message.realfilingreborn.not_enough_fluid_in_slot": "Not enough fluid in this slot (need 1000mB)",
+  "message.realfilingreborn.fluid_extracted": "Fluid extracted",
+
+  "_comment8": "=== FLUID CABINET MESSAGES ===",
+  "message.realfilingreborn.canisters_full": "Fluid Cabinet is full (4 canisters)",
   "message.realfilingreborn.no_compatible_canister": "No compatible canister found for this fluid",
+
+  "_comment9": "=== CABINET CONVERSION MESSAGES ===",
   "message.realfilingreborn.cabinet_must_be_empty": "Filing Cabinet must be empty before conversion",
   "message.realfilingreborn.cabinet_converted": "Filing Cabinet converted to Fluid Cabinet!",
   "message.realfilingreborn.already_fluid_cabinet": "This is already a Fluid Cabinet",
   "message.realfilingreborn.conversion_only_filing_cabinet": "Conversion Kit only works on Filing Cabinets",
-  "message.realfilingreborn.need_empty_bucket": "Need an empty bucket in inventory to extract fluid",
 
-  "tooltip.realfilingreborn.eraser_info": "Right-click while holding an empty folder to erase its assignment",
+  "_comment10": "=== ERASER TOOLTIPS ===",
+  "tooltip.realfilingreborn.eraser_info": "Right-click while holding an empty folder or canister to erase its assignment",
+
+  "_comment11": "=== FILING FOLDER TOOLTIPS ===",
   "tooltip.realfilingreborn.stored_item": "Assigned to (Contents): %s",
   "tooltip.realfilingreborn.item_count": "Count: %s",
   "tooltip.realfilingreborn.empty_folder": "Folder is empty",
   "tooltip.realfilingreborn.unregistered_folder": "Folder is unassigned. Add items to assign it",
   "tooltip.realfilingreborn.standard_folder_info": "Can only store normal items (no NBT)",
+
+  "_comment12": "=== NBT FOLDER TOOLTIPS ===",
   "tooltip.realfilingreborn.nbt_standard_folder_info": "Can only store items with unique properties (NBT)",
   "tooltip.realfilingreborn.nbt_item_count": "Unique Items: %s/%s",
   "tooltip.realfilingreborn.nbt_items_stored": "Contains:",
   "tooltip.realfilingreborn.and_x_more": "...and %s more",
   "tooltip.realfilingreborn.nbt_unregistered_folder": "NBT Folder is unassigned. Add items with unique properties to assign it",
 
-  "tooltip.realfilingreborn.cabinet_conversion_kit_info": "Item used to convert a Filing Cabinet into a Fluid Cabinet. Consumed on use",
-  "tooltip.realfilingreborn.cabinet_conversion_usage": "Right-click on empty Filing Cabinet to convert",
+  "_comment13": "=== FLUID CANISTER TOOLTIPS ===",
   "tooltip.realfilingreborn.canister_info": "Canister that holds near infinite amounts of a single fluid type",
   "tooltip.realfilingreborn.stored_fluid": "Assigned to (Contents): %s",
   "tooltip.realfilingreborn.fluid_amount": "Amount: %s",
   "tooltip.realfilingreborn.empty_canister": "Canister is empty",
   "tooltip.realfilingreborn.unregistered_canister": "Canister is unassigned. Add fluid to assign it",
 
+  "_comment14": "=== CABINET CONVERSION KIT TOOLTIPS ===",
+  "tooltip.realfilingreborn.cabinet_conversion_kit_info": "Item used to convert a Filing Cabinet into a Fluid Cabinet. Consumed on use",
+  "tooltip.realfilingreborn.cabinet_conversion_usage": "Right-click on empty Filing Cabinet to convert",
+
+  "_comment15": "=== JADE PLUGIN INTEGRATION ===",
   "tooltip.realfilingreborn.jade.cabinet_title": "Filing Cabinet Contents",
   "tooltip.realfilingreborn.jade.empty_cabinet": "Cabinet is empty. Right click to insert folders",
   "tooltip.realfilingreborn.jade.empty_fluid_cabinet": "Fluid Cabinet is empty. Right click to insert canisters",
@@ -72,10 +103,10 @@
   "tooltip.realfilingreborn.jade.folder_short": "F%d: %s (%s, %s)",
   "tooltip.realfilingreborn.jade.nbt_folder_short": "NF%d: %s (%d items)",
   "tooltip.realfilingreborn.jade.empty_folder": "Folder %d: Empty",
-
   "tooltip.realfilingreborn.jade.total_folders": "Total Folders: %d",
   "tooltip.realfilingreborn.jade.total_items": "Total Items: %s",
 
+  "_comment16": "=== JADE PLUGIN CONFIGURATION ===",
   "config.jade.plugin_realfilingreborn.filing_cabinet_info": "Filing Cabinet Information",
   "config.jade.plugin_realfilingreborn.fluid_cabinet_info": "Fluid Cabinet Information"
 }

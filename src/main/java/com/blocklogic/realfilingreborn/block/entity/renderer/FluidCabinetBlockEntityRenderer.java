@@ -45,7 +45,6 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
 
         setupFaceTransform(poseStack, facing);
 
-        // Render fluids in quad positions (2x2 grid for 4 slots)
         renderFluidGrid(blockEntity, poseStack, bufferSource, itemLight);
 
         poseStack.popPose();
@@ -77,15 +76,13 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
     private void renderFluidGrid(FluidCabinetBlockEntity blockEntity, PoseStack poseStack,
                                  MultiBufferSource bufferSource, int itemLight) {
 
-        // 2x2 grid positions for 4 slots - adjusted to match texture windows
         float[][] positions = {
-                {-0.188f, 0.188f},   // Top left (slot 0) - moved further left and up
-                {0.188f, 0.188f},    // Top right (slot 1) - moved further right and up
-                {-0.188f, -0.188f},  // Bottom left (slot 2) - moved further left and down
-                {0.188f, -0.188f}    // Bottom right (slot 3) - moved further right and down
+                {-0.188f, 0.188f},
+                {0.188f, 0.188f},
+                {-0.188f, -0.188f},
+                {0.188f, -0.188f}
         };
 
-        // Quad dimensions to fit nicely in the block face
         float quadWidth = 0.25f;
         float quadHeight = 0.25f;
 
@@ -106,7 +103,6 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
                         renderFluidQuad(fluid, contents.amount(), offsetX, offsetY, quadWidth, quadHeight,
                                 poseStack, bufferSource, itemLight);
 
-                        // Render amount text below each quad
                         renderFluidText(formatFluidAmount(contents.amount()), offsetX, offsetY - quadHeight/2f - 0.025f,
                                 poseStack, bufferSource, itemLight);
                     }
@@ -130,7 +126,6 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
                 VertexConsumer consumer = bufferSource.getBuffer(RenderType.translucent());
                 Matrix4f matrix = poseStack.last().pose();
 
-                // Get fluid color
                 FluidStack fluidStack = new FluidStack(fluid, 1000);
                 int color = fluidExtensions.getTintColor(fluidStack);
                 float red = ((color >> 16) & 0xFF) / 255f;
@@ -139,11 +134,9 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
                 float alpha = ((color >> 24) & 0xFF) / 255f;
                 if (alpha == 0) alpha = 1.0f;
 
-                // Calculate fill percentage (100,000 buckets = full visual)
-                float maxVisualAmount = 100000000; // 100,000 buckets worth (100 million mB)
+                float maxVisualAmount = 100000000;
                 float fillPercentage = Math.min(amount / maxVisualAmount, 1.0f);
 
-                // Calculate quad bounds
                 float halfWidth = width / 2f;
                 float halfHeight = height / 2f;
                 float quadLeft = offsetX - halfWidth;
@@ -151,44 +144,36 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
                 float quadBottom = offsetY - halfHeight;
                 float quadTop = offsetY + halfHeight;
 
-                // Calculate fill height within the quad
                 float fillHeight = height * fillPercentage;
                 float fluidTop = quadBottom + fillHeight;
 
-                // UV mapping
                 float minU = sprite.getU0();
                 float maxU = sprite.getU1();
                 float minV = sprite.getV0();
                 float maxV = sprite.getV1();
 
-                // Only render the filled portion
                 if (fillPercentage > 0) {
-                    // Scale V coordinate based on fill percentage
                     float fillVRange = (maxV - minV) * fillPercentage;
                     float adjustedMinV = maxV - fillVRange;
 
-                    // Bottom left
                     consumer.addVertex(matrix, quadLeft, quadBottom, 0.001f)
                             .setColor(red, green, blue, alpha)
                             .setUv(minU, maxV)
                             .setLight(packedLight)
                             .setNormal(0, 0, 1);
 
-                    // Bottom right
                     consumer.addVertex(matrix, quadRight, quadBottom, 0.001f)
                             .setColor(red, green, blue, alpha)
                             .setUv(maxU, maxV)
                             .setLight(packedLight)
                             .setNormal(0, 0, 1);
 
-                    // Top right
                     consumer.addVertex(matrix, quadRight, fluidTop, 0.001f)
                             .setColor(red, green, blue, alpha)
                             .setUv(maxU, adjustedMinV)
                             .setLight(packedLight)
                             .setNormal(0, 0, 1);
 
-                    // Top left
                     consumer.addVertex(matrix, quadLeft, fluidTop, 0.001f)
                             .setColor(red, green, blue, alpha)
                             .setUv(minU, adjustedMinV)
@@ -197,7 +182,6 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
                 }
             }
         } catch (Exception e) {
-            // Fallback to solid blue quad
             renderSolidQuad(0.2f, 0.5f, 1.0f, 0.8f, amount, offsetX, offsetY, width, height,
                     poseStack, bufferSource, packedLight);
         }
@@ -209,7 +193,6 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
         VertexConsumer consumer = bufferSource.getBuffer(RenderType.translucent());
         Matrix4f matrix = poseStack.last().pose();
 
-        // Calculate fill percentage
         float maxVisualAmount = 100000000;
         float fillPercentage = Math.min(amount / maxVisualAmount, 1.0f);
 
@@ -257,7 +240,6 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
 
         poseStack.pushPose();
 
-        // Position text at the specified offset
         poseStack.translate(offsetX, offsetY, 0.002f);
 
         poseStack.scale(0.004f, 0.004f, 0.004f);
@@ -270,7 +252,7 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
                 text,
                 xOffset,
                 0,
-                0xFFFFFF, // Cyan color for fluid text
+                0xFFFFFF,
                 false,
                 poseStack.last().pose(),
                 bufferSource,
@@ -283,15 +265,14 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
     }
 
     private String formatFluidAmount(int amount) {
-        // amount is in millibuckets (mB)
-        // 1000 mB = 1 bucket
-        if (amount >= 1000000000) { // 1 billion mB = 1 million buckets
+
+        if (amount >= 1000000000) {
             float mega = amount / 1000000f;
             return String.format("%.1fM", mega);
-        } else if (amount >= 1000000) { // 1 million mB = 1000 buckets
+        } else if (amount >= 1000000) {
             float kilo = amount / 1000000f;
             return String.format("%.1fK", kilo);
-        } else if (amount >= 1000) { // 1000+ mB but less than 1M
+        } else if (amount >= 1000) {
             float buckets = amount / 1000f;
             if (buckets == (int) buckets) {
                 return String.format("%d", (int) buckets);
