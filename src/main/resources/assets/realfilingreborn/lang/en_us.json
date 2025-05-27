@@ -104,6 +104,15 @@
   "tooltip.realfilingreborn.cabinet_conversion_kit_info": "Item used to convert a Filing Cabinet into a Fluid Cabinet. Consumed on use",
   "tooltip.realfilingreborn.cabinet_conversion_usage": "Right-click on empty Filing Cabinet to convert",
 
+  "_comment15.5": "=== RANGE UPGRADE TOOLTIPS ===",
+  "tooltip.realfilingreborn.gold_range_upgrade_info": "Extends Filing Index Range to 16 Blocks (Radius)",
+  "tooltip.realfilingreborn.diamond_range_upgrade_info": "Extends Filing Index Range to 32 Blocks (Radius)",
+  "tooltip.realfilingreborn.netherite_range_upgrade_info": "Extends Filing Index Range to 64 Blocks (Radius)",
+
+  "_comment15.6": "=== LEDGER TOOLTIPS ===",
+  "tooltip.realfilingreborn.ledger_info": "Connects Filing Cabinets to Filing Index",
+  "tooltip.realfilingreborn.ledger_usage": "Shift-Right-Click on Filing Index to Select, then Shift-Right-Click Filing Cabinet to Connect",
+
   "_comment16": "=== JADE PLUGIN INTEGRATION ===",
   "tooltip.realfilingreborn.jade.cabinet_title": "Filing Cabinet Contents",
   "tooltip.realfilingreborn.jade.empty_cabinet": "Cabinet is empty. Right click to insert folders",
