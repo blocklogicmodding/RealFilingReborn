@@ -1,6 +1,8 @@
 package com.blocklogic.realfilingreborn.block.custom;
 
+import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
 import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
+import com.blocklogic.realfilingreborn.block.entity.FluidCabinetBlockEntity;
 import com.blocklogic.realfilingreborn.item.custom.*;
 import com.blocklogic.realfilingreborn.screen.custom.FilingIndexMenu;
 import com.mojang.serialization.MapCodec;
@@ -26,21 +28,27 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+
 public class FilingIndexBlock extends BaseEntityBlock {
 
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final BooleanProperty CONNECTED = BooleanProperty.create("connected");
     public static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 16, 16);
     public static final MapCodec<FilingIndexBlock> CODEC = simpleCodec(FilingIndexBlock::new);
 
     public FilingIndexBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
+        this.registerDefaultState(this.stateDefinition.any()
+                .setValue(FACING, Direction.NORTH)
+                .setValue(CONNECTED, false));
     }
 
     @Override
@@ -55,12 +63,14 @@ public class FilingIndexBlock extends BaseEntityBlock {
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+        return this.defaultBlockState()
+                .setValue(FACING, context.getHorizontalDirection().getOpposite())
+                .setValue(CONNECTED, false);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(FACING, CONNECTED);
     }
 
     @Override
@@ -78,11 +88,39 @@ public class FilingIndexBlock extends BaseEntityBlock {
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.getBlock() != newState.getBlock()) {
             if (level.getBlockEntity(pos) instanceof FilingIndexBlockEntity filingIndexBlockEntity) {
+                // Clear all connected cabinets BEFORE dropping items
+                if (!level.isClientSide()) {
+                    try {
+                        for (Long cabinetLong : new ArrayList<>(filingIndexBlockEntity.getConnectedCabinets().getConnectedCabinets())) {
+                            BlockPos cabinetPos = BlockPos.of(cabinetLong);
+                            BlockEntity entity = level.getBlockEntity(cabinetPos);
+                            if (entity instanceof FilingCabinetBlockEntity filingCabinet) {
+                                filingCabinet.clearControllerPos();
+                            } else if (entity instanceof FluidCabinetBlockEntity fluidCabinet) {
+                                fluidCabinet.clearControllerPos();
+                            }
+                        }
+                    } catch (Exception e) {
+                        // Handle cleanup errors silently
+                    }
+                }
+
                 filingIndexBlockEntity.drops();
                 level.updateNeighbourForOutputSignal(pos, this);
             }
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    /**
+     * Updates the connected state of the Filing Index block
+     */
+    public void updateConnectedState(Level level, BlockPos pos, boolean hasConnections) {
+        BlockState currentState = level.getBlockState(pos);
+        if (currentState.getValue(CONNECTED) != hasConnections) {
+            BlockState newState = currentState.setValue(CONNECTED, hasConnections);
+            level.setBlock(pos, newState, Block.UPDATE_ALL);
+        }
     }
 
     private void openFilingIndexMenu(FilingIndexBlockEntity blockEntity, ServerPlayer player, BlockPos pos) {
@@ -97,6 +135,7 @@ public class FilingIndexBlock extends BaseEntityBlock {
         if (level.getBlockEntity(pos) instanceof FilingIndexBlockEntity filingIndexBlockEntity) {
             Item item = stack.getItem();
 
+            // Handle upgrade items
             boolean isValidUpgrade = item instanceof IndexRangerUpgradeGold
                     || item instanceof IndexRangerUpgradeDiamond
                     || item instanceof IndexRangerUpgradeNetherite;
@@ -117,6 +156,12 @@ public class FilingIndexBlock extends BaseEntityBlock {
                 }
             }
 
+            // Handle ledger item - let it handle the interaction
+            if (item instanceof LedgerItem) {
+                return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            }
+
+            // Default: open GUI
             if (!level.isClientSide()) {
                 openFilingIndexMenu(filingIndexBlockEntity, (ServerPlayer) player, pos);
                 level.playSound(player, pos, SoundEvents.VILLAGER_WORK_CARTOGRAPHER, SoundSource.BLOCKS, 1F, 1F);
@@ -127,6 +172,4 @@ public class FilingIndexBlock extends BaseEntityBlock {
 
         return ItemInteractionResult.FAIL;
     }
-
-
 }

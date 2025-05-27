@@ -76,12 +76,24 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", inventory.serializeNBT(registries));
+
+        // Save controller position
+        if (controllerPos != null) {
+            tag.putLong("controller_pos", controllerPos.asLong());
+        }
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("inventory"));
+
+        // Load controller position
+        if (tag.contains("controller_pos")) {
+            this.controllerPos = BlockPos.of(tag.getLong("controller_pos"));
+        } else {
+            this.controllerPos = null;
+        }
     }
 
     @Override
@@ -97,6 +109,18 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
     @Override
     public void setRemoved() {
+        // Notify controller that this cabinet is being removed BEFORE calling super
+        if (controllerPos != null && level != null && !level.isClientSide()) {
+            try {
+                BlockEntity entity = level.getBlockEntity(controllerPos);
+                if (entity instanceof FilingIndexBlockEntity filingIndex) {
+                    filingIndex.getConnectedCabinets().removeCabinet(getBlockPos());
+                }
+            } catch (Exception e) {
+                // Silently handle cleanup errors to prevent save hanging
+            }
+        }
+
         super.setRemoved();
     }
 
@@ -539,6 +563,39 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         public boolean isItemValid(int slot, ItemStack stack) {
             return stack.getItem() instanceof FilingFolderItem;
         }
+    }
+
+    private BlockPos controllerPos = null;
+
+    /**
+     * Sets the controller position when connected to a Filing Index
+     */
+    public void setControllerPos(BlockPos controllerPos) {
+        this.controllerPos = controllerPos;
+        setChanged();
+    }
+
+    /**
+     * Clears the controller position when disconnected
+     */
+    public void clearControllerPos() {
+        this.controllerPos = null;
+        setChanged();
+    }
+
+    /**
+     * Gets the current controller position
+     */
+    @Nullable
+    public BlockPos getControllerPos() {
+        return controllerPos;
+    }
+
+    /**
+     * Checks if this cabinet is connected to a controller
+     */
+    public boolean hasController() {
+        return controllerPos != null;
     }
 
     @Nullable

@@ -1,7 +1,18 @@
 package com.blocklogic.realfilingreborn.block.entity;
 
+import com.blocklogic.realfilingreborn.block.custom.FilingIndexBlock;
+import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
+import com.blocklogic.realfilingreborn.block.entity.FluidCabinetBlockEntity;
+import com.blocklogic.realfilingreborn.inventory.IndexFluidHandler;
+import com.blocklogic.realfilingreborn.inventory.IndexInventoryHandler;
+import com.blocklogic.realfilingreborn.item.custom.IndexRangerUpgradeDiamond;
+import com.blocklogic.realfilingreborn.item.custom.IndexRangerUpgradeGold;
+import com.blocklogic.realfilingreborn.item.custom.IndexRangerUpgradeNetherite;
+import com.blocklogic.realfilingreborn.item.custom.LedgerItem;
 import com.blocklogic.realfilingreborn.screen.custom.FilingIndexMenu;
+import com.blocklogic.realfilingreborn.util.ConnectedCabinets;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -14,12 +25,26 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider {
+
+    // Inventory for upgrade item (1 slot)
     public final ItemStackHandler inventory = new ItemStackHandler(1) {
         @Override
         public int getSlotLimit(int slot) {
@@ -29,36 +54,173 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
-
             if (level != null && !level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+                // Rebuild network when upgrade changes (range might have changed)
+                rebuildNetwork();
             }
         }
     };
+
+    // Connected cabinet network management
+    private ConnectedCabinets connectedCabinets;
+    private IndexInventoryHandler inventoryHandler;
+    private IndexFluidHandler fluidHandler;
+    private final Map<Direction, IItemHandler> itemHandlers = new HashMap<>();
+    private final Map<Direction, IFluidHandler> fluidHandlers = new HashMap<>();
+    private boolean isRebuilding = false; // Prevent rebuild loops
+
+    public FilingIndexBlockEntity(BlockPos pos, BlockState blockState) {
+        super(ModBlockEntities.FILING_INDEX_BE.get(), pos, blockState);
+        this.connectedCabinets = new ConnectedCabinets(null, this);
+        this.inventoryHandler = new IndexInventoryHandler(connectedCabinets);
+        this.fluidHandler = new IndexFluidHandler(connectedCabinets);
+
+        // Set virtual handler references for invalidation
+        this.connectedCabinets.setVirtualHandlers(inventoryHandler, fluidHandler);
+    }
+
+    /**
+     * Gets the item handler capability for external access
+     */
+    @Nullable
+    public IItemHandler getItemCapabilityHandler(@Nullable Direction side) {
+        return itemHandlers.computeIfAbsent(side != null ? side : Direction.UP, s -> inventoryHandler);
+    }
+
+    /**
+     * Gets the fluid handler capability for external access
+     */
+    @Nullable
+    public IFluidHandler getFluidCapabilityHandler(@Nullable Direction side) {
+        return fluidHandlers.computeIfAbsent(side != null ? side : Direction.UP, s -> fluidHandler);
+    }
+    /**
+     * Gets the current connection range based on installed upgrade
+     */
+    public int getConnectionRange() {
+        ItemStack upgradeStack = inventory.getStackInSlot(0);
+        if (upgradeStack.isEmpty()) {
+            return 8; // Base range
+        }
+
+        if (upgradeStack.getItem() instanceof IndexRangerUpgradeGold) {
+            return 16;
+        } else if (upgradeStack.getItem() instanceof IndexRangerUpgradeDiamond) {
+            return 32;
+        } else if (upgradeStack.getItem() instanceof IndexRangerUpgradeNetherite) {
+            return 64;
+        }
+
+        return 8; // Fallback to base range
+    }
+
+    /**
+     * Adds a single cabinet to the network (called by LedgerItem)
+     */
+    public boolean addConnectedCabinet(LedgerItem.ActionMode mode, BlockPos cabinetPos) {
+        boolean success;
+        if (mode == LedgerItem.ActionMode.ADD) {
+            success = connectedCabinets.addCabinet(cabinetPos);
+        } else {
+            success = connectedCabinets.removeCabinet(cabinetPos);
+        }
+
+        if (success) {
+            updateConnectedState();
+            // DON'T call setChanged() here - it's called in rebuild()
+        }
+
+        return success;
+    }
+
+    /**
+     * Adds multiple cabinets to the network (called by LedgerItem for area selection)
+     */
+    public boolean addConnectedCabinets(LedgerItem.ActionMode mode, BlockPos... cabinetPositions) {
+        boolean anyChanged = false;
+
+        for (BlockPos cabinetPos : cabinetPositions) {
+            if (level != null) {
+                BlockEntity entity = level.getBlockEntity(cabinetPos);
+                if (entity instanceof FilingCabinetBlockEntity || entity instanceof FluidCabinetBlockEntity) {
+                    if (mode == LedgerItem.ActionMode.ADD) {
+                        if (connectedCabinets.addCabinet(cabinetPos)) {
+                            anyChanged = true;
+                        }
+                    } else {
+                        if (connectedCabinets.removeCabinet(cabinetPos)) {
+                            anyChanged = true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if (anyChanged) {
+            updateConnectedState();
+            // DON'T call setChanged() here either - it's called in rebuild()
+        }
+
+        return anyChanged;
+    }
+
+    /**
+     * Rebuilds the network - removes invalid connections and updates state
+     */
+    public void rebuildNetwork() {
+        if (level == null || level.isClientSide() || isRebuilding) return;
+
+        isRebuilding = true;
+        try {
+            connectedCabinets.setLevel(level);
+            connectedCabinets.rebuild();
+            updateConnectedState();
+            setChanged();
+        } finally {
+            isRebuilding = false;
+        }
+    }
+
+    /**
+     * Updates the CONNECTED blockstate based on whether we have connections
+     */
+    private void updateConnectedState() {
+        if (level != null && !level.isClientSide()) {
+            boolean hasConnections = connectedCabinets.hasConnections();
+            if (getBlockState().getBlock() instanceof FilingIndexBlock indexBlock) {
+                indexBlock.updateConnectedState(level, getBlockPos(), hasConnections);
+            }
+        }
+    }
+
+    /**
+     * Gets the connected cabinets utility
+     */
+    public ConnectedCabinets getConnectedCabinets() {
+        return connectedCabinets;
+    }
 
     public void drops() {
         SimpleContainer inv = new SimpleContainer(inventory.getSlots());
         for(int i = 0; i < inventory.getSlots(); i++) {
             inv.setItem(i, inventory.getStackInSlot(i));
         }
-
         Containers.dropContents(this.level, this.worldPosition, inv);
-    }
-
-    public FilingIndexBlockEntity( BlockPos pos, BlockState blockState) {
-        super(ModBlockEntities.FILING_INDEX_BE.get(), pos, blockState);
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", inventory.serializeNBT(registries));
+        tag.put("connected_cabinets", connectedCabinets.serializeNBT(registries));
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("inventory"));
+        connectedCabinets.deserializeNBT(registries, tag.getCompound("connected_cabinets"));
     }
 
     @Override
@@ -74,6 +236,23 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
 
     @Override
     public void setRemoved() {
+        // Clear all connections cleanly before removal
+        if (level != null && !level.isClientSide() && connectedCabinets != null) {
+            try {
+                for (Long cabinetLong : new ArrayList<>(connectedCabinets.getConnectedCabinets())) {
+                    BlockPos cabinetPos = BlockPos.of(cabinetLong);
+                    BlockEntity entity = level.getBlockEntity(cabinetPos);
+                    if (entity instanceof FilingCabinetBlockEntity filingCabinet) {
+                        filingCabinet.clearControllerPos();
+                    } else if (entity instanceof FluidCabinetBlockEntity fluidCabinet) {
+                        fluidCabinet.clearControllerPos();
+                    }
+                }
+            } catch (Exception e) {
+                // Silently handle cleanup errors
+            }
+        }
+
         super.setRemoved();
     }
 
@@ -86,5 +265,14 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
         return saveWithoutMetadata(pRegistries);
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (level != null && !level.isClientSide()) {
+            // Rebuild network when the chunk loads
+            rebuildNetwork();
+        }
     }
 }

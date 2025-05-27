@@ -75,24 +75,40 @@
   "message.realfilingreborn.already_fluid_cabinet": "This is already a Fluid Cabinet",
   "message.realfilingreborn.conversion_only_filing_cabinet": "Conversion Kit only works on Filing Cabinets",
 
-  "_comment11": "=== ERASER TOOLTIPS ===",
+  "_comment11": "=== LEDGER MESSAGES (NEW) ===",
+  "message.realfilingreborn.ledger.index_configured": "Filing Index configured successfully",
+  "message.realfilingreborn.ledger.cabinet_linked": "Cabinet linked to Filing Index",
+  "message.realfilingreborn.ledger.cabinet_unlinked": "Cabinet unlinked from Filing Index",
+  "message.realfilingreborn.ledger.multiple_cabinets_linked": "Multiple cabinets linked to Filing Index",
+  "message.realfilingreborn.ledger.multiple_cabinets_unlinked": "Multiple cabinets unlinked from Filing Index",
+  "message.realfilingreborn.ledger.first_position_set": "First position set. Right-click second position to complete area",
+  "message.realfilingreborn.ledger.mode_switched": "Mode switched to: %s",
+  "message.realfilingreborn.ledger.action_switched": "Action switched to: %s",
+
+  "_comment12": "=== LEDGER MODES/ACTIONS ===",
+  "ledger.realfilingreborn.mode.single": "Single",
+  "ledger.realfilingreborn.mode.multiple": "Multiple",
+  "ledger.realfilingreborn.action.add": "Add",
+  "ledger.realfilingreborn.action.remove": "Remove",
+
+  "_comment13": "=== ERASER TOOLTIPS ===",
   "tooltip.realfilingreborn.eraser_info": "Right-click while holding an empty folder or canister to erase its assignment",
 
-  "_comment12": "=== FILING FOLDER TOOLTIPS ===",
+  "_comment14": "=== FILING FOLDER TOOLTIPS ===",
   "tooltip.realfilingreborn.stored_item": "Assigned to (Contents): %s",
   "tooltip.realfilingreborn.item_count": "Count: %s",
   "tooltip.realfilingreborn.empty_folder": "Folder is empty",
   "tooltip.realfilingreborn.unregistered_folder": "Folder is unassigned. Add items to assign it",
   "tooltip.realfilingreborn.standard_folder_info": "Can only store normal items (no NBT)",
 
-  "_comment13": "=== NBT FOLDER TOOLTIPS ===",
+  "_comment15": "=== NBT FOLDER TOOLTIPS ===",
   "tooltip.realfilingreborn.nbt_standard_folder_info": "Can only store items with unique properties (NBT)",
   "tooltip.realfilingreborn.nbt_item_count": "Unique Items: %s/%s",
   "tooltip.realfilingreborn.nbt_items_stored": "Contains:",
   "tooltip.realfilingreborn.and_x_more": "...and %s more",
   "tooltip.realfilingreborn.nbt_unregistered_folder": "NBT Folder is unassigned. Add items with unique properties to assign it",
 
-  "_comment14": "=== FLUID CANISTER TOOLTIPS ===",
+  "_comment16": "=== FLUID CANISTER TOOLTIPS ===",
   "tooltip.realfilingreborn.canister_info": "Canister that holds near infinite amounts of a single fluid type",
   "tooltip.realfilingreborn.stored_fluid": "Assigned to (Contents): %s",
   "tooltip.realfilingreborn.fluid_amount": "Amount: %s",
@@ -100,20 +116,27 @@
   "tooltip.realfilingreborn.unregistered_canister": "Canister is unassigned. Add fluid to assign it",
   "message.realfilingreborn.invalid_fluid": "This fluid cannot be stored in canisters",
 
-  "_comment15": "=== CABINET CONVERSION KIT TOOLTIPS ===",
+  "_comment17": "=== CABINET CONVERSION KIT TOOLTIPS ===",
   "tooltip.realfilingreborn.cabinet_conversion_kit_info": "Item used to convert a Filing Cabinet into a Fluid Cabinet. Consumed on use",
   "tooltip.realfilingreborn.cabinet_conversion_usage": "Right-click on empty Filing Cabinet to convert",
 
-  "_comment15.5": "=== RANGE UPGRADE TOOLTIPS ===",
+  "_comment18": "=== RANGE UPGRADE TOOLTIPS ===",
   "tooltip.realfilingreborn.gold_range_upgrade_info": "Extends Filing Index Range to 16 Blocks (Radius)",
   "tooltip.realfilingreborn.diamond_range_upgrade_info": "Extends Filing Index Range to 32 Blocks (Radius)",
   "tooltip.realfilingreborn.netherite_range_upgrade_info": "Extends Filing Index Range to 64 Blocks (Radius)",
 
-  "_comment15.6": "=== LEDGER TOOLTIPS ===",
+  "_comment19": "=== LEDGER TOOLTIPS (NEW) ===",
+  "tooltip.realfilingreborn.ledger.mode": "Mode: ",
+  "tooltip.realfilingreborn.ledger.action": "Action: ",
+  "tooltip.realfilingreborn.ledger.index_location": "Filing Index: ",
+  "tooltip.realfilingreborn.ledger.no_index": "Filing Index: Not Set",
+  "tooltip.realfilingreborn.ledger.usage": "Right-click Filing Index to set. Right-click cabinets to link/unlink. Right-click air to change modes.",
+
+  "_comment20": "=== LEGACY LEDGER TOOLTIPS ===",
   "tooltip.realfilingreborn.ledger_info": "Connects Filing Cabinets to Filing Index",
   "tooltip.realfilingreborn.ledger_usage": "Shift-Right-Click on Filing Index to Select, then Shift-Right-Click Filing Cabinet to Connect",
 
-  "_comment16": "=== JADE PLUGIN INTEGRATION ===",
+  "_comment21": "=== JADE PLUGIN INTEGRATION ===",
   "tooltip.realfilingreborn.jade.cabinet_title": "Filing Cabinet Contents",
   "tooltip.realfilingreborn.jade.empty_cabinet": "Cabinet is empty. Right click to insert folders",
   "tooltip.realfilingreborn.jade.empty_fluid_cabinet": "Fluid Cabinet is empty. Right click to insert canisters",
@@ -126,7 +149,7 @@
   "tooltip.realfilingreborn.jade.total_folders": "Total Folders: %d",
   "tooltip.realfilingreborn.jade.total_items": "Total Items: %s",
 
-  "_comment17": "=== JADE PLUGIN CONFIGURATION ===",
+  "_comment22": "=== JADE PLUGIN CONFIGURATION ===",
   "config.jade.plugin_realfilingreborn.filing_cabinet_info": "Filing Cabinet Information",
   "config.jade.plugin_realfilingreborn.fluid_cabinet_info": "Fluid Cabinet Information"
 }
