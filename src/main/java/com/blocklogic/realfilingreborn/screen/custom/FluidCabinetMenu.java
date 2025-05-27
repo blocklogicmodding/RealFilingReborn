@@ -31,9 +31,8 @@ public class FluidCabinetMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        // Add 5 canister slots in a horizontal row
-        for (int i = 0; i < 5; i++) {
-            int x = 44 + i * 18;
+        for (int i = 0; i < 4; i++) {
+            int x = 53 + i * 18;
             int y = 17;
             this.addSlot(new SlotItemHandler(this.blockEntity.inventory, i, x, y) {
                 @Override
@@ -52,7 +51,7 @@ public class FluidCabinetMenu extends AbstractContainerMenu {
     private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
-    private static final int TE_INVENTORY_SLOT_COUNT = 5;
+    private static final int TE_INVENTORY_SLOT_COUNT = 4;
 
     @Override
     public ItemStack quickMoveStack(Player playerIn, int pIndex) {
@@ -61,7 +60,6 @@ public class FluidCabinetMenu extends AbstractContainerMenu {
         ItemStack sourceStack = sourceSlot.getItem();
         ItemStack copyOfSourceStack = sourceStack.copy();
 
-        // Moving from player inventory to fluid cabinet
         if (pIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
             if (sourceStack.getItem() instanceof FluidCanisterItem) {
                 if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX,
@@ -72,7 +70,6 @@ public class FluidCabinetMenu extends AbstractContainerMenu {
                 return ItemStack.EMPTY;
             }
         }
-        // Moving from fluid cabinet to player inventory
         else if (pIndex < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
             if (!moveItemStackTo(sourceStack, VANILLA_FIRST_SLOT_INDEX,
                     VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false)) {
@@ -83,7 +80,6 @@ public class FluidCabinetMenu extends AbstractContainerMenu {
             return ItemStack.EMPTY;
         }
 
-        // Clean up the slot if it's now empty
         if (sourceStack.getCount() == 0) {
             sourceSlot.set(ItemStack.EMPTY);
         } else {

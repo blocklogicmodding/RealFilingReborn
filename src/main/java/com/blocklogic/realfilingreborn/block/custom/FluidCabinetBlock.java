@@ -32,8 +32,6 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 public class FluidCabinetBlock extends BaseEntityBlock {
@@ -108,13 +106,12 @@ public class FluidCabinetBlock extends BaseEntityBlock {
         if (level.getBlockEntity(pos) instanceof FluidCabinetBlockEntity fluidCabinetBlockEntity) {
             ItemStack heldItem = player.getItemInHand(hand);
 
-            // Handle canister insertion
             if (heldItem.getItem() instanceof FluidCanisterItem) {
                 if (level.isClientSide()) {
                     return ItemInteractionResult.SUCCESS;
                 }
 
-                for (int i = 0; i < 5; i++) {
+                for (int i = 0; i < 4; i++) {
                     if (fluidCabinetBlockEntity.inventory.getStackInSlot(i).isEmpty()) {
                         ItemStack canisterStack = heldItem.copyWithCount(1);
                         fluidCabinetBlockEntity.inventory.setStackInSlot(i, canisterStack);
@@ -130,7 +127,6 @@ public class FluidCabinetBlock extends BaseEntityBlock {
                 player.displayClientMessage(Component.translatable("message.realfilingreborn.canisters_full"), true);
                 return ItemInteractionResult.SUCCESS;
             }
-            // Handle bucket insertion - store fluid directly into canisters
             else if (heldItem.getItem() instanceof BucketItem bucketItem && bucketItem.content != Fluids.EMPTY) {
                 if (level.isClientSide()) {
                     return ItemInteractionResult.SUCCESS;
@@ -139,8 +135,7 @@ public class FluidCabinetBlock extends BaseEntityBlock {
                 Fluid fluid = bucketItem.content;
                 ResourceLocation fluidId = fluid.builtInRegistryHolder().key().location();
 
-                // Try to find a compatible canister
-                for (int i = 0; i < 5; i++) {
+                for (int i = 0; i < 4; i++) {
                     ItemStack canisterStack = fluidCabinetBlockEntity.inventory.getStackInSlot(i);
 
                     if (!canisterStack.isEmpty() && canisterStack.getItem() instanceof FluidCanisterItem) {
@@ -148,14 +143,12 @@ public class FluidCabinetBlock extends BaseEntityBlock {
 
                         if (contents != null) {
                             if (contents.storedFluidId().isEmpty()) {
-                                // Assign this fluid to the canister
                                 FluidCanisterItem.CanisterContents newContents = new FluidCanisterItem.CanisterContents(
                                         Optional.of(fluidId),
-                                        1000 // 1000mB = 1 bucket
+                                        1000
                                 );
                                 canisterStack.set(FluidCanisterItem.CANISTER_CONTENTS.value(), newContents);
 
-                                // Replace bucket with empty bucket
                                 heldItem.shrink(1);
                                 ItemStack emptyBucket = new ItemStack(net.minecraft.world.item.Items.BUCKET);
                                 if (!player.getInventory().add(emptyBucket)) {
@@ -167,9 +160,8 @@ public class FluidCabinetBlock extends BaseEntityBlock {
                                 fluidCabinetBlockEntity.setChanged();
                                 return ItemInteractionResult.SUCCESS;
                             } else if (contents.storedFluidId().get().equals(fluidId)) {
-                                // Add to existing fluid
                                 int maxToAdd = Integer.MAX_VALUE - contents.amount();
-                                int toAdd = Math.min(1000, maxToAdd); // 1000mB per bucket
+                                int toAdd = Math.min(1000, maxToAdd);
 
                                 if (toAdd >= 1000) {
                                     FluidCanisterItem.CanisterContents newContents = new FluidCanisterItem.CanisterContents(
@@ -178,7 +170,6 @@ public class FluidCabinetBlock extends BaseEntityBlock {
                                     );
                                     canisterStack.set(FluidCanisterItem.CANISTER_CONTENTS.value(), newContents);
 
-                                    // Replace bucket with empty bucket
                                     heldItem.shrink(1);
                                     ItemStack emptyBucket = new ItemStack(net.minecraft.world.item.Items.BUCKET);
                                     if (!player.getInventory().add(emptyBucket)) {
@@ -199,7 +190,6 @@ public class FluidCabinetBlock extends BaseEntityBlock {
                 return ItemInteractionResult.SUCCESS;
             }
 
-            // Default behavior - open GUI
             if (!level.isClientSide()) {
                 openFluidCabinetMenu(fluidCabinetBlockEntity, (ServerPlayer) player, pos);
                 level.playSound(player, pos, SoundEvents.VILLAGER_WORK_CARTOGRAPHER, SoundSource.BLOCKS, 1F, 1F);

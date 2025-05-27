@@ -38,7 +38,7 @@ import java.util.*;
 
 public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider {
 
-    public final ItemStackHandler inventory = new ItemStackHandler(5) {
+    public final ItemStackHandler inventory = new ItemStackHandler(4) {
         @Override
         protected void onContentsChanged(int slot) {
             setChanged();
@@ -129,12 +129,12 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
 
         @Override
         public int getTanks() {
-            return 5;
+            return 4;
         }
 
         @Override
         public FluidStack getFluidInTank(int tank) {
-            if (tank < 0 || tank >= 5) return FluidStack.EMPTY;
+            if (tank < 0 || tank >= 4) return FluidStack.EMPTY;
 
             ItemStack canisterStack = cabinet.inventory.getStackInSlot(tank);
             if (canisterStack.getItem() instanceof FluidCanisterItem) {
@@ -166,7 +166,7 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
 
             ResourceLocation fluidId = resource.getFluid().builtInRegistryHolder().key().location();
 
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 4; i++) {
                 ItemStack canisterStack = cabinet.inventory.getStackInSlot(i);
 
                 if (!canisterStack.isEmpty() && canisterStack.getItem() instanceof FluidCanisterItem) {
@@ -201,7 +201,7 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
 
             ResourceLocation fluidId = resource.getFluid().builtInRegistryHolder().key().location();
 
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 4; i++) {
                 ItemStack canisterStack = cabinet.inventory.getStackInSlot(i);
 
                 if (!canisterStack.isEmpty() && canisterStack.getItem() instanceof FluidCanisterItem) {
@@ -231,7 +231,7 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
 
         @Override
         public FluidStack drain(int maxDrain, FluidAction action) {
-            for (int i = 0; i < 5; i++) {
+            for (int i = 0; i < 4; i++) {
                 ItemStack canisterStack = cabinet.inventory.getStackInSlot(i);
 
                 if (!canisterStack.isEmpty() && canisterStack.getItem() instanceof FluidCanisterItem) {
@@ -288,7 +288,7 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
 
         @Override
         public int getSlots() {
-            return 5;
+            return 4;
         }
 
         @Override
@@ -338,7 +338,7 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
             if (side != null) {
                 ResourceLocation fluidId = fluid.builtInRegistryHolder().key().location();
 
-                for (int i = 0; i < 5; i++) {
+                for (int i = 0; i < 4; i++) {
                     ItemStack canisterStack = cabinet.inventory.getStackInSlot(i);
 
                     if (canisterStack.isEmpty()) {

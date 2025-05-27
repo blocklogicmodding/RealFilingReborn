@@ -30,7 +30,7 @@
   "message.realfilingreborn.nbt_folder_full": "NBT Folder cannot store more than 128 items",
   "message.realfilingreborn.no_compatible_folder": "No folder for this item available",
 
-  "message.realfilingreborn.canisters_full": "Fluid Cabinet is full (5 canisters)",
+  "message.realfilingreborn.canisters_full": "Fluid Cabinet is full (4 canisters)",
   "message.realfilingreborn.canister_empty": "Canister is empty. Hold bucket in off hand and canister in main hand to add fluid",
   "message.realfilingreborn.no_bucket_for_fluid": "No bucket available for this fluid type",
   "message.realfilingreborn.not_enough_fluid": "Not enough fluid to fill a bucket (need 1000mB)",
@@ -41,6 +41,7 @@
   "message.realfilingreborn.cabinet_converted": "Filing Cabinet converted to Fluid Cabinet!",
   "message.realfilingreborn.already_fluid_cabinet": "This is already a Fluid Cabinet",
   "message.realfilingreborn.conversion_only_filing_cabinet": "Conversion Kit only works on Filing Cabinets",
+  "message.realfilingreborn.need_empty_bucket": "Need an empty bucket in inventory to extract fluid",
 
   "tooltip.realfilingreborn.eraser_info": "Right-click while holding an empty folder to erase its assignment",
   "tooltip.realfilingreborn.stored_item": "Assigned to (Contents): %s",

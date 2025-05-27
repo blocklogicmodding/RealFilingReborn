@@ -22,8 +22,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
@@ -107,7 +105,6 @@ public class FluidCanisterItem extends Item {
             }
         }
 
-        // Check if the bucket contains a fluid
         BucketItem bucketItem = (BucketItem) bucketStack.getItem();
         Fluid fluid = bucketItem.content;
 
@@ -157,19 +154,45 @@ public class FluidCanisterItem extends Item {
             return InteractionResultHolder.fail(canisterStack);
         }
 
+        int emptyBucketCount = 0;
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.getItem() == Items.BUCKET) {
+                emptyBucketCount += stack.getCount();
+            }
+        }
+
+        if (emptyBucketCount <= 0) {
+            player.displayClientMessage(Component.translatable("message.realfilingreborn.need_empty_bucket"), true);
+            return InteractionResultHolder.fail(canisterStack);
+        }
+
         ResourceLocation fluidId = contents.storedFluidId().get();
 
-        // Find the appropriate bucket item for this fluid
         ItemStack bucketToGive = getBucketForFluid(fluidId);
         if (bucketToGive.isEmpty()) {
             player.displayClientMessage(Component.translatable("message.realfilingreborn.no_bucket_for_fluid"), true);
             return InteractionResultHolder.fail(canisterStack);
         }
 
-        int extractAmount = Math.min(contents.amount(), 1000); // 1000mb = 1 bucket
+        int extractAmount = Math.min(contents.amount(), 1000);
 
         if (extractAmount < 1000) {
             player.displayClientMessage(Component.translatable("message.realfilingreborn.not_enough_fluid"), true);
+            return InteractionResultHolder.fail(canisterStack);
+        }
+
+        boolean bucketRemoved = false;
+        for (int i = 0; i < player.getInventory().getContainerSize() && !bucketRemoved; i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.getItem() == Items.BUCKET) {
+                stack.shrink(1);
+                bucketRemoved = true;
+            }
+        }
+
+        if (!bucketRemoved) {
+            player.displayClientMessage(Component.translatable("message.realfilingreborn.need_empty_bucket"), true);
             return InteractionResultHolder.fail(canisterStack);
         }
 
@@ -227,7 +250,7 @@ public class FluidCanisterItem extends Item {
         }
 
         int maxToAdd = Integer.MAX_VALUE - contents.amount();
-        int toAdd = Math.min(1000, maxToAdd); // 1000mb per bucket
+        int toAdd = Math.min(1000, maxToAdd);
 
         if (toAdd <= 0) {
             player.displayClientMessage(Component.translatable("message.realfilingreborn.canister_full"), true);
@@ -241,7 +264,6 @@ public class FluidCanisterItem extends Item {
 
         canisterStack.set(CANISTER_CONTENTS.value(), newContents);
 
-        // Replace bucket with empty bucket
         bucketStack.shrink(1);
         ItemStack emptyBucket = new ItemStack(Items.BUCKET);
         if (!player.getInventory().add(emptyBucket)) {
@@ -252,14 +274,24 @@ public class FluidCanisterItem extends Item {
     }
 
     private ItemStack getBucketForFluid(ResourceLocation fluidId) {
-        // Handle common vanilla fluids
         if (fluidId.equals(Fluids.WATER.builtInRegistryHolder().key().location())) {
             return new ItemStack(Items.WATER_BUCKET);
         } else if (fluidId.equals(Fluids.LAVA.builtInRegistryHolder().key().location())) {
             return new ItemStack(Items.LAVA_BUCKET);
         }
-        // For modded fluids, we'd need a more sophisticated system
-        // For now, return empty stack for unsupported fluids
+
+        try {
+            Fluid fluid = net.minecraft.core.registries.BuiltInRegistries.FLUID.get(fluidId);
+            if (fluid != null && fluid != Fluids.EMPTY) {
+                for (Item item : net.minecraft.core.registries.BuiltInRegistries.ITEM) {
+                    if (item instanceof BucketItem bucketItem && bucketItem.content == fluid) {
+                        return new ItemStack(item);
+                    }
+                }
+            }
+        } catch (Exception e) {
+        }
+
         return ItemStack.EMPTY;
     }
 
@@ -269,7 +301,14 @@ public class FluidCanisterItem extends Item {
         } else if (fluidId.equals(Fluids.LAVA.builtInRegistryHolder().key().location())) {
             return "Lava";
         }
-        // For other fluids, just use the path part of the resource location
+
+        try {
+            Fluid fluid = net.minecraft.core.registries.BuiltInRegistries.FLUID.get(fluidId);
+            if (fluid != null && fluid != Fluids.EMPTY) {
+                return fluid.builtInRegistryHolder().key().location().getPath();
+            }
+        } catch (Exception e) {
+        }
         return fluidId.getPath();
     }
 
