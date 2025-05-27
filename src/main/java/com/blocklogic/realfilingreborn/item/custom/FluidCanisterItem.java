@@ -1,6 +1,7 @@
 package com.blocklogic.realfilingreborn.item.custom;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
+import com.blocklogic.realfilingreborn.util.FluidHelper;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
@@ -108,7 +109,9 @@ public class FluidCanisterItem extends Item {
         BucketItem bucketItem = (BucketItem) bucketStack.getItem();
         Fluid fluid = bucketItem.content;
 
-        if (fluid == Fluids.EMPTY) {
+        // IMPROVED FLUID VALIDATION
+        if (!FluidHelper.isValidFluid(fluid)) {
+            player.displayClientMessage(Component.translatable("message.realfilingreborn.invalid_fluid"), true);
             return InteractionResultHolder.pass(canisterStack);
         }
 
@@ -169,7 +172,8 @@ public class FluidCanisterItem extends Item {
 
         ResourceLocation fluidId = contents.storedFluidId().get();
 
-        ItemStack bucketToGive = getBucketForFluid(fluidId);
+        // IMPROVED BUCKET LOOKUP
+        ItemStack bucketToGive = FluidHelper.getBucketForFluid(fluidId);
         if (bucketToGive.isEmpty()) {
             player.displayClientMessage(Component.translatable("message.realfilingreborn.no_bucket_for_fluid"), true);
             return InteractionResultHolder.fail(canisterStack);
@@ -218,7 +222,7 @@ public class FluidCanisterItem extends Item {
         }
 
         Fluid fluid = bucketItem.content;
-        if (fluid == Fluids.EMPTY) {
+        if (!FluidHelper.isValidFluid(fluid)) {
             return InteractionResultHolder.pass(canisterStack);
         }
 
@@ -227,7 +231,7 @@ public class FluidCanisterItem extends Item {
             canisterStack.set(CANISTER_CONTENTS.value(), contents);
         }
 
-        ResourceLocation newFluidId = fluid.builtInRegistryHolder().key().location();
+        ResourceLocation newFluidId = FluidHelper.getStillFluid(FluidHelper.getFluidId(fluid));
 
         if (contents == null) {
             return InteractionResultHolder.fail(canisterStack);
@@ -240,10 +244,11 @@ public class FluidCanisterItem extends Item {
         } else {
             effectiveFluidId = currentFluidIdOpt.get();
 
-            if (!effectiveFluidId.equals(newFluidId)) {
+            // IMPROVED FLUID COMPATIBILITY CHECK
+            if (!FluidHelper.areFluidsCompatible(effectiveFluidId, newFluidId)) {
                 player.displayClientMessage(Component.translatable(
                         "message.realfilingreborn.wrong_fluid_type",
-                        Component.literal(getFluidDisplayName(effectiveFluidId)).withStyle(ChatFormatting.YELLOW)
+                        Component.literal(FluidHelper.getFluidDisplayName(effectiveFluidId)).withStyle(ChatFormatting.YELLOW)
                 ), true);
                 return InteractionResultHolder.fail(canisterStack);
             }
@@ -273,52 +278,14 @@ public class FluidCanisterItem extends Item {
         return InteractionResultHolder.success(canisterStack);
     }
 
-    private ItemStack getBucketForFluid(ResourceLocation fluidId) {
-        if (fluidId.equals(Fluids.WATER.builtInRegistryHolder().key().location())) {
-            return new ItemStack(Items.WATER_BUCKET);
-        } else if (fluidId.equals(Fluids.LAVA.builtInRegistryHolder().key().location())) {
-            return new ItemStack(Items.LAVA_BUCKET);
-        }
-
-        try {
-            Fluid fluid = net.minecraft.core.registries.BuiltInRegistries.FLUID.get(fluidId);
-            if (fluid != null && fluid != Fluids.EMPTY) {
-                for (Item item : net.minecraft.core.registries.BuiltInRegistries.ITEM) {
-                    if (item instanceof BucketItem bucketItem && bucketItem.content == fluid) {
-                        return new ItemStack(item);
-                    }
-                }
-            }
-        } catch (Exception e) {
-        }
-
-        return ItemStack.EMPTY;
-    }
-
-    private String getFluidDisplayName(ResourceLocation fluidId) {
-        if (fluidId.equals(Fluids.WATER.builtInRegistryHolder().key().location())) {
-            return "Water";
-        } else if (fluidId.equals(Fluids.LAVA.builtInRegistryHolder().key().location())) {
-            return "Lava";
-        }
-
-        try {
-            Fluid fluid = net.minecraft.core.registries.BuiltInRegistries.FLUID.get(fluidId);
-            if (fluid != null && fluid != Fluids.EMPTY) {
-                return fluid.builtInRegistryHolder().key().location().getPath();
-            }
-        } catch (Exception e) {
-        }
-        return fluidId.getPath();
-    }
-
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         CanisterContents contents = stack.get(CANISTER_CONTENTS.value());
 
         if (contents != null && contents.storedFluidId().isPresent()) {
             ResourceLocation fluidId = contents.storedFluidId().get();
-            String fluidName = getFluidDisplayName(fluidId);
+            // IMPROVED FLUID NAME DISPLAY
+            String fluidName = FluidHelper.getFluidDisplayName(fluidId);
             tooltip.add(Component.translatable("tooltip.realfilingreborn.stored_fluid",
                             Component.literal(fluidName).withStyle(ChatFormatting.AQUA))
                     .withStyle(ChatFormatting.GRAY));

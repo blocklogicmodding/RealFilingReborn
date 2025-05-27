@@ -4,6 +4,7 @@ import com.blocklogic.realfilingreborn.block.custom.FilingCabinetBlock;
 import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
+import com.blocklogic.realfilingreborn.util.FormattingCache;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import net.minecraft.client.Minecraft;
@@ -20,6 +21,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class FilingCabinetBlockEntityRenderer implements BlockEntityRenderer<FilingCabinetBlockEntity> {
+
+    // Cached instances for performance
+    private static final Minecraft MC = Minecraft.getInstance();
+    private static final Font FONT = MC.font;
 
     public FilingCabinetBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -50,14 +55,7 @@ public class FilingCabinetBlockEntityRenderer implements BlockEntityRenderer<Fil
                     FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
                     if (contents != null && contents.storedItemId().isPresent() && contents.count() > 0) {
                         storedItem = new ItemStack(BuiltInRegistries.ITEM.get(contents.storedItemId().get()));
-                        int count = contents.count();
-                        if (count >= 1000000) {
-                            countText = String.format("%.1fM", count / 1000000.0);
-                        } else if (count >= 1000) {
-                            countText = String.format("%.1fK", count / 1000.0);
-                        } else {
-                            countText = String.valueOf(count);
-                        }
+                        countText = FormattingCache.getFormattedItemCount(contents.count());
                     }
                 } else if (folderStack.getItem() instanceof NBTFilingFolderItem) {
                     NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
@@ -83,20 +81,20 @@ public class FilingCabinetBlockEntityRenderer implements BlockEntityRenderer<Fil
 
         poseStack.mulPose(Axis.YP.rotationDegrees(180));
 
-        if (facing == Direction.NORTH) {
-            poseStack.translate(0, 0.025, 0.535);
-        }
-        else if (facing == Direction.EAST) {
-            poseStack.translate(-0.535, 0.025, 0);
-            poseStack.mulPose(Axis.YP.rotationDegrees(-90));
-        }
-        else if (facing == Direction.SOUTH) {
-            poseStack.translate(0, 0.025, -0.535);
-            poseStack.mulPose(Axis.YP.rotationDegrees(180));
-        }
-        else if (facing == Direction.WEST) {
-            poseStack.translate(0.535, 0.025, 0);
-            poseStack.mulPose(Axis.YP.rotationDegrees(90));
+        switch (facing) {
+            case NORTH -> poseStack.translate(0, 0.025, 0.535);
+            case EAST -> {
+                poseStack.translate(-0.535, 0.025, 0);
+                poseStack.mulPose(Axis.YP.rotationDegrees(-90));
+            }
+            case SOUTH -> {
+                poseStack.translate(0, 0.025, -0.535);
+                poseStack.mulPose(Axis.YP.rotationDegrees(180));
+            }
+            case WEST -> {
+                poseStack.translate(0.535, 0.025, 0);
+                poseStack.mulPose(Axis.YP.rotationDegrees(90));
+            }
         }
 
         poseStack.translate(0, 0, -0.5/16D);
@@ -110,7 +108,7 @@ public class FilingCabinetBlockEntityRenderer implements BlockEntityRenderer<Fil
 
         poseStack.pushPose();
         poseStack.scale(0.15f, 0.15f, 0.15f);
-        Minecraft.getInstance().getItemRenderer().renderStatic(
+        MC.getItemRenderer().renderStatic(
                 stack,
                 ItemDisplayContext.FIXED,
                 packedLight,
@@ -130,8 +128,6 @@ public class FilingCabinetBlockEntityRenderer implements BlockEntityRenderer<Fil
     }
 
     private void renderText(String text, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight) {
-        Font font = Minecraft.getInstance().font;
-
         poseStack.pushPose();
 
         poseStack.translate(0, -0.08f, 0.001f);
@@ -139,10 +135,10 @@ public class FilingCabinetBlockEntityRenderer implements BlockEntityRenderer<Fil
         poseStack.scale(0.004f, 0.0045f, 0.004f);
         poseStack.mulPose(Axis.XP.rotationDegrees(180));
 
-        int textWidth = font.width(text);
+        int textWidth = FONT.width(text);
         float xOffset = -textWidth / 2.0f;
 
-        font.drawInBatch(
+        FONT.drawInBatch(
                 text,
                 xOffset,
                 0,

@@ -58,8 +58,6 @@ public class RealFilingReborn
 
         modEventBus.addListener(this::addCreative);
         modEventBus.addListener(this::registerCapabilities);
-
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event)

@@ -88,6 +88,7 @@
   "tooltip.realfilingreborn.fluid_amount": "Amount: %s",
   "tooltip.realfilingreborn.empty_canister": "Canister is empty",
   "tooltip.realfilingreborn.unregistered_canister": "Canister is unassigned. Add fluid to assign it",
+  "message.realfilingreborn.invalid_fluid": "This fluid cannot be stored in canisters",
 
   "_comment14": "=== CABINET CONVERSION KIT TOOLTIPS ===",
   "tooltip.realfilingreborn.cabinet_conversion_kit_info": "Item used to convert a Filing Cabinet into a Fluid Cabinet. Consumed on use",

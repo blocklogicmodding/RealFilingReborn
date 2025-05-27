@@ -3,6 +3,7 @@ package com.blocklogic.realfilingreborn.block.entity.renderer;
 import com.blocklogic.realfilingreborn.block.custom.FluidCabinetBlock;
 import com.blocklogic.realfilingreborn.block.entity.FluidCabinetBlockEntity;
 import com.blocklogic.realfilingreborn.item.custom.FluidCanisterItem;
+import com.blocklogic.realfilingreborn.util.FormattingCache;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
@@ -25,7 +26,24 @@ import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtension
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.joml.Matrix4f;
 
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
+
 public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<FluidCabinetBlockEntity> {
+
+    // Performance caches
+    private static final Map<Fluid, IClientFluidTypeExtensions> FLUID_EXTENSIONS_CACHE = new ConcurrentHashMap<>();
+    private static final Map<ResourceLocation, TextureAtlasSprite> SPRITE_CACHE = new ConcurrentHashMap<>();
+    private static final Minecraft MC = Minecraft.getInstance();
+    private static final Font FONT = MC.font;
+
+    // Pre-calculated positions
+    private static final float[][] POSITIONS = {
+            {-0.188f, 0.188f},
+            {0.188f, 0.188f},
+            {-0.188f, -0.188f},
+            {0.188f, -0.188f}
+    };
 
     public FluidCabinetBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -54,20 +72,20 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
         poseStack.translate(0.5, 0.5, 0.5);
         poseStack.mulPose(Axis.YP.rotationDegrees(180));
 
-        if (facing == Direction.NORTH) {
-            poseStack.translate(0, 0, 0.535);
-        }
-        else if (facing == Direction.EAST) {
-            poseStack.translate(-0.535, 0, 0);
-            poseStack.mulPose(Axis.YP.rotationDegrees(-90));
-        }
-        else if (facing == Direction.SOUTH) {
-            poseStack.translate(0, 0, -0.535);
-            poseStack.mulPose(Axis.YP.rotationDegrees(180));
-        }
-        else if (facing == Direction.WEST) {
-            poseStack.translate(0.535, 0, 0);
-            poseStack.mulPose(Axis.YP.rotationDegrees(90));
+        switch (facing) {
+            case NORTH -> poseStack.translate(0, 0, 0.535);
+            case EAST -> {
+                poseStack.translate(-0.535, 0, 0);
+                poseStack.mulPose(Axis.YP.rotationDegrees(-90));
+            }
+            case SOUTH -> {
+                poseStack.translate(0, 0, -0.535);
+                poseStack.mulPose(Axis.YP.rotationDegrees(180));
+            }
+            case WEST -> {
+                poseStack.translate(0.535, 0, 0);
+                poseStack.mulPose(Axis.YP.rotationDegrees(90));
+            }
         }
 
         poseStack.translate(0, 0, -0.5/16D);
@@ -75,13 +93,6 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
 
     private void renderFluidGrid(FluidCabinetBlockEntity blockEntity, PoseStack poseStack,
                                  MultiBufferSource bufferSource, int itemLight) {
-
-        float[][] positions = {
-                {-0.188f, 0.188f},
-                {0.188f, 0.188f},
-                {-0.188f, -0.188f},
-                {0.188f, -0.188f}
-        };
 
         float quadWidth = 0.25f;
         float quadHeight = 0.25f;
@@ -97,13 +108,14 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
                     Fluid fluid = getFluidFromId(fluidId);
 
                     if (fluid != null && fluid != Fluids.EMPTY) {
-                        float offsetX = positions[slot][0];
-                        float offsetY = positions[slot][1];
+                        float offsetX = POSITIONS[slot][0];
+                        float offsetY = POSITIONS[slot][1];
 
                         renderFluidQuad(fluid, contents.amount(), offsetX, offsetY, quadWidth, quadHeight,
                                 poseStack, bufferSource, itemLight);
 
-                        renderFluidText(formatFluidAmount(contents.amount()), offsetX, offsetY - quadHeight/2f - 0.025f,
+                        String formattedAmount = FormattingCache.getFormattedFluidAmount(contents.amount());
+                        renderFluidText(formattedAmount, offsetX, offsetY - quadHeight/2f - 0.025f,
                                 poseStack, bufferSource, itemLight);
                     }
                 }
@@ -115,13 +127,13 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
                                  float width, float height, PoseStack poseStack,
                                  MultiBufferSource bufferSource, int packedLight) {
         try {
-            IClientFluidTypeExtensions fluidExtensions = IClientFluidTypeExtensions.of(fluid);
+            IClientFluidTypeExtensions fluidExtensions = FLUID_EXTENSIONS_CACHE.computeIfAbsent(fluid,
+                    IClientFluidTypeExtensions::of);
             ResourceLocation stillTexture = fluidExtensions.getStillTexture();
 
             if (stillTexture != null) {
-                TextureAtlasSprite sprite = Minecraft.getInstance()
-                        .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS)
-                        .apply(stillTexture);
+                TextureAtlasSprite sprite = SPRITE_CACHE.computeIfAbsent(stillTexture, texture ->
+                        MC.getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(texture));
 
                 VertexConsumer consumer = bufferSource.getBuffer(RenderType.translucent());
                 Matrix4f matrix = poseStack.last().pose();
@@ -236,8 +248,6 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
                                  MultiBufferSource bufferSource, int packedLight) {
         if (text.isEmpty()) return;
 
-        Font font = Minecraft.getInstance().font;
-
         poseStack.pushPose();
 
         poseStack.translate(offsetX, offsetY, 0.002f);
@@ -245,10 +255,10 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
         poseStack.scale(0.004f, 0.004f, 0.004f);
         poseStack.mulPose(Axis.XP.rotationDegrees(180));
 
-        int textWidth = font.width(text);
+        int textWidth = FONT.width(text);
         float xOffset = -textWidth / 2.0f;
 
-        font.drawInBatch(
+        FONT.drawInBatch(
                 text,
                 xOffset,
                 0,
@@ -262,26 +272,6 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
         );
 
         poseStack.popPose();
-    }
-
-    private String formatFluidAmount(int amount) {
-
-        if (amount >= 1000000000) {
-            float mega = amount / 1000000f;
-            return String.format("%.1fM", mega);
-        } else if (amount >= 1000000) {
-            float kilo = amount / 1000000f;
-            return String.format("%.1fK", kilo);
-        } else if (amount >= 1000) {
-            float buckets = amount / 1000f;
-            if (buckets == (int) buckets) {
-                return String.format("%d", (int) buckets);
-            } else {
-                return String.format("%.1f", buckets);
-            }
-        } else {
-            return String.valueOf(amount);
-        }
     }
 
     private Fluid getFluidFromId(ResourceLocation fluidId) {

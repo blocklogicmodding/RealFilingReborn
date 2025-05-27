@@ -3,6 +3,7 @@ package com.blocklogic.realfilingreborn.block.custom;
 import com.blocklogic.realfilingreborn.block.entity.FluidCabinetBlockEntity;
 import com.blocklogic.realfilingreborn.item.custom.FluidCanisterItem;
 import com.blocklogic.realfilingreborn.screen.custom.FluidCabinetMenu;
+import com.blocklogic.realfilingreborn.util.FluidHelper;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -272,7 +273,7 @@ public class FluidCabinetBlock extends BaseEntityBlock {
         }
 
         ResourceLocation fluidId = contents.storedFluidId().get();
-        ItemStack bucketToGive = getBucketForFluid(fluidId);
+        ItemStack bucketToGive = FluidHelper.getBucketForFluid(fluidId);
 
         if (bucketToGive.isEmpty()) {
             player.displayClientMessage(Component.translatable("message.realfilingreborn.no_bucket_for_fluid"), true);
