@@ -9,11 +9,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 
-public class FluidCabinetScreen extends AbstractContainerScreen<FilingCabinetMenu> {
+public class FluidCabinetScreen extends AbstractContainerScreen<FluidCabinetMenu> {
     private static final ResourceLocation GUI_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(RealFilingReborn.MODID, "textures/gui/filing_cabinet_gui.png");
+            ResourceLocation.fromNamespaceAndPath(RealFilingReborn.MODID, "textures/gui/fluid_cabinet_gui.png");
 
-    public FluidCabinetScreen(FilingCabinetMenu menu, Inventory playerInventory, Component title) {
+    public FluidCabinetScreen(FluidCabinetMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageHeight = 130;
         this.inventoryLabelY = 48 - 11;

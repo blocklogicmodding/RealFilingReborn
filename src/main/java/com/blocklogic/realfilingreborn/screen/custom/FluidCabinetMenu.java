@@ -31,6 +31,7 @@ public class FluidCabinetMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
+        // Add 5 canister slots in a horizontal row
         for (int i = 0; i < 5; i++) {
             int x = 44 + i * 18;
             int y = 17;
@@ -43,6 +44,7 @@ public class FluidCabinetMenu extends AbstractContainerMenu {
         }
     }
 
+    // Constants for slot calculations
     private static final int HOTBAR_SLOT_COUNT = 9;
     private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
     private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
@@ -50,7 +52,6 @@ public class FluidCabinetMenu extends AbstractContainerMenu {
     private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
-
     private static final int TE_INVENTORY_SLOT_COUNT = 5;
 
     @Override
@@ -60,6 +61,7 @@ public class FluidCabinetMenu extends AbstractContainerMenu {
         ItemStack sourceStack = sourceSlot.getItem();
         ItemStack copyOfSourceStack = sourceStack.copy();
 
+        // Moving from player inventory to fluid cabinet
         if (pIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
             if (sourceStack.getItem() instanceof FluidCanisterItem) {
                 if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX,
@@ -69,7 +71,9 @@ public class FluidCabinetMenu extends AbstractContainerMenu {
             } else {
                 return ItemStack.EMPTY;
             }
-        } else if (pIndex < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
+        }
+        // Moving from fluid cabinet to player inventory
+        else if (pIndex < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
             if (!moveItemStackTo(sourceStack, VANILLA_FIRST_SLOT_INDEX,
                     VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false)) {
                 return ItemStack.EMPTY;
@@ -79,6 +83,7 @@ public class FluidCabinetMenu extends AbstractContainerMenu {
             return ItemStack.EMPTY;
         }
 
+        // Clean up the slot if it's now empty
         if (sourceStack.getCount() == 0) {
             sourceSlot.set(ItemStack.EMPTY);
         } else {
@@ -91,7 +96,7 @@ public class FluidCabinetMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return stillValid(ContainerLevelAccess.create(level, blockEntity.getBlockPos()),
-                player, ModBlocks.FILING_CABINET.get());
+                player, ModBlocks.FLUID_CABINET.get());
     }
 
     private void addPlayerInventory(Inventory playerInventory) {

@@ -1,16 +1,11 @@
 package com.blocklogic.realfilingreborn.block.custom;
 
 import com.blocklogic.realfilingreborn.block.entity.FluidCabinetBlockEntity;
-import com.blocklogic.realfilingreborn.block.entity.FluidCabinetBlockEntity;
-import com.blocklogic.realfilingreborn.block.entity.FluidCabinetBlockEntity;
-import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.FluidCanisterItem;
-import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
-import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetMenu;
+import com.blocklogic.realfilingreborn.screen.custom.FluidCabinetMenu;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -20,18 +15,18 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.HorizontalDirectionalBlock;
-import net.minecraft.world.level.block.RenderShape;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -44,7 +39,7 @@ import java.util.Optional;
 public class FluidCabinetBlock extends BaseEntityBlock {
     public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
     public static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 16, 16);
-    public static final MapCodec<FilingCabinetBlock> CODEC = simpleCodec(FilingCabinetBlock::new);
+    public static final MapCodec<FluidCabinetBlock> CODEC = simpleCodec(FluidCabinetBlock::new);
 
     public FluidCabinetBlock(Properties properties) {
         super(properties);
@@ -95,7 +90,7 @@ public class FluidCabinetBlock extends BaseEntityBlock {
 
     private void openFluidCabinetMenu(FluidCabinetBlockEntity blockEntity, ServerPlayer player, BlockPos pos) {
         player.openMenu(new SimpleMenuProvider(
-                (id, inventory, playerEntity) -> new FilingCabinetMenu(id, inventory, blockEntity),
+                (id, inventory, playerEntity) -> new FluidCabinetMenu(id, inventory, blockEntity),
                 Component.translatable("menu.realfilingreborn.fluid_cabinet_menu_title")
         ), pos);
     }
@@ -105,7 +100,7 @@ public class FluidCabinetBlock extends BaseEntityBlock {
         if (level.getBlockEntity(pos) instanceof FluidCabinetBlockEntity fluidCabinetBlockEntity && player.isCrouching()) {
             if (!level.isClientSide()) {
                 openFluidCabinetMenu(fluidCabinetBlockEntity, (ServerPlayer) player, pos);
-                level.playSound(player, pos, SoundEvents.VILLAGER_WORK_CARTOGRAPHER, SoundSource.BLOCKS,  1F, 1F);
+                level.playSound(player, pos, SoundEvents.VILLAGER_WORK_CARTOGRAPHER, SoundSource.BLOCKS, 1F, 1F);
             }
             return ItemInteractionResult.SUCCESS;
         }
@@ -113,6 +108,7 @@ public class FluidCabinetBlock extends BaseEntityBlock {
         if (level.getBlockEntity(pos) instanceof FluidCabinetBlockEntity fluidCabinetBlockEntity) {
             ItemStack heldItem = player.getItemInHand(hand);
 
+            // Handle canister insertion
             if (heldItem.getItem() instanceof FluidCanisterItem) {
                 if (level.isClientSide()) {
                     return ItemInteractionResult.SUCCESS;
@@ -120,8 +116,8 @@ public class FluidCabinetBlock extends BaseEntityBlock {
 
                 for (int i = 0; i < 5; i++) {
                     if (fluidCabinetBlockEntity.inventory.getStackInSlot(i).isEmpty()) {
-                        ItemStack folderStack = heldItem.copyWithCount(1);
-                        fluidCabinetBlockEntity.inventory.setStackInSlot(i, folderStack);
+                        ItemStack canisterStack = heldItem.copyWithCount(1);
+                        fluidCabinetBlockEntity.inventory.setStackInSlot(i, canisterStack);
                         heldItem.shrink(1);
                         level.playSound(null, pos, SoundEvents.ITEM_PICKUP, SoundSource.BLOCKS, 1f, 2f);
 
@@ -134,10 +130,79 @@ public class FluidCabinetBlock extends BaseEntityBlock {
                 player.displayClientMessage(Component.translatable("message.realfilingreborn.canisters_full"), true);
                 return ItemInteractionResult.SUCCESS;
             }
+            // Handle bucket insertion - store fluid directly into canisters
+            else if (heldItem.getItem() instanceof BucketItem bucketItem && bucketItem.content != Fluids.EMPTY) {
+                if (level.isClientSide()) {
+                    return ItemInteractionResult.SUCCESS;
+                }
 
+                Fluid fluid = bucketItem.content;
+                ResourceLocation fluidId = fluid.builtInRegistryHolder().key().location();
+
+                // Try to find a compatible canister
+                for (int i = 0; i < 5; i++) {
+                    ItemStack canisterStack = fluidCabinetBlockEntity.inventory.getStackInSlot(i);
+
+                    if (!canisterStack.isEmpty() && canisterStack.getItem() instanceof FluidCanisterItem) {
+                        FluidCanisterItem.CanisterContents contents = canisterStack.get(FluidCanisterItem.CANISTER_CONTENTS.value());
+
+                        if (contents != null) {
+                            if (contents.storedFluidId().isEmpty()) {
+                                // Assign this fluid to the canister
+                                FluidCanisterItem.CanisterContents newContents = new FluidCanisterItem.CanisterContents(
+                                        Optional.of(fluidId),
+                                        1000 // 1000mB = 1 bucket
+                                );
+                                canisterStack.set(FluidCanisterItem.CANISTER_CONTENTS.value(), newContents);
+
+                                // Replace bucket with empty bucket
+                                heldItem.shrink(1);
+                                ItemStack emptyBucket = new ItemStack(net.minecraft.world.item.Items.BUCKET);
+                                if (!player.getInventory().add(emptyBucket)) {
+                                    player.drop(emptyBucket, false);
+                                }
+
+                                level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1f, 1.5f);
+                                level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+                                fluidCabinetBlockEntity.setChanged();
+                                return ItemInteractionResult.SUCCESS;
+                            } else if (contents.storedFluidId().get().equals(fluidId)) {
+                                // Add to existing fluid
+                                int maxToAdd = Integer.MAX_VALUE - contents.amount();
+                                int toAdd = Math.min(1000, maxToAdd); // 1000mB per bucket
+
+                                if (toAdd >= 1000) {
+                                    FluidCanisterItem.CanisterContents newContents = new FluidCanisterItem.CanisterContents(
+                                            contents.storedFluidId(),
+                                            contents.amount() + 1000
+                                    );
+                                    canisterStack.set(FluidCanisterItem.CANISTER_CONTENTS.value(), newContents);
+
+                                    // Replace bucket with empty bucket
+                                    heldItem.shrink(1);
+                                    ItemStack emptyBucket = new ItemStack(net.minecraft.world.item.Items.BUCKET);
+                                    if (!player.getInventory().add(emptyBucket)) {
+                                        player.drop(emptyBucket, false);
+                                    }
+
+                                    level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1f, 1.5f);
+                                    level.sendBlockUpdated(pos, state, state, Block.UPDATE_CLIENTS);
+                                    fluidCabinetBlockEntity.setChanged();
+                                    return ItemInteractionResult.SUCCESS;
+                                }
+                            }
+                        }
+                    }
+                }
+
+                player.displayClientMessage(Component.translatable("message.realfilingreborn.no_compatible_canister"), true);
+                return ItemInteractionResult.SUCCESS;
+            }
+
+            // Default behavior - open GUI
             if (!level.isClientSide()) {
                 openFluidCabinetMenu(fluidCabinetBlockEntity, (ServerPlayer) player, pos);
-                level.playSound(player, pos, SoundEvents.VILLAGER_WORK_CARTOGRAPHER, SoundSource.BLOCKS,  1F, 1F);
+                level.playSound(player, pos, SoundEvents.VILLAGER_WORK_CARTOGRAPHER, SoundSource.BLOCKS, 1F, 1F);
             }
             return ItemInteractionResult.SUCCESS;
         }

@@ -1,22 +1,312 @@
 package com.blocklogic.realfilingreborn.item.custom;
 
+import com.blocklogic.realfilingreborn.RealFilingReborn;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 
 import java.util.List;
+import java.util.Optional;
 
 public class FluidCanisterItem extends Item {
+    public record CanisterContents(Optional<ResourceLocation> storedFluidId, int amount) {}
+
+    private static final Codec<CanisterContents> CANISTER_CONTENTS_CODEC = RecordCodecBuilder.create(instance ->
+            instance.group(
+                    ResourceLocation.CODEC.optionalFieldOf("storedFluidId").forGetter(CanisterContents::storedFluidId),
+                    Codec.INT.fieldOf("amount").forGetter(CanisterContents::amount)
+            ).apply(instance, CanisterContents::new)
+    );
+
+    public static final StreamCodec<ByteBuf, ResourceLocation> RESOURCE_LOCATION_STREAM_CODEC =
+            ByteBufCodecs.STRING_UTF8
+                    .map(ResourceLocation::parse, ResourceLocation::toString);
+
+    private static final StreamCodec<ByteBuf, CanisterContents> CANISTER_CONTENTS_STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.optional(RESOURCE_LOCATION_STREAM_CODEC), CanisterContents::storedFluidId,
+            ByteBufCodecs.INT, CanisterContents::amount,
+            CanisterContents::new
+    );
+
+    public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS =
+            DeferredRegister.create(Registries.DATA_COMPONENT_TYPE, RealFilingReborn.MODID);
+
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<CanisterContents>> CANISTER_CONTENTS =
+            DATA_COMPONENTS.register("canister_contents",
+                    () -> DataComponentType.<CanisterContents>builder()
+                            .persistent(CANISTER_CONTENTS_CODEC)
+                            .networkSynchronized(CANISTER_CONTENTS_STREAM_CODEC)
+                            .build());
+
     public FluidCanisterItem(Properties properties) {
         super(properties);
+        properties.component(CANISTER_CONTENTS.value(), new CanisterContents(Optional.empty(), 0));
+    }
+
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack canisterStack = player.getItemInHand(hand);
+
+        if (level.isClientSide()) {
+            return InteractionResultHolder.success(canisterStack);
+        }
+
+        ItemStack bucketStack = player.getItemInHand(InteractionHand.OFF_HAND);
+
+        if (bucketStack.isEmpty() || !(bucketStack.getItem() instanceof BucketItem)) {
+            CanisterContents contents = canisterStack.get(CANISTER_CONTENTS.value());
+            if (contents == null) {
+                contents = new CanisterContents(Optional.empty(), 0);
+                canisterStack.set(CANISTER_CONTENTS.value(), contents);
+            }
+
+            if (player.isShiftKeyDown() && contents.storedFluidId().isPresent()) {
+                if (canisterStack.getCount() > 1) {
+                    ItemStack singleCanister = canisterStack.copy();
+                    singleCanister.setCount(1);
+
+                    InteractionResultHolder<ItemStack> result = extractFluid(level, player, singleCanister, contents);
+                    ItemStack modifiedCanister = result.getObject();
+
+                    if (result.getResult().consumesAction()) {
+                        canisterStack.shrink(1);
+
+                        if (!player.getInventory().add(modifiedCanister)) {
+                            player.drop(modifiedCanister, false);
+                        }
+
+                        return InteractionResultHolder.success(canisterStack);
+                    }
+                    return result;
+                }
+                return extractFluid(level, player, canisterStack, contents);
+            } else {
+                return InteractionResultHolder.pass(canisterStack);
+            }
+        }
+
+        // Check if the bucket contains a fluid
+        BucketItem bucketItem = (BucketItem) bucketStack.getItem();
+        Fluid fluid = bucketItem.content;
+
+        if (fluid == Fluids.EMPTY) {
+            return InteractionResultHolder.pass(canisterStack);
+        }
+
+        if (!player.isShiftKeyDown() && canisterStack.getCount() > 1) {
+            ItemStack singleCanister = canisterStack.copy();
+            singleCanister.setCount(1);
+
+            CanisterContents contents = singleCanister.get(CANISTER_CONTENTS.value());
+            if (contents == null) {
+                contents = new CanisterContents(Optional.empty(), 0);
+                singleCanister.set(CANISTER_CONTENTS.value(), contents);
+            }
+
+            InteractionResultHolder<ItemStack> result = storeFluid(level, player, singleCanister, bucketStack, contents);
+            ItemStack modifiedCanister = result.getObject();
+
+            canisterStack.shrink(1);
+
+            if (!player.getInventory().add(modifiedCanister)) {
+                player.drop(modifiedCanister, false);
+            }
+
+            return InteractionResultHolder.success(canisterStack);
+        } else {
+            CanisterContents contents = canisterStack.get(CANISTER_CONTENTS.value());
+            if (contents == null) {
+                contents = new CanisterContents(Optional.empty(), 0);
+                canisterStack.set(CANISTER_CONTENTS.value(), contents);
+            }
+
+            return storeFluid(level, player, canisterStack, bucketStack, contents);
+        }
+    }
+
+    private InteractionResultHolder<ItemStack> extractFluid(Level level, Player player, ItemStack canisterStack, CanisterContents contents) {
+        if (contents == null || contents.storedFluidId().isEmpty()) {
+            player.displayClientMessage(Component.translatable("message.realfilingreborn.canister_empty"), true);
+            return InteractionResultHolder.fail(canisterStack);
+        }
+
+        if (contents.amount() <= 0) {
+            player.displayClientMessage(Component.translatable("message.realfilingreborn.canister_empty"), true);
+            return InteractionResultHolder.fail(canisterStack);
+        }
+
+        ResourceLocation fluidId = contents.storedFluidId().get();
+
+        // Find the appropriate bucket item for this fluid
+        ItemStack bucketToGive = getBucketForFluid(fluidId);
+        if (bucketToGive.isEmpty()) {
+            player.displayClientMessage(Component.translatable("message.realfilingreborn.no_bucket_for_fluid"), true);
+            return InteractionResultHolder.fail(canisterStack);
+        }
+
+        int extractAmount = Math.min(contents.amount(), 1000); // 1000mb = 1 bucket
+
+        if (extractAmount < 1000) {
+            player.displayClientMessage(Component.translatable("message.realfilingreborn.not_enough_fluid"), true);
+            return InteractionResultHolder.fail(canisterStack);
+        }
+
+        int newAmount = contents.amount() - 1000;
+        CanisterContents newContents = new CanisterContents(
+                contents.storedFluidId(),
+                Math.max(0, newAmount)
+        );
+
+        canisterStack.set(CANISTER_CONTENTS.value(), newContents);
+
+        if (player.getInventory().add(bucketToGive)) {
+            return InteractionResultHolder.success(canisterStack);
+        } else {
+            player.drop(bucketToGive, false);
+            return InteractionResultHolder.success(canisterStack);
+        }
+    }
+
+    private InteractionResultHolder<ItemStack> storeFluid(Level level, Player player, ItemStack canisterStack, ItemStack bucketStack, CanisterContents contents) {
+        if (!(bucketStack.getItem() instanceof BucketItem bucketItem)) {
+            return InteractionResultHolder.pass(canisterStack);
+        }
+
+        Fluid fluid = bucketItem.content;
+        if (fluid == Fluids.EMPTY) {
+            return InteractionResultHolder.pass(canisterStack);
+        }
+
+        if (contents == null) {
+            contents = new CanisterContents(Optional.empty(), 0);
+            canisterStack.set(CANISTER_CONTENTS.value(), contents);
+        }
+
+        ResourceLocation newFluidId = fluid.builtInRegistryHolder().key().location();
+
+        if (contents == null) {
+            return InteractionResultHolder.fail(canisterStack);
+        }
+
+        Optional<ResourceLocation> currentFluidIdOpt = contents.storedFluidId();
+        ResourceLocation effectiveFluidId;
+        if (currentFluidIdOpt.isEmpty()) {
+            effectiveFluidId = newFluidId;
+        } else {
+            effectiveFluidId = currentFluidIdOpt.get();
+
+            if (!effectiveFluidId.equals(newFluidId)) {
+                player.displayClientMessage(Component.translatable(
+                        "message.realfilingreborn.wrong_fluid_type",
+                        Component.literal(getFluidDisplayName(effectiveFluidId)).withStyle(ChatFormatting.YELLOW)
+                ), true);
+                return InteractionResultHolder.fail(canisterStack);
+            }
+        }
+
+        int maxToAdd = Integer.MAX_VALUE - contents.amount();
+        int toAdd = Math.min(1000, maxToAdd); // 1000mb per bucket
+
+        if (toAdd <= 0) {
+            player.displayClientMessage(Component.translatable("message.realfilingreborn.canister_full"), true);
+            return InteractionResultHolder.fail(canisterStack);
+        }
+
+        CanisterContents newContents = new CanisterContents(
+                Optional.of(effectiveFluidId),
+                contents.amount() + toAdd
+        );
+
+        canisterStack.set(CANISTER_CONTENTS.value(), newContents);
+
+        // Replace bucket with empty bucket
+        bucketStack.shrink(1);
+        ItemStack emptyBucket = new ItemStack(Items.BUCKET);
+        if (!player.getInventory().add(emptyBucket)) {
+            player.drop(emptyBucket, false);
+        }
+
+        return InteractionResultHolder.success(canisterStack);
+    }
+
+    private ItemStack getBucketForFluid(ResourceLocation fluidId) {
+        // Handle common vanilla fluids
+        if (fluidId.equals(Fluids.WATER.builtInRegistryHolder().key().location())) {
+            return new ItemStack(Items.WATER_BUCKET);
+        } else if (fluidId.equals(Fluids.LAVA.builtInRegistryHolder().key().location())) {
+            return new ItemStack(Items.LAVA_BUCKET);
+        }
+        // For modded fluids, we'd need a more sophisticated system
+        // For now, return empty stack for unsupported fluids
+        return ItemStack.EMPTY;
+    }
+
+    private String getFluidDisplayName(ResourceLocation fluidId) {
+        if (fluidId.equals(Fluids.WATER.builtInRegistryHolder().key().location())) {
+            return "Water";
+        } else if (fluidId.equals(Fluids.LAVA.builtInRegistryHolder().key().location())) {
+            return "Lava";
+        }
+        // For other fluids, just use the path part of the resource location
+        return fluidId.getPath();
     }
 
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        CanisterContents contents = stack.get(CANISTER_CONTENTS.value());
+
+        if (contents != null && contents.storedFluidId().isPresent()) {
+            ResourceLocation fluidId = contents.storedFluidId().get();
+            String fluidName = getFluidDisplayName(fluidId);
+            tooltip.add(Component.translatable("tooltip.realfilingreborn.stored_fluid",
+                            Component.literal(fluidName).withStyle(ChatFormatting.AQUA))
+                    .withStyle(ChatFormatting.GRAY));
+
+            if (contents.amount() > 0) {
+                int buckets = contents.amount() / 1000;
+                int millibuckets = contents.amount() % 1000;
+                String amountText = buckets > 0 ?
+                        (millibuckets > 0 ? buckets + "." + (millibuckets / 100) + "B" : buckets + "B") :
+                        millibuckets + "mB";
+
+                tooltip.add(Component.translatable("tooltip.realfilingreborn.fluid_amount",
+                                Component.literal(amountText).withStyle(ChatFormatting.BLUE))
+                        .withStyle(ChatFormatting.GRAY));
+            } else {
+                tooltip.add(Component.translatable("tooltip.realfilingreborn.empty_canister")
+                        .withStyle(ChatFormatting.ITALIC)
+                        .withStyle(ChatFormatting.GRAY));
+            }
+        } else {
+            tooltip.add(Component.translatable("tooltip.realfilingreborn.unregistered_canister")
+                    .withStyle(ChatFormatting.GRAY));
+        }
+
         tooltip.add(Component.translatable("tooltip.realfilingreborn.canister_info")
-                .withStyle(ChatFormatting.GRAY));
+                .withStyle(ChatFormatting.AQUA, ChatFormatting.ITALIC));
+
         super.appendHoverText(stack, context, tooltip, flag);
     }
 }
