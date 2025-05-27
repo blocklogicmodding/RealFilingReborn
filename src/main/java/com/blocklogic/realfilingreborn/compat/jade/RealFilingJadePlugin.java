@@ -1,9 +1,7 @@
 package com.blocklogic.realfilingreborn.compat.jade;
 
 import com.blocklogic.realfilingreborn.block.custom.FilingCabinetBlock;
-import com.blocklogic.realfilingreborn.block.custom.FluidCabinetBlock;
 import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
-import com.blocklogic.realfilingreborn.block.entity.FluidCabinetBlockEntity;
 import snownee.jade.api.IWailaClientRegistration;
 import snownee.jade.api.IWailaCommonRegistration;
 import snownee.jade.api.IWailaPlugin;

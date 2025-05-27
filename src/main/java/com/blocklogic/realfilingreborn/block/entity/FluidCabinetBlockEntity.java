@@ -19,6 +19,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
@@ -67,7 +68,7 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
     @Nullable
     public IFluidHandler getFluidCapabilityHandler(@Nullable Direction side) {
         if (side != null && this.getBlockState().getValue(FluidCabinetBlock.FACING) == side) {
-            return null; // Block front face
+            return null;
         }
 
         return fluidHandlers.computeIfAbsent(side != null ? side : Direction.UP, s -> new FluidCabinetFluidHandler(this, s));
@@ -128,7 +129,7 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
 
         @Override
         public int getTanks() {
-            return 5; // One tank per canister slot
+            return 5;
         }
 
         @Override
@@ -165,7 +166,6 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
 
             ResourceLocation fluidId = resource.getFluid().builtInRegistryHolder().key().location();
 
-            // Find compatible canister
             for (int i = 0; i < 5; i++) {
                 ItemStack canisterStack = cabinet.inventory.getStackInSlot(i);
 
@@ -310,7 +310,7 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
                 ItemStack bucketToReturn = getBucketForFluid(fluidId);
 
                 if (!bucketToReturn.isEmpty()) {
-                    int bucketCount = contents.amount() / 1000; // How many full buckets we can provide
+                    int bucketCount = contents.amount() / 1000;
                     bucketToReturn.setCount(Math.min(bucketCount, bucketToReturn.getMaxStackSize()));
                     return bucketToReturn;
                 }
@@ -336,7 +336,6 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
             }
 
             if (side != null) {
-                // Auto-insert logic: find a compatible canister
                 ResourceLocation fluidId = fluid.builtInRegistryHolder().key().location();
 
                 for (int i = 0; i < 5; i++) {
@@ -383,7 +382,6 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
                 return stack;
             }
 
-            // Direct slot insertion
             ItemStack canisterStack = cabinet.inventory.getStackInSlot(slot);
 
             if (canisterStack.isEmpty()) {
@@ -399,7 +397,6 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
                 ResourceLocation fluidId = fluid.builtInRegistryHolder().key().location();
 
                 if (contents.storedFluidId().isEmpty()) {
-                    // Assign this fluid to the canister
                     if (!simulate) {
                         int toAdd = Math.min(stack.getCount() * 1000, Integer.MAX_VALUE);
                         FluidCanisterItem.CanisterContents newContents = new FluidCanisterItem.CanisterContents(
@@ -418,7 +415,7 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
                 ResourceLocation canisterFluidId = contents.storedFluidId().get();
 
                 if (!canisterFluidId.equals(fluidId)) {
-                    return stack; // Wrong fluid type
+                    return stack;
                 }
 
                 int maxToAdd = Integer.MAX_VALUE - contents.amount();
@@ -504,14 +501,25 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
         }
 
         private ItemStack getBucketForFluid(ResourceLocation fluidId) {
-            // Handle common vanilla fluids
             if (fluidId.equals(Fluids.WATER.builtInRegistryHolder().key().location())) {
                 return new ItemStack(Items.WATER_BUCKET);
             } else if (fluidId.equals(Fluids.LAVA.builtInRegistryHolder().key().location())) {
                 return new ItemStack(Items.LAVA_BUCKET);
             }
-            // For modded fluids, we'd need a more sophisticated system
-            // For now, return empty stack for unsupported fluids
+
+            try {
+                Fluid fluid = net.minecraft.core.registries.BuiltInRegistries.FLUID.get(fluidId);
+                if (fluid != null && fluid != Fluids.EMPTY) {
+                    for (Item item : net.minecraft.core.registries.BuiltInRegistries.ITEM) {
+                        if (item instanceof BucketItem bucketItem && bucketItem.content == fluid) {
+                            return new ItemStack(item);
+                        }
+                    }
+                }
+            } catch (Exception e) {
+
+            }
+
             return ItemStack.EMPTY;
         }
     }
