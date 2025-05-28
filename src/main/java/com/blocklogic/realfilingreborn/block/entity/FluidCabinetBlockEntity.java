@@ -1,4 +1,3 @@
-// Updated FluidCabinetBlockEntity - Keep bucket UX, hide ALL items from external storage
 package com.blocklogic.realfilingreborn.block.entity;
 
 import com.blocklogic.realfilingreborn.block.custom.FluidCabinetBlock;
@@ -20,15 +19,11 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.items.IItemHandler;
@@ -53,10 +48,6 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
 
     private final Map<Direction, IItemHandler> handlers = new HashMap<>();
     private final Map<Direction, IFluidHandler> fluidHandlers = new HashMap<>();
-
-    // Controller connection tracking
-    private BlockPos controllerPos = null;
-    private boolean isRemoving = false; // Prevent infinite loops during removal
 
     public FluidCabinetBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FLUID_CABINET_BE.get(), pos, blockState);
@@ -93,24 +84,12 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", inventory.serializeNBT(registries));
-
-        // Save controller position
-        if (controllerPos != null) {
-            tag.putLong("controller_pos", controllerPos.asLong());
-        }
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("inventory"));
-
-        // Load controller position
-        if (tag.contains("controller_pos")) {
-            this.controllerPos = BlockPos.of(tag.getLong("controller_pos"));
-        } else {
-            this.controllerPos = null;
-        }
     }
 
     @Override
@@ -122,67 +101,6 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
     @Override
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
         return new FluidCabinetMenu(i, inventory, this);
-    }
-
-    @Override
-    public void setRemoved() {
-        // FIXED: Prevent infinite loops and world save hanging
-        if (isRemoving) {
-            super.setRemoved();
-            return;
-        }
-
-        isRemoving = true;
-
-        // Clear controller reference BEFORE notifying controller
-        BlockPos savedControllerPos = controllerPos;
-        controllerPos = null;
-
-        // Notify controller asynchronously to prevent hanging
-        if (savedControllerPos != null && level != null && !level.isClientSide()) {
-            try {
-                BlockEntity entity = level.getBlockEntity(savedControllerPos);
-                if (entity instanceof FilingIndexBlockEntity filingIndex) {
-                    // Remove directly from list without triggering rebuild
-                    filingIndex.getConnectedCabinets().getConnectedCabinets().remove(getBlockPos().asLong());
-                }
-            } catch (Exception e) {
-                // Silently handle cleanup errors
-            }
-        }
-
-        super.setRemoved();
-    }
-
-    /**
-     * Sets the controller position when connected to a Filing Index
-     */
-    public void setControllerPos(BlockPos controllerPos) {
-        this.controllerPos = controllerPos;
-        setChanged();
-    }
-
-    /**
-     * Clears the controller position when disconnected
-     */
-    public void clearControllerPos() {
-        this.controllerPos = null;
-        setChanged();
-    }
-
-    /**
-     * Gets the current controller position
-     */
-    @Nullable
-    public BlockPos getControllerPos() {
-        return controllerPos;
-    }
-
-    /**
-     * Checks if this cabinet is connected to a controller
-     */
-    public boolean hasController() {
-        return controllerPos != null;
     }
 
     private void notifyCanisterContentsChanged() {
@@ -203,7 +121,6 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
         return saveWithoutMetadata(pRegistries);
     }
 
-    // FLUID HANDLER - Storage terminals see ONLY fluids
     private static class FluidCabinetFluidHandler implements IFluidHandler {
         private final FluidCabinetBlockEntity cabinet;
         private final Direction side;
@@ -351,7 +268,6 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
         }
     }
 
-    // ITEM HANDLER - External storage sees NOTHING! Only players can interact
     private static class FluidCabinetItemHandler implements IItemHandler {
         private final FluidCabinetBlockEntity cabinet;
         private final Direction side;
@@ -363,25 +279,25 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
 
         @Override
         public int getSlots() {
-            return 0; // HIDE ALL SLOTS FROM EXTERNAL STORAGE
+            return 0;
         }
 
         @Override
         @NotNull
         public ItemStack getStackInSlot(int slot) {
-            return ItemStack.EMPTY; // EXTERNAL STORAGE SEES NOTHING
+            return ItemStack.EMPTY;
         }
 
         @Override
         @NotNull
         public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-            return stack; // REJECT ALL ITEM INSERTIONS FROM EXTERNAL STORAGE
+            return stack;
         }
 
         @Override
         @NotNull
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            return ItemStack.EMPTY; // REJECT ALL ITEM EXTRACTIONS FROM EXTERNAL STORAGE
+            return ItemStack.EMPTY;
         }
 
         @Override
@@ -391,7 +307,7 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return false; // NO ITEMS VALID FOR EXTERNAL STORAGE
+            return false;
         }
     }
 }

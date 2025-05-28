@@ -8,11 +8,9 @@ import com.blocklogic.realfilingreborn.item.ModCreativeModTab;
 import com.blocklogic.realfilingreborn.item.ModItems;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.FluidCanisterItem;
-import com.blocklogic.realfilingreborn.item.custom.LedgerItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
 import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetScreen;
-import com.blocklogic.realfilingreborn.screen.custom.FilingIndexScreen;
 import com.blocklogic.realfilingreborn.screen.custom.FluidCabinetScreen;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
@@ -28,7 +26,6 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.common.Mod;
-import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -54,11 +51,9 @@ public class RealFilingReborn
         ModBlockEntities.register(modEventBus);
         ModMenuTypes.register(modEventBus);
 
-        // Register data components for all items
         FilingFolderItem.DATA_COMPONENTS.register(modEventBus);
         NBTFilingFolderItem.DATA_COMPONENTS.register(modEventBus);
         FluidCanisterItem.DATA_COMPONENTS.register(modEventBus);
-        LedgerItem.DATA_COMPONENTS.register(modEventBus);
 
         modEventBus.addListener(this::addCreative);
         modEventBus.addListener(this::registerCapabilities);
@@ -93,19 +88,6 @@ public class RealFilingReborn
                 ModBlockEntities.FLUID_CABINET_BE.get(),
                 (fluidCabinetBE, side) -> fluidCabinetBE.getFluidCapabilityHandler(side)
         );
-
-        // Filing Index capabilities (NEW)
-        event.registerBlockEntity(
-                Capabilities.ItemHandler.BLOCK,
-                ModBlockEntities.FILING_INDEX_BE.get(),
-                (filingIndexBE, side) -> filingIndexBE.getItemCapabilityHandler(side)
-        );
-
-        event.registerBlockEntity(
-                Capabilities.FluidHandler.BLOCK,
-                ModBlockEntities.FILING_INDEX_BE.get(),
-                (filingIndexBE, side) -> filingIndexBE.getFluidCapabilityHandler(side)
-        );
     }
 
     @SubscribeEvent
@@ -134,7 +116,6 @@ public class RealFilingReborn
         public static void registerScreens(RegisterMenuScreensEvent event) {
             event.register(ModMenuTypes.FILING_CABINET_MENU.get(), FilingCabinetScreen::new);
             event.register(ModMenuTypes.FLUID_CABINET_MENU.get(), FluidCabinetScreen::new);
-            event.register(ModMenuTypes.FILING_INDEX_MENU.get(), FilingIndexScreen::new);
         }
 
         @SubscribeEvent

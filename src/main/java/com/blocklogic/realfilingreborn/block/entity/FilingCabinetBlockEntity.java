@@ -50,10 +50,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
     private final Map<Direction, IItemHandler> handlers = new HashMap<>();
 
-    // Controller connection tracking
-    private BlockPos controllerPos = null;
-    private boolean isRemoving = false; // Prevent infinite loops during removal
-
     public FilingCabinetBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FILING_CABINET_BE.get(), pos, blockState);
     }
@@ -80,24 +76,12 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", inventory.serializeNBT(registries));
-
-        // Save controller position
-        if (controllerPos != null) {
-            tag.putLong("controller_pos", controllerPos.asLong());
-        }
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("inventory"));
-
-        // Load controller position
-        if (tag.contains("controller_pos")) {
-            this.controllerPos = BlockPos.of(tag.getLong("controller_pos"));
-        } else {
-            this.controllerPos = null;
-        }
     }
 
     @Override
@@ -109,67 +93,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
     @Override
     public AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
         return new FilingCabinetMenu(i, inventory, this);
-    }
-
-    @Override
-    public void setRemoved() {
-        // FIXED: Prevent infinite loops and world save hanging
-        if (isRemoving) {
-            super.setRemoved();
-            return;
-        }
-
-        isRemoving = true;
-
-        // Clear controller reference BEFORE notifying controller
-        BlockPos savedControllerPos = controllerPos;
-        controllerPos = null;
-
-        // Notify controller asynchronously to prevent hanging
-        if (savedControllerPos != null && level != null && !level.isClientSide()) {
-            try {
-                BlockEntity entity = level.getBlockEntity(savedControllerPos);
-                if (entity instanceof FilingIndexBlockEntity filingIndex) {
-                    // Remove directly from list without triggering rebuild
-                    filingIndex.getConnectedCabinets().getConnectedCabinets().remove(getBlockPos().asLong());
-                }
-            } catch (Exception e) {
-                // Silently handle cleanup errors
-            }
-        }
-
-        super.setRemoved();
-    }
-
-    /**
-     * Sets the controller position when connected to a Filing Index
-     */
-    public void setControllerPos(BlockPos controllerPos) {
-        this.controllerPos = controllerPos;
-        setChanged();
-    }
-
-    /**
-     * Clears the controller position when disconnected
-     */
-    public void clearControllerPos() {
-        this.controllerPos = null;
-        setChanged();
-    }
-
-    /**
-     * Gets the current controller position
-     */
-    @Nullable
-    public BlockPos getControllerPos() {
-        return controllerPos;
-    }
-
-    /**
-     * Checks if this cabinet is connected to a controller
-     */
-    public boolean hasController() {
-        return controllerPos != null;
     }
 
     private void notifyFolderContentsChanged() {
@@ -190,7 +113,6 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
         return saveWithoutMetadata(pRegistries);
     }
 
-    // ItemHandler implementation remains the same...
     private static class FilingCabinetItemHandler implements IItemHandler {
         private final FilingCabinetBlockEntity cabinet;
         private final Direction side;

@@ -14,16 +14,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 
 public class FluidHelper {
-    // Cache for fluid validation and bucket lookups
     private static final Map<ResourceLocation, Boolean> VALID_FLUID_CACHE = new ConcurrentHashMap<>();
     private static final Map<ResourceLocation, ItemStack> FLUID_BUCKET_CACHE = new ConcurrentHashMap<>();
     private static final Map<ResourceLocation, String> FLUID_NAME_CACHE = new ConcurrentHashMap<>();
 
     private static final int MAX_CACHE_SIZE = 1000;
 
-    /**
-     * Check if a fluid is valid for storage
-     */
     public static boolean isValidFluid(Fluid fluid) {
         if (fluid == null || fluid == Fluids.EMPTY) {
             return false;
@@ -44,7 +40,6 @@ public class FluidHelper {
                 return false;
             }
 
-            // Check if fluid has proper properties
             try {
                 FluidType fluidType = fluid.getFluidType();
                 return fluidType != null;
@@ -54,9 +49,6 @@ public class FluidHelper {
         });
     }
 
-    /**
-     * Check if a fluid is valid using ResourceLocation
-     */
     public static boolean isValidFluid(ResourceLocation fluidId) {
         if (fluidId == null) {
             return false;
@@ -70,9 +62,6 @@ public class FluidHelper {
         }
     }
 
-    /**
-     * Get ResourceLocation for a fluid safely
-     */
     public static ResourceLocation getFluidId(Fluid fluid) {
         if (fluid == null || fluid == Fluids.EMPTY) {
             return null;
@@ -85,9 +74,6 @@ public class FluidHelper {
         }
     }
 
-    /**
-     * Get fluid from ResourceLocation safely
-     */
     public static Fluid getFluidFromId(ResourceLocation fluidId) {
         if (fluidId == null) {
             return Fluids.EMPTY;
@@ -101,9 +87,6 @@ public class FluidHelper {
         }
     }
 
-    /**
-     * Get bucket item for a fluid with caching
-     */
     public static ItemStack getBucketForFluid(ResourceLocation fluidId) {
         if (fluidId == null || !isValidFluid(fluidId)) {
             return ItemStack.EMPTY;
@@ -114,14 +97,12 @@ public class FluidHelper {
         }
 
         return FLUID_BUCKET_CACHE.computeIfAbsent(fluidId, id -> {
-            // Handle vanilla fluids first
             if (id.equals(Fluids.WATER.builtInRegistryHolder().key().location())) {
                 return new ItemStack(Items.WATER_BUCKET);
             } else if (id.equals(Fluids.LAVA.builtInRegistryHolder().key().location())) {
                 return new ItemStack(Items.LAVA_BUCKET);
             }
 
-            // Search for modded fluid buckets
             try {
                 Fluid fluid = BuiltInRegistries.FLUID.get(id);
                 if (fluid != null && fluid != Fluids.EMPTY) {
@@ -132,16 +113,13 @@ public class FluidHelper {
                     }
                 }
             } catch (Exception e) {
-                // Log error but don't crash
+
             }
 
             return ItemStack.EMPTY;
         });
     }
 
-    /**
-     * Get display name for a fluid with caching
-     */
     public static String getFluidDisplayName(ResourceLocation fluidId) {
         if (fluidId == null) {
             return "Unknown Fluid";
@@ -152,7 +130,6 @@ public class FluidHelper {
         }
 
         return FLUID_NAME_CACHE.computeIfAbsent(fluidId, id -> {
-            // Handle vanilla fluids
             if (id.equals(Fluids.WATER.builtInRegistryHolder().key().location())) {
                 return "Water";
             } else if (id.equals(Fluids.LAVA.builtInRegistryHolder().key().location())) {
@@ -162,25 +139,20 @@ public class FluidHelper {
             try {
                 Fluid fluid = BuiltInRegistries.FLUID.get(id);
                 if (fluid != null && fluid != Fluids.EMPTY) {
-                    // Try to get proper display name from fluid type
                     try {
                         return fluid.getFluidType().getDescription().getString();
                     } catch (Exception e) {
-                        // Fallback to registry name
                         return formatFluidName(id.getPath());
                     }
                 }
             } catch (Exception e) {
-                // Fallback to resource location path
+
             }
 
             return formatFluidName(id.getPath());
         });
     }
 
-    /**
-     * Format fluid name from registry path
-     */
     private static String formatFluidName(String path) {
         return path.replace("_", " ")
                 .replace("flowing", "")
@@ -192,20 +164,15 @@ public class FluidHelper {
                         .substring(1);
     }
 
-    /**
-     * Check if two fluids are compatible (same type)
-     */
     public static boolean areFluidsCompatible(ResourceLocation fluidId1, ResourceLocation fluidId2) {
         if (fluidId1 == null || fluidId2 == null) {
             return false;
         }
 
-        // Direct comparison
         if (fluidId1.equals(fluidId2)) {
             return true;
         }
 
-        // Handle flowing vs still variants
         String path1 = fluidId1.getPath().replace("flowing_", "");
         String path2 = fluidId2.getPath().replace("flowing_", "");
 
@@ -213,9 +180,6 @@ public class FluidHelper {
                 path1.equals(path2);
     }
 
-    /**
-     * Get the still version of a fluid
-     */
     public static ResourceLocation getStillFluid(ResourceLocation fluidId) {
         if (fluidId == null) {
             return null;
@@ -225,16 +189,13 @@ public class FluidHelper {
         if (path.startsWith("flowing_")) {
             return ResourceLocation.fromNamespaceAndPath(
                     fluidId.getNamespace(),
-                    path.substring(8) // Remove "flowing_"
+                    path.substring(8)
             );
         }
 
         return fluidId;
     }
 
-    /**
-     * Clear all caches
-     */
     public static void clearCaches() {
         VALID_FLUID_CACHE.clear();
         FLUID_BUCKET_CACHE.clear();
