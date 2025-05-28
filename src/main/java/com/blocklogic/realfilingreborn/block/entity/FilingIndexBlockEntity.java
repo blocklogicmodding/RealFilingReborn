@@ -56,8 +56,8 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             setChanged();
             if (level != null && !level.isClientSide()) {
                 level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
-                // Rebuild network when upgrade changes (range might have changed)
-                rebuildNetwork();
+                // Schedule rebuild for next tick to prevent infinite loops
+                level.scheduleTick(getBlockPos(), getBlockState().getBlock(), 1);
             }
         }
     };
@@ -69,6 +69,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     private final Map<Direction, IItemHandler> itemHandlers = new HashMap<>();
     private final Map<Direction, IFluidHandler> fluidHandlers = new HashMap<>();
     private boolean isRebuilding = false; // Prevent rebuild loops
+    private boolean isRemoving = false; // Prevent removal loops
 
     public FilingIndexBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FILING_INDEX_BE.get(), pos, blockState);
@@ -95,6 +96,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     public IFluidHandler getFluidCapabilityHandler(@Nullable Direction side) {
         return fluidHandlers.computeIfAbsent(side != null ? side : Direction.UP, s -> fluidHandler);
     }
+
     /**
      * Gets the current connection range based on installed upgrade
      */
@@ -128,7 +130,10 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
 
         if (success) {
             updateConnectedState();
-            // DON'T call setChanged() here - it's called in rebuild()
+            // Schedule rebuild for next tick instead of immediate
+            if (level != null && !level.isClientSide()) {
+                level.scheduleTick(getBlockPos(), getBlockState().getBlock(), 1);
+            }
         }
 
         return success;
@@ -159,7 +164,10 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
 
         if (anyChanged) {
             updateConnectedState();
-            // DON'T call setChanged() here either - it's called in rebuild()
+            // Schedule rebuild for next tick instead of immediate
+            if (level != null && !level.isClientSide()) {
+                level.scheduleTick(getBlockPos(), getBlockState().getBlock(), 1);
+            }
         }
 
         return anyChanged;
@@ -167,6 +175,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
 
     /**
      * Rebuilds the network - removes invalid connections and updates state
+     * FIXED: Prevent save hanging by making this async-safe
      */
     public void rebuildNetwork() {
         if (level == null || level.isClientSide() || isRebuilding) return;
@@ -174,7 +183,32 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         isRebuilding = true;
         try {
             connectedCabinets.setLevel(level);
-            connectedCabinets.rebuild();
+
+            // FIXED: Don't call full rebuild during world save
+            // Instead, just validate existing connections
+            List<Long> toRemove = new ArrayList<>();
+            for (Long cabinetLong : connectedCabinets.getConnectedCabinets()) {
+                BlockPos cabinetPos = BlockPos.of(cabinetLong);
+                BlockEntity entity = level.getBlockEntity(cabinetPos);
+
+                // Check if cabinet still exists and is in range
+                if (!(entity instanceof FilingCabinetBlockEntity) && !(entity instanceof FluidCabinetBlockEntity)) {
+                    toRemove.add(cabinetLong);
+                } else {
+                    int range = getConnectionRange();
+                    if (getBlockPos().distSqr(cabinetPos) > (range * range)) {
+                        toRemove.add(cabinetLong);
+                    }
+                }
+            }
+
+            // Remove invalid connections
+            for (Long cabinetLong : toRemove) {
+                connectedCabinets.getConnectedCabinets().remove(cabinetLong);
+            }
+
+            // Light rebuild - just refresh handlers
+            connectedCabinets.lightRebuild();
             updateConnectedState();
             setChanged();
         } finally {
@@ -221,6 +255,11 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("inventory"));
         connectedCabinets.deserializeNBT(registries, tag.getCompound("connected_cabinets"));
+
+        // Schedule rebuild after loading
+        if (level != null && !level.isClientSide()) {
+            level.scheduleTick(getBlockPos(), getBlockState().getBlock(), 5);
+        }
     }
 
     @Override
@@ -236,9 +275,18 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
 
     @Override
     public void setRemoved() {
-        // Clear all connections cleanly before removal
+        // FIXED: Prevent infinite loops and world save hanging
+        if (isRemoving) {
+            super.setRemoved();
+            return;
+        }
+
+        isRemoving = true;
+
+        // Clear all connections WITHOUT calling setRemoved on cabinets
         if (level != null && !level.isClientSide() && connectedCabinets != null) {
             try {
+                // Just clear the controller references without triggering rebuilds
                 for (Long cabinetLong : new ArrayList<>(connectedCabinets.getConnectedCabinets())) {
                     BlockPos cabinetPos = BlockPos.of(cabinetLong);
                     BlockEntity entity = level.getBlockEntity(cabinetPos);
@@ -248,6 +296,9 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
                         fluidCabinet.clearControllerPos();
                     }
                 }
+
+                // Clear the list directly
+                connectedCabinets.getConnectedCabinets().clear();
             } catch (Exception e) {
                 // Silently handle cleanup errors
             }
@@ -271,8 +322,8 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     public void onLoad() {
         super.onLoad();
         if (level != null && !level.isClientSide()) {
-            // Rebuild network when the chunk loads
-            rebuildNetwork();
+            // Schedule rebuild when the chunk loads (after a delay)
+            level.scheduleTick(getBlockPos(), getBlockState().getBlock(), 10);
         }
     }
 }

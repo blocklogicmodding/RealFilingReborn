@@ -54,6 +54,10 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
     private final Map<Direction, IItemHandler> handlers = new HashMap<>();
     private final Map<Direction, IFluidHandler> fluidHandlers = new HashMap<>();
 
+    // Controller connection tracking
+    private BlockPos controllerPos = null;
+    private boolean isRemoving = false; // Prevent infinite loops during removal
+
     public FluidCabinetBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FLUID_CABINET_BE.get(), pos, blockState);
     }
@@ -85,7 +89,6 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
         Containers.dropContents(this.level, this.worldPosition, inv);
     }
 
-    // Update saveAdditional method to include controller position
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
@@ -97,7 +100,6 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
         }
     }
 
-    // Update loadAdditional method to include controller position
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
@@ -124,19 +126,63 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
 
     @Override
     public void setRemoved() {
-        // Notify controller that this cabinet is being removed BEFORE calling super
-        if (controllerPos != null && level != null && !level.isClientSide()) {
+        // FIXED: Prevent infinite loops and world save hanging
+        if (isRemoving) {
+            super.setRemoved();
+            return;
+        }
+
+        isRemoving = true;
+
+        // Clear controller reference BEFORE notifying controller
+        BlockPos savedControllerPos = controllerPos;
+        controllerPos = null;
+
+        // Notify controller asynchronously to prevent hanging
+        if (savedControllerPos != null && level != null && !level.isClientSide()) {
             try {
-                BlockEntity entity = level.getBlockEntity(controllerPos);
+                BlockEntity entity = level.getBlockEntity(savedControllerPos);
                 if (entity instanceof FilingIndexBlockEntity filingIndex) {
-                    filingIndex.getConnectedCabinets().removeCabinet(getBlockPos());
+                    // Remove directly from list without triggering rebuild
+                    filingIndex.getConnectedCabinets().getConnectedCabinets().remove(getBlockPos().asLong());
                 }
             } catch (Exception e) {
-                // Silently handle cleanup errors to prevent save hanging
+                // Silently handle cleanup errors
             }
         }
 
         super.setRemoved();
+    }
+
+    /**
+     * Sets the controller position when connected to a Filing Index
+     */
+    public void setControllerPos(BlockPos controllerPos) {
+        this.controllerPos = controllerPos;
+        setChanged();
+    }
+
+    /**
+     * Clears the controller position when disconnected
+     */
+    public void clearControllerPos() {
+        this.controllerPos = null;
+        setChanged();
+    }
+
+    /**
+     * Gets the current controller position
+     */
+    @Nullable
+    public BlockPos getControllerPos() {
+        return controllerPos;
+    }
+
+    /**
+     * Checks if this cabinet is connected to a controller
+     */
+    public boolean hasController() {
+        return controllerPos != null;
     }
 
     private void notifyCanisterContentsChanged() {
@@ -144,6 +190,17 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
             setChanged();
         }
+    }
+
+    @Nullable
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
+        return saveWithoutMetadata(pRegistries);
     }
 
     // FLUID HANDLER - Storage terminals see ONLY fluids
@@ -336,50 +393,5 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
         public boolean isItemValid(int slot, ItemStack stack) {
             return false; // NO ITEMS VALID FOR EXTERNAL STORAGE
         }
-    }
-
-    // Controller connection tracking
-    private BlockPos controllerPos = null;
-
-    /**
-     * Sets the controller position when connected to a Filing Index
-     */
-    public void setControllerPos(BlockPos controllerPos) {
-        this.controllerPos = controllerPos;
-        setChanged();
-    }
-
-    /**
-     * Clears the controller position when disconnected
-     */
-    public void clearControllerPos() {
-        this.controllerPos = null;
-        setChanged();
-    }
-
-    /**
-     * Gets the current controller position
-     */
-    @Nullable
-    public BlockPos getControllerPos() {
-        return controllerPos;
-    }
-
-    /**
-     * Checks if this cabinet is connected to a controller
-     */
-    public boolean hasController() {
-        return controllerPos != null;
-    }
-
-    @Nullable
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
-    }
-
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
-        return saveWithoutMetadata(pRegistries);
     }
 }

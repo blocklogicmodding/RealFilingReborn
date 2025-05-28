@@ -54,10 +54,11 @@ public class ConnectedCabinets implements INBTSerializable<CompoundTag> {
     }
 
     /**
-     * Rebuilds the handler lists from connected cabinet positions
+     * FIXED: Light rebuild that doesn't cause save hanging
+     * Only refreshes handler lists without expensive validation
      */
-    public void rebuild() {
-        if (isRebuilding) return; // Prevent infinite loops
+    public void lightRebuild() {
+        if (isRebuilding) return;
 
         isRebuilding = true;
         try {
@@ -65,31 +66,18 @@ public class ConnectedCabinets implements INBTSerializable<CompoundTag> {
             this.fluidHandlers = new ArrayList<>();
 
             if (level != null && !level.isClientSide()) {
-                int range = indexEntity.getConnectionRange();
-                AABB area = new AABB(indexEntity.getBlockPos()).inflate(range);
-
-                // Remove cabinets that are out of range
-                this.connectedCabinets.removeIf(cabinetLong ->
-                        !area.contains(Vec3.atCenterOf(BlockPos.of(cabinetLong))));
-
-                // Sort by distance (closer cabinets first for better performance)
-                this.connectedCabinets.sort(Comparator.comparingDouble(value ->
-                        BlockPos.of(value).distSqr(indexEntity.getBlockPos())));
-
-                // Build handler lists from valid cabinets
+                // Build handler lists from existing valid cabinets (no validation)
                 for (Long cabinetLong : this.connectedCabinets) {
                     BlockPos pos = BlockPos.of(cabinetLong);
                     BlockEntity entity = level.getBlockEntity(pos);
 
                     if (entity instanceof FilingCabinetBlockEntity filingCabinet) {
-                        // Get the cabinet's item handler (the one that handles virtual slots)
                         IItemHandler handler = filingCabinet.getCapabilityHandler(null);
                         if (handler != null) {
                             this.itemHandlers.add(handler);
                         }
 
                     } else if (entity instanceof FluidCabinetBlockEntity fluidCabinet) {
-                        // Get both item and fluid handlers from fluid cabinets
                         IItemHandler itemHandler = fluidCabinet.getCapabilityHandler(null);
                         if (itemHandler != null) {
                             this.itemHandlers.add(itemHandler);
@@ -111,7 +99,86 @@ public class ConnectedCabinets implements INBTSerializable<CompoundTag> {
     }
 
     /**
+     * Full rebuild - removes invalid connections and updates state
+     * FIXED: Made safer to prevent save hanging
+     */
+    public void rebuild() {
+        if (isRebuilding) return;
+
+        isRebuilding = true;
+        try {
+            this.itemHandlers = new ArrayList<>();
+            this.fluidHandlers = new ArrayList<>();
+
+            if (level != null && !level.isClientSide()) {
+                int range = indexEntity.getConnectionRange();
+                AABB area = new AABB(indexEntity.getBlockPos()).inflate(range);
+
+                // FIXED: Use iterator to safely remove items during iteration
+                this.connectedCabinets.removeIf(cabinetLong -> {
+                    BlockPos cabinetPos = BlockPos.of(cabinetLong);
+
+                    // Check if out of range
+                    if (!area.contains(Vec3.atCenterOf(cabinetPos))) {
+                        return true;
+                    }
+
+                    // Check if cabinet still exists
+                    try {
+                        BlockEntity entity = level.getBlockEntity(cabinetPos);
+                        return !(entity instanceof FilingCabinetBlockEntity) &&
+                                !(entity instanceof FluidCabinetBlockEntity);
+                    } catch (Exception e) {
+                        // If we can't check, assume it's invalid
+                        return true;
+                    }
+                });
+
+                // Sort by distance (closer cabinets first for better performance)
+                this.connectedCabinets.sort(Comparator.comparingDouble(value ->
+                        BlockPos.of(value).distSqr(indexEntity.getBlockPos())));
+
+                // Build handler lists from valid cabinets
+                for (Long cabinetLong : this.connectedCabinets) {
+                    BlockPos pos = BlockPos.of(cabinetLong);
+                    try {
+                        BlockEntity entity = level.getBlockEntity(pos);
+
+                        if (entity instanceof FilingCabinetBlockEntity filingCabinet) {
+                            // Get the cabinet's item handler (the one that handles virtual slots)
+                            IItemHandler handler = filingCabinet.getCapabilityHandler(null);
+                            if (handler != null) {
+                                this.itemHandlers.add(handler);
+                            }
+
+                        } else if (entity instanceof FluidCabinetBlockEntity fluidCabinet) {
+                            // Get both item and fluid handlers from fluid cabinets
+                            IItemHandler itemHandler = fluidCabinet.getCapabilityHandler(null);
+                            if (itemHandler != null) {
+                                this.itemHandlers.add(itemHandler);
+                            }
+
+                            IFluidHandler fluidHandler = fluidCabinet.getFluidCapabilityHandler(null);
+                            if (fluidHandler != null) {
+                                this.fluidHandlers.add(fluidHandler);
+                            }
+                        }
+                    } catch (Exception e) {
+                        // Skip problematic cabinets silently
+                    }
+                }
+            }
+
+            // Invalidate any virtual inventory handlers that depend on this
+            invalidateHandlers();
+        } finally {
+            isRebuilding = false;
+        }
+    }
+
+    /**
      * Adds a cabinet to the network
+     * FIXED: No immediate rebuild to prevent save hanging
      */
     public boolean addCabinet(BlockPos cabinetPos) {
         long cabinetLong = cabinetPos.asLong();
@@ -120,11 +187,17 @@ public class ConnectedCabinets implements INBTSerializable<CompoundTag> {
             if (level != null) {
                 int range = indexEntity.getConnectionRange();
                 if (indexEntity.getBlockPos().distSqr(cabinetPos) <= (range * range)) {
-                    BlockEntity entity = level.getBlockEntity(cabinetPos);
-                    if (entity instanceof FilingCabinetBlockEntity || entity instanceof FluidCabinetBlockEntity) {
-                        connectedCabinets.add(cabinetLong);
-                        rebuild();
-                        return true;
+                    try {
+                        BlockEntity entity = level.getBlockEntity(cabinetPos);
+                        if (entity instanceof FilingCabinetBlockEntity || entity instanceof FluidCabinetBlockEntity) {
+                            connectedCabinets.add(cabinetLong);
+                            // Use light rebuild instead of full rebuild
+                            lightRebuild();
+                            return true;
+                        }
+                    } catch (Exception e) {
+                        // Silently fail if cabinet can't be validated
+                        return false;
                     }
                 }
             }
@@ -134,12 +207,14 @@ public class ConnectedCabinets implements INBTSerializable<CompoundTag> {
 
     /**
      * Removes a cabinet from the network
+     * FIXED: No immediate rebuild to prevent save hanging
      */
     public boolean removeCabinet(BlockPos cabinetPos) {
         long cabinetLong = cabinetPos.asLong();
         boolean removed = connectedCabinets.remove(cabinetLong);
         if (removed) {
-            rebuild();
+            // Use light rebuild instead of full rebuild
+            lightRebuild();
         }
         return removed;
     }
@@ -148,11 +223,15 @@ public class ConnectedCabinets implements INBTSerializable<CompoundTag> {
      * Called to invalidate any virtual handlers that depend on this network
      */
     private void invalidateHandlers() {
-        if (inventoryHandler != null) {
-            inventoryHandler.invalidateSlots();
-        }
-        if (fluidHandler != null) {
-            fluidHandler.invalidateTanks();
+        try {
+            if (inventoryHandler != null) {
+                inventoryHandler.invalidateSlots();
+            }
+            if (fluidHandler != null) {
+                fluidHandler.invalidateTanks();
+            }
+        } catch (Exception e) {
+            // Silently handle invalidation errors
         }
     }
 
@@ -172,9 +251,10 @@ public class ConnectedCabinets implements INBTSerializable<CompoundTag> {
 
     /**
      * Gets the list of connected cabinet positions
+     * FIXED: Return the actual list for direct manipulation during cleanup
      */
     public List<Long> getConnectedCabinets() {
-        return new ArrayList<>(connectedCabinets);
+        return connectedCabinets; // Return actual list, not copy
     }
 
     /**
@@ -194,18 +274,46 @@ public class ConnectedCabinets implements INBTSerializable<CompoundTag> {
     @Override
     public CompoundTag serializeNBT(net.minecraft.core.HolderLookup.Provider provider) {
         CompoundTag compoundTag = new CompoundTag();
+
+        // FIXED: Better serialization with size tracking
+        compoundTag.putInt("size", this.connectedCabinets.size());
         for (int i = 0; i < this.connectedCabinets.size(); i++) {
-            compoundTag.putLong(String.valueOf(i), this.connectedCabinets.get(i));
+            compoundTag.putLong("cabinet_" + i, this.connectedCabinets.get(i));
         }
+
         return compoundTag;
     }
 
     @Override
     public void deserializeNBT(net.minecraft.core.HolderLookup.Provider provider, CompoundTag nbt) {
         this.connectedCabinets = new ArrayList<>();
-        for (String key : nbt.getAllKeys()) {
-            connectedCabinets.add(nbt.getLong(key));
+
+        // FIXED: Better deserialization with size tracking
+        if (nbt.contains("size")) {
+            int size = nbt.getInt("size");
+            for (int i = 0; i < size; i++) {
+                String key = "cabinet_" + i;
+                if (nbt.contains(key)) {
+                    connectedCabinets.add(nbt.getLong(key));
+                }
+            }
+        } else {
+            // Fallback for old format
+            for (String key : nbt.getAllKeys()) {
+                if (key.startsWith("cabinet_")) {
+                    connectedCabinets.add(nbt.getLong(key));
+                } else if (!key.equals("size")) {
+                    // Old numeric keys
+                    try {
+                        connectedCabinets.add(nbt.getLong(key));
+                    } catch (NumberFormatException e) {
+                        // Skip invalid keys
+                    }
+                }
+            }
         }
-        rebuild();
+
+        // Use light rebuild after deserialization
+        lightRebuild();
     }
 }

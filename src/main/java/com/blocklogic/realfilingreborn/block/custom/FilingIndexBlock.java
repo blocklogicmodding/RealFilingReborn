@@ -9,9 +9,11 @@ import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
@@ -82,6 +84,15 @@ public class FilingIndexBlock extends BaseEntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new FilingIndexBlockEntity(blockPos, blockState);
+    }
+
+    // FIXED: Handle scheduled ticks for async rebuilds
+    @Override
+    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        BlockEntity entity = level.getBlockEntity(pos);
+        if (entity instanceof FilingIndexBlockEntity filingIndex) {
+            filingIndex.rebuildNetwork();
+        }
     }
 
     @Override
