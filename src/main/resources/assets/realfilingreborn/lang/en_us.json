@@ -8,25 +8,18 @@
   "item.realfilingreborn.eraser": "Eraser",
   "item.realfilingreborn.fluid_canister": "Fluid Canister",
   "item.realfilingreborn.cabinet_conversion_kit": "Cabinet Conversion Kit",
-  "item.realfilingreborn.ledger": "Ledger",
-  "item.realfilingreborn.golden_range_upgrade": "Golden Filing Index Range Upgrade",
-  "item.realfilingreborn.diamond_range_upgrade": "Diamond Filing Index Range Upgrade",
-  "item.realfilingreborn.netherite_range_upgrade": "Netherite Filing Index Range Upgrade",
 
   "_comment2": "=== BLOCKS ===",
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
   "block.realfilingreborn.fluid_cabinet": "Fluid Cabinet",
-  "block.realfilingreborn.filing_index": "Filing Index",
 
   "_comment3": "=== BLOCK ENTITIES ===",
   "blockentity.realfilingreborn.name": "Filing Cabinet",
   "blockentity.realfilingreborn.fluid_cabinet_name": "Fluid Cabinet",
-  "blockentity.realfilingreborn.filing_index_name": "Filing Index",
 
   "_comment4": "=== MENUS/GUIS ===",
   "menu.realfilingreborn.menu_title": "Filing Cabinet",
   "menu.realfilingreborn.fluid_cabinet_menu_title": "Fluid Cabinet",
-  "menu.realfilingreborn.index_menu_title": "Filing Index",
 
   "_comment5": "=== FILING FOLDER MESSAGES ===",
   "message.realfilingreborn.folder_erased": "Folder assignment erased",
@@ -47,9 +40,6 @@
   "message.realfilingreborn.folders_full": "Filing Cabinet is full (5 folders)",
   "message.realfilingreborn.no_folders": "Filing Cabinet can only accept folders",
   "message.realfilingreborn.no_compatible_folder": "No folder for this item available",
-
-  "_comment7": "=== FILING INDEX MESSAGES ===",
-  "message.realfilingreborn.index_full": "Filing Index already has an upgrade installed",
 
   "_comment8": "=== FLUID CANISTER MESSAGES ===",
   "message.realfilingreborn.canister_empty": "Canister is empty. Hold bucket in off hand and canister in main hand to add fluid",
@@ -74,22 +64,6 @@
   "message.realfilingreborn.cabinet_converted": "Filing Cabinet converted to Fluid Cabinet!",
   "message.realfilingreborn.already_fluid_cabinet": "This is already a Fluid Cabinet",
   "message.realfilingreborn.conversion_only_filing_cabinet": "Conversion Kit only works on Filing Cabinets",
-
-  "_comment11": "=== LEDGER MESSAGES (NEW) ===",
-  "message.realfilingreborn.ledger.index_configured": "Filing Index configured successfully",
-  "message.realfilingreborn.ledger.cabinet_linked": "Cabinet linked to Filing Index",
-  "message.realfilingreborn.ledger.cabinet_unlinked": "Cabinet unlinked from Filing Index",
-  "message.realfilingreborn.ledger.multiple_cabinets_linked": "Multiple cabinets linked to Filing Index",
-  "message.realfilingreborn.ledger.multiple_cabinets_unlinked": "Multiple cabinets unlinked from Filing Index",
-  "message.realfilingreborn.ledger.first_position_set": "First position set. Right-click second position to complete area",
-  "message.realfilingreborn.ledger.mode_switched": "Mode switched to: %s",
-  "message.realfilingreborn.ledger.action_switched": "Action switched to: %s",
-
-  "_comment12": "=== LEDGER MODES/ACTIONS ===",
-  "ledger.realfilingreborn.mode.single": "Single",
-  "ledger.realfilingreborn.mode.multiple": "Multiple",
-  "ledger.realfilingreborn.action.add": "Add",
-  "ledger.realfilingreborn.action.remove": "Remove",
 
   "_comment13": "=== ERASER TOOLTIPS ===",
   "tooltip.realfilingreborn.eraser_info": "Right-click while holding an empty folder or canister to erase its assignment",
@@ -119,22 +93,6 @@
   "_comment17": "=== CABINET CONVERSION KIT TOOLTIPS ===",
   "tooltip.realfilingreborn.cabinet_conversion_kit_info": "Item used to convert a Filing Cabinet into a Fluid Cabinet. Consumed on use",
   "tooltip.realfilingreborn.cabinet_conversion_usage": "Right-click on empty Filing Cabinet to convert",
-
-  "_comment18": "=== RANGE UPGRADE TOOLTIPS ===",
-  "tooltip.realfilingreborn.gold_range_upgrade_info": "Extends Filing Index Range to 16 Blocks (Radius)",
-  "tooltip.realfilingreborn.diamond_range_upgrade_info": "Extends Filing Index Range to 32 Blocks (Radius)",
-  "tooltip.realfilingreborn.netherite_range_upgrade_info": "Extends Filing Index Range to 64 Blocks (Radius)",
-
-  "_comment19": "=== LEDGER TOOLTIPS (NEW) ===",
-  "tooltip.realfilingreborn.ledger.mode": "Mode: ",
-  "tooltip.realfilingreborn.ledger.action": "Action: ",
-  "tooltip.realfilingreborn.ledger.index_location": "Filing Index: ",
-  "tooltip.realfilingreborn.ledger.no_index": "Filing Index: Not Set",
-  "tooltip.realfilingreborn.ledger.usage": "Right-click Filing Index to set. Right-click cabinets to link/unlink. Right-click air to change modes.",
-
-  "_comment20": "=== LEGACY LEDGER TOOLTIPS ===",
-  "tooltip.realfilingreborn.ledger_info": "Connects Filing Cabinets to Filing Index",
-  "tooltip.realfilingreborn.ledger_usage": "Shift-Right-Click on Filing Index to Select, then Shift-Right-Click Filing Cabinet to Connect",
 
   "_comment21": "=== JADE PLUGIN INTEGRATION ===",
   "tooltip.realfilingreborn.jade.cabinet_title": "Filing Cabinet Contents",

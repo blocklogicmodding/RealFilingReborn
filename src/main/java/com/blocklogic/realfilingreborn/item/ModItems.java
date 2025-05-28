@@ -25,18 +25,6 @@ public class ModItems {
     public static final DeferredItem<Item> CABINET_CONVERSION_KIT = ITEMS.register("cabinet_conversion_kit",
             () -> new CabinetConversionItem(new Item.Properties()));
 
-    public static final DeferredItem<Item> LEDGER = ITEMS.register("ledger",
-            () -> new LedgerItem(new Item.Properties()));
-
-    public static final DeferredItem<Item> GOLD_RANGE_UPGRADE = ITEMS.register("golden_range_upgrade",
-            () -> new IndexRangerUpgradeGold(new Item.Properties()));
-
-    public static final DeferredItem<Item> DIAMOND_RANGE_UPGRADE = ITEMS.register("diamond_range_upgrade",
-            () -> new IndexRangerUpgradeDiamond(new Item.Properties()));
-
-    public static final DeferredItem<Item> NETHERITE_RANGE_UPGRADE = ITEMS.register("netherite_range_upgrade",
-            () -> new IndexRangerUpgradeNetherite(new Item.Properties()));
-
     public static void register (IEventBus eventBus) {
         ITEMS.register(eventBus);
     }
