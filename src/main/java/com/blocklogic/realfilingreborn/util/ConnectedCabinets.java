@@ -313,7 +313,7 @@ public class ConnectedCabinets implements INBTSerializable<CompoundTag> {
             }
         }
 
-        // Use light rebuild after deserialization
-        lightRebuild();
+        // FIXED: DON'T rebuild immediately after deserialization
+        // Let the Filing Index handle restoration after world loads
     }
 }

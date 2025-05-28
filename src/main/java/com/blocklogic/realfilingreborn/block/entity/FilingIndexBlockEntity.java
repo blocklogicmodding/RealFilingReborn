@@ -70,6 +70,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     private final Map<Direction, IFluidHandler> fluidHandlers = new HashMap<>();
     private boolean isRebuilding = false; // Prevent rebuild loops
     private boolean isRemoving = false; // Prevent removal loops
+    private boolean needsPostLoadRebuild = false; // NEW: Track if we need rebuild after world loads
 
     public FilingIndexBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.FILING_INDEX_BE.get(), pos, blockState);
@@ -207,12 +208,44 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
                 connectedCabinets.getConnectedCabinets().remove(cabinetLong);
             }
 
+            // FIXED: After world load, restore controller references
+            if (needsPostLoadRebuild) {
+                restoreControllerReferences();
+                needsPostLoadRebuild = false;
+            }
+
             // Light rebuild - just refresh handlers
             connectedCabinets.lightRebuild();
             updateConnectedState();
             setChanged();
         } finally {
             isRebuilding = false;
+        }
+    }
+
+    /**
+     * NEW: Restores controller references after world load
+     */
+    private void restoreControllerReferences() {
+        if (level == null || level.isClientSide()) return;
+
+        for (Long cabinetLong : connectedCabinets.getConnectedCabinets()) {
+            BlockPos cabinetPos = BlockPos.of(cabinetLong);
+            BlockEntity entity = level.getBlockEntity(cabinetPos);
+
+            if (entity instanceof FilingCabinetBlockEntity filingCabinet) {
+                // Only set controller if it doesn't already have one or it's pointing to us
+                BlockPos currentController = filingCabinet.getControllerPos();
+                if (currentController == null || currentController.equals(getBlockPos())) {
+                    filingCabinet.setControllerPos(getBlockPos());
+                }
+            } else if (entity instanceof FluidCabinetBlockEntity fluidCabinet) {
+                // Only set controller if it doesn't already have one or it's pointing to us
+                BlockPos currentController = fluidCabinet.getControllerPos();
+                if (currentController == null || currentController.equals(getBlockPos())) {
+                    fluidCabinet.setControllerPos(getBlockPos());
+                }
+            }
         }
     }
 
@@ -256,10 +289,8 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         inventory.deserializeNBT(registries, tag.getCompound("inventory"));
         connectedCabinets.deserializeNBT(registries, tag.getCompound("connected_cabinets"));
 
-        // Schedule rebuild after loading
-        if (level != null && !level.isClientSide()) {
-            level.scheduleTick(getBlockPos(), getBlockState().getBlock(), 5);
-        }
+        // FIXED: Don't schedule immediate rebuild - wait for world to fully load
+        needsPostLoadRebuild = true;
     }
 
     @Override
@@ -322,8 +353,8 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     public void onLoad() {
         super.onLoad();
         if (level != null && !level.isClientSide()) {
-            // Schedule rebuild when the chunk loads (after a delay)
-            level.scheduleTick(getBlockPos(), getBlockState().getBlock(), 10);
+            // FIXED: Schedule rebuild after world fully loads (longer delay)
+            level.scheduleTick(getBlockPos(), getBlockState().getBlock(), 40); // 2 second delay
         }
     }
 }
