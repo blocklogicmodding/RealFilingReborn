@@ -10,12 +10,15 @@
     },
     "F": {
       "item": "realfilingreborn:fluid_canister"
+    },
+    "R": {
+      "item": "minecraft:redstone"
     }
   },
   "pattern": [
-    "CFC",
+    "C C",
     "FIF",
-    "CFC"
+    "RFR"
   ],
   "result": {
     "id": "realfilingreborn:cabinet_conversion_kit",
