@@ -1,4 +1,4 @@
-![Real Filing Reborn Banner](rfr_banner.png)
+![RealFilingReborn](https://deonjonker.com/blm/rfr/rfr_banner.png)
 
 **Real Filing Reborn** is a modern storage solution for Minecraft, built on NeoForge. Inspired by the classic *Real Filing Cabinet* by BlueNeenja.
 
