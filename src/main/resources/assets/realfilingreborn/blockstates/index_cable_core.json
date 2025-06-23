@@ -1,7 +1,11 @@
 {
-  "variants": {
-    "": {
-      "model": "realfilingreborn:block/index_cable_core"
-    }
-  }
+  "multipart": [
+    { "apply": { "model": "realfilingreborn:block/index_cable_core" } },
+    { "when": { "north": "true" }, "apply": { "model": "realfilingreborn:block/index_core_connect_north" } },
+    { "when": { "south": "true" }, "apply": { "model": "realfilingreborn:block/index_core_connect_south" } },
+    { "when": { "east": "true" }, "apply": { "model": "realfilingreborn:block/index_core_connect_east" } },
+    { "when": { "west": "true" }, "apply": { "model": "realfilingreborn:block/index_core_connect_west" } },
+    { "when": { "up": "true" }, "apply": { "model": "realfilingreborn:block/index_core_connect_up" } },
+    { "when": { "down": "true" }, "apply": { "model": "realfilingreborn:block/index_core_connect_down" } }
+  ]
 }
