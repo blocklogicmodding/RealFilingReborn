@@ -99,38 +99,48 @@ public class FilingIndexScreen extends AbstractContainerScreen<FilingIndexMenu> 
             // Custom rendering for storage slots
             ItemStack stack = slot.getItem();
             if (!stack.isEmpty()) {
-                // Render just the item icon with NO decorations at all
+                // Render the item icon
                 guiGraphics.renderItem(stack, slot.x, slot.y);
 
                 // Only render our custom count if > 1
                 if (stack.getCount() > 1) {
                     String countText = FormattingCache.getFormattedItemCount(stack.getCount());
 
-                    // Calculate text width for proper positioning
-                    guiGraphics.pose().pushPose();
-                    guiGraphics.pose().scale(0.6f, 0.6f, 1.0f);
-                    int scaledWidth = (int)(this.font.width(countText) * 0.6f);
-                    guiGraphics.pose().popPose();
+                    // Calculate proper text positioning
+                    float scale = 0.6f;
+                    int textWidth = this.font.width(countText);
 
-                    // Position text at bottom-right of slot
-                    int textX = slot.x + 16 - scaledWidth;
-                    int textY = slot.y + 12;
+                    // Position text at bottom-right corner of the slot
+                    // slot.x and slot.y are already relative to the GUI
+                    int textX = slot.x + 16 - (int)(textWidth * scale) - 1;
+                    int textY = slot.y + 16 - (int)(this.font.lineHeight * scale) - 1;
 
-                    // Render with smaller scale
+                    // Render with smaller scale and proper z-level
                     guiGraphics.pose().pushPose();
                     guiGraphics.pose().translate(textX, textY, 200);
-                    guiGraphics.pose().scale(0.6f, 0.6f, 1.0f);
+                    guiGraphics.pose().scale(scale, scale, 1.0f);
 
-                    // Black outline for visibility
+                    // Black outline for visibility (draw in all 4 directions)
+                    guiGraphics.drawString(this.font, countText, 1, 0, 0x000000, false);
+                    guiGraphics.drawString(this.font, countText, -1, 0, 0x000000, false);
+                    guiGraphics.drawString(this.font, countText, 0, 1, 0x000000, false);
+                    guiGraphics.drawString(this.font, countText, 0, -1, 0x000000, false);
+
+                    // Corner outlines for better visibility
                     guiGraphics.drawString(this.font, countText, 1, 1, 0x000000, false);
-                    guiGraphics.drawString(this.font, countText, -1, 1, 0x000000, false);
-                    guiGraphics.drawString(this.font, countText, 1, -1, 0x000000, false);
                     guiGraphics.drawString(this.font, countText, -1, -1, 0x000000, false);
+                    guiGraphics.drawString(this.font, countText, 1, -1, 0x000000, false);
+                    guiGraphics.drawString(this.font, countText, -1, 1, 0x000000, false);
 
                     // White text on top
                     guiGraphics.drawString(this.font, countText, 0, 0, 0xFFFFFF, false);
 
                     guiGraphics.pose().popPose();
+
+                    // Debug: Print to console to verify counts are being rendered
+                    if (stack.getCount() > 64) { // Only log large counts to avoid spam
+                        System.out.println("Rendering count " + countText + " for " + stack.getItem().toString());
+                    }
                 }
             }
         } else {
@@ -138,8 +148,6 @@ public class FilingIndexScreen extends AbstractContainerScreen<FilingIndexMenu> 
             super.renderSlot(guiGraphics, slot);
         }
     }
-
-
 
     private void renderButton(GuiGraphics guiGraphics, int guiX, int guiY, int buttonX, int buttonY,
                               int normalU, int normalV, int hoverU, int hoverV, int mouseX, int mouseY) {
