@@ -56,6 +56,7 @@ public class RFRRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_bucket", has(Items.BUCKET))
                 .save(recipeOutput);
 
+        //Archive Items
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.ERASER.get())
                 .pattern("  Q")
                 .pattern("QR ")
@@ -65,15 +66,56 @@ public class RFRRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_redstone", has(Items.REDSTONE))
                 .save(recipeOutput);
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CABINET_CONVERSION_KIT.get(), 2)
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.CABINET_CONVERSION_KIT.get(), 3)
                 .pattern("C C")
-                .pattern("BIC")
+                .pattern("BIB")
                 .pattern("RBR")
                 .define('C', Items.COPPER_INGOT)
                 .define('B', ModItems.FLUID_CANISTER.get())
                 .define('R', Items.REDSTONE)
                 .define('I', Items.IRON_BLOCK)
                 .unlockedBy("has_fluid_canister", has(ModItems.FLUID_CANISTER.get()))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.LEDGER.get())
+                .pattern("FQF")
+                .pattern("QBQ")
+                .pattern("FQF")
+                .define('B', Items.BOOK)
+                .define('Q', Items.QUARTZ)
+                .define('F', ModItems.FILING_FOLDER.get())
+                .unlockedBy("has_book", has(Items.BOOK))
+                .save(recipeOutput);
+
+        // Range Upgrades
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.IRON_RANGE_UPGRADE.get())
+                .pattern("IRI")
+                .pattern("RXR")
+                .pattern("IRI")
+                .define('R', Items.REDSTONE)
+                .define('X', Items.REPEATER)
+                .define('I', Items.IRON_INGOT)
+                .unlockedBy("has_redstone", has(Items.REDSTONE))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.DIAMOND_RANGE_UPGRADE.get())
+                .pattern("DRD")
+                .pattern("RXR")
+                .pattern("DRD")
+                .define('R', Items.REDSTONE)
+                .define('X', ModItems.IRON_RANGE_UPGRADE.get())
+                .define('D', Items.DIAMOND)
+                .unlockedBy("has_iron_range_upgrade", has(ModItems.IRON_RANGE_UPGRADE.get()))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.NETHERITE_RANGE_UPGRADE.get())
+                .pattern("NRN")
+                .pattern("RXR")
+                .pattern("NRN")
+                .define('R', Items.REDSTONE)
+                .define('X', ModItems.DIAMOND_RANGE_UPGRADE.get())
+                .define('N', Items.NETHERITE_INGOT)
+                .unlockedBy("has_iron_diamond_upgrade", has(ModItems.DIAMOND_RANGE_UPGRADE.get()))
                 .save(recipeOutput);
 
         // Cabinets
@@ -107,37 +149,6 @@ public class RFRRecipeProvider extends RecipeProvider implements IConditionBuild
                 .define('C', Items.COMPARATOR)
                 .define('X', Items.REDSTONE)
                 .unlockedBy("has_cabinet", has(RFRTags.Items.CABINET_AS_ITEM))
-                .save(recipeOutput);
-
-        // Range Upgrades
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.IRON_RANGE_UPGRADE.get())
-                .pattern("IRI")
-                .pattern("RXR")
-                .pattern("IRI")
-                .define('R', Items.REDSTONE)
-                .define('X', Items.REPEATER)
-                .define('I', Items.IRON_BLOCK)
-                .unlockedBy("has_redstone", has(Items.REDSTONE))
-                .save(recipeOutput);
-
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.DIAMOND_RANGE_UPGRADE.get())
-                .pattern("DRD")
-                .pattern("RXR")
-                .pattern("DRD")
-                .define('R', Items.REDSTONE)
-                .define('X', ModItems.IRON_RANGE_UPGRADE.get())
-                .define('D', Items.DIAMOND)
-                .unlockedBy("has_iron_range_upgrade", has(ModItems.IRON_RANGE_UPGRADE.get()))
-                .save(recipeOutput);
-
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.NETHERITE_RANGE_UPGRADE.get())
-                .pattern("NRN")
-                .pattern("RXR")
-                .pattern("NRN")
-                .define('R', Items.REDSTONE)
-                .define('X', ModItems.DIAMOND_RANGE_UPGRADE.get())
-                .define('N', Items.NETHERITE_INGOT)
-                .unlockedBy("has_iron_diamond_upgrade", has(ModItems.DIAMOND_RANGE_UPGRADE.get()))
                 .save(recipeOutput);
     }
 }

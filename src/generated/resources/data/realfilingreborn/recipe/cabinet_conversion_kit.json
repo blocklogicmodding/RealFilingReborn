@@ -17,11 +17,11 @@
   },
   "pattern": [
     "C C",
-    "BIC",
+    "BIB",
     "RBR"
   ],
   "result": {
-    "count": 2,
+    "count": 3,
     "id": "realfilingreborn:cabinet_conversion_kit"
   }
 }

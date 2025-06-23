@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "minecraft:book"
+    },
+    "F": {
+      "item": "realfilingreborn:filing_folder"
+    },
+    "Q": {
+      "item": "minecraft:quartz"
+    }
+  },
+  "pattern": [
+    "FQF",
+    "QBQ",
+    "FQF"
+  ],
+  "result": {
+    "count": 1,
+    "id": "realfilingreborn:ledger"
+  }
+}
