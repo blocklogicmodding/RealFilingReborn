@@ -18,5 +18,6 @@ public class RFRItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.FLUID_CANISTER.get());
         basicItem(ModItems.ERASER.get());
         basicItem(ModItems.CABINET_CONVERSION_KIT.get());
+        basicItem(ModItems.LEDGER.get());
     }
 }

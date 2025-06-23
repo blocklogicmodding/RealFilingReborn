@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.Block;
 public class RFRTags {
     public static class Blocks {
         public static final TagKey<Block> CABINETS = createTag("cabinets");
+        public static final TagKey<Block> CONTROLLERS = createTag("controllers");
 
         private static TagKey<Block> createTag (String name) {
             return BlockTags.create(ResourceLocation.fromNamespaceAndPath(RealFilingReborn.MODID, name));
@@ -20,6 +21,7 @@ public class RFRTags {
     public static class Items {
         public static final TagKey<Item> FOLDERS = createTag("folders");
         public static final TagKey<Item> ARCHIVE_TOOLS = createTag("archive_tools");
+        public static final TagKey<Item> CABINET_AS_ITEM = createTag("cabinet_as_item");
 
         private static TagKey<Item> createTag (String name) {
             return ItemTags.create(ResourceLocation.fromNamespaceAndPath(RealFilingReborn.MODID, name));

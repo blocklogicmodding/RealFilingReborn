@@ -26,5 +26,8 @@ public class RFRBlockTagProvider extends BlockTagsProvider {
         tag(RFRTags.Blocks.CABINETS)
                 .add(ModBlocks.FILING_CABINET.get())
                 .add(ModBlocks.FLUID_CABINET.get());
+
+        tag(RFRTags.Blocks.CONTROLLERS)
+                .add(ModBlocks.FILING_INDEX.get());
     }
 }
