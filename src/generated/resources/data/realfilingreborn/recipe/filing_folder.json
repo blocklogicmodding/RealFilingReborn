@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": {
+      "tag": "c:glass_blocks"
+    },
+    "P": {
+      "item": "minecraft:paper"
+    }
+  },
+  "pattern": [
+    "PPP",
+    "PG ",
+    "PPP"
+  ],
+  "result": {
+    "count": 8,
+    "id": "realfilingreborn:filing_folder"
+  }
+}

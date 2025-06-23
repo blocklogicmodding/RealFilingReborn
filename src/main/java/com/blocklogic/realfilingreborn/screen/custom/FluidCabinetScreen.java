@@ -13,10 +13,16 @@ public class FluidCabinetScreen extends AbstractContainerScreen<FluidCabinetMenu
     private static final ResourceLocation GUI_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(RealFilingReborn.MODID, "textures/gui/fluid_cabinet_gui.png");
 
+    @Override
+    protected void init() {
+        super.init();
+        this.titleLabelX = (this.imageWidth - this.font.width(this.title)) / 2;
+    }
+
     public FluidCabinetScreen(FluidCabinetMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
-        this.imageHeight = 130;
-        this.inventoryLabelY = 48 - 11;
+        this.imageHeight = 145;
+        this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override

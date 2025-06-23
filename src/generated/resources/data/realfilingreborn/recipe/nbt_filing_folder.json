@@ -1,0 +1,33 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "minecraft:iron_axe"
+    },
+    "F": {
+      "item": "realfilingreborn:filing_folder"
+    },
+    "G": {
+      "tag": "c:glass_blocks"
+    },
+    "P": {
+      "item": "minecraft:iron_pickaxe"
+    },
+    "S": {
+      "item": "minecraft:iron_shovel"
+    },
+    "X": {
+      "item": "minecraft:iron_sword"
+    }
+  },
+  "pattern": [
+    "PFA",
+    "FGF",
+    "SFX"
+  ],
+  "result": {
+    "count": 4,
+    "id": "realfilingreborn:nbt_filing_folder"
+  }
+}

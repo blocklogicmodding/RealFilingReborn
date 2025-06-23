@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": {
+      "item": "realfilingreborn:fluid_canister"
+    },
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "I": {
+      "item": "minecraft:iron_block"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    }
+  },
+  "pattern": [
+    "C C",
+    "BIC",
+    "RBR"
+  ],
+  "result": {
+    "count": 2,
+    "id": "realfilingreborn:cabinet_conversion_kit"
+  }
+}

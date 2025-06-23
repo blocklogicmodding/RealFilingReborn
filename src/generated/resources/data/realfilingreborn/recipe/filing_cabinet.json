@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "minecraft:copper_ingot"
+    },
+    "F": {
+      "item": "realfilingreborn:filing_folder"
+    },
+    "I": {
+      "item": "minecraft:iron_block"
+    }
+  },
+  "pattern": [
+    "CFC",
+    "FIF",
+    "CFC"
+  ],
+  "result": {
+    "count": 1,
+    "id": "realfilingreborn:filing_cabinet"
+  }
+}
