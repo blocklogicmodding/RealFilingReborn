@@ -12,18 +12,14 @@
   "_comment2": "=== BLOCKS ===",
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
   "block.realfilingreborn.fluid_cabinet": "Fluid Cabinet",
-  "block.realfilingreborn.filing_index": "Filing Index",
-  "block.realfilingreborn.index_cable_core": "Index Cable",
 
   "_comment3": "=== BLOCK ENTITIES ===",
   "blockentity.realfilingreborn.name": "Filing Cabinet",
   "blockentity.realfilingreborn.fluid_cabinet_name": "Fluid Cabinet",
-  "blockentity.realfilingreborn.filing_index_name": "Filing Index",
 
   "_comment4": "=== MENUS/GUIS ===",
   "menu.realfilingreborn.menu_title": "Filing Cabinet",
   "menu.realfilingreborn.fluid_cabinet_menu_title": "Fluid Cabinet",
-  "menu.realfilingreborn.filing_index_menu_title": "Filing Index",
 
   "_comment5": "=== FILING FOLDER MESSAGES ===",
   "message.realfilingreborn.folder_erased": "Folder assignment erased",
@@ -113,11 +109,5 @@
 
   "_comment22": "=== JADE PLUGIN CONFIGURATION ===",
   "config.jade.plugin_realfilingreborn.filing_cabinet_info": "Filing Cabinet Information",
-  "config.jade.plugin_realfilingreborn.fluid_cabinet_info": "Fluid Cabinet Information",
-
-  "_comment_gui": "=== GUI ELEMENTS ===",
-  "gui.realfilingreborn.sort_by_name": "Sort by Name",
-  "gui.realfilingreborn.sort_by_quantity": "Sort by Quantity",
-  "gui.realfilingreborn.sort_by_mod": "Sort by Mod",
-  "gui.realfilingreborn.toggle_jei": "Toggle JEI Integration"
+  "config.jade.plugin_realfilingreborn.fluid_cabinet_info": "Fluid Cabinet Information"
 }
