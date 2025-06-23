@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "N": {
+      "item": "minecraft:netherite_ingot"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "X": {
+      "item": "realfilingreborn:index_range_upgrade_diamond"
+    }
+  },
+  "pattern": [
+    "NRN",
+    "RXR",
+    "NRN"
+  ],
+  "result": {
+    "count": 1,
+    "id": "realfilingreborn:index_range_upgrade_netherite"
+  }
+}

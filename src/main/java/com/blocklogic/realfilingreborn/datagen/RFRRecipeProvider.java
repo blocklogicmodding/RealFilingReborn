@@ -108,5 +108,36 @@ public class RFRRecipeProvider extends RecipeProvider implements IConditionBuild
                 .define('X', Items.REDSTONE)
                 .unlockedBy("has_cabinet", has(RFRTags.Items.CABINET_AS_ITEM))
                 .save(recipeOutput);
+
+        // Range Upgrades
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.IRON_RANGE_UPGRADE.get())
+                .pattern("IRI")
+                .pattern("RXR")
+                .pattern("IRI")
+                .define('R', Items.REDSTONE)
+                .define('X', Items.REPEATER)
+                .define('I', Items.IRON_BLOCK)
+                .unlockedBy("has_redstone", has(Items.REDSTONE))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.DIAMOND_RANGE_UPGRADE.get())
+                .pattern("DRD")
+                .pattern("RXR")
+                .pattern("DRD")
+                .define('R', Items.REDSTONE)
+                .define('X', ModItems.IRON_RANGE_UPGRADE.get())
+                .define('D', Items.DIAMOND)
+                .unlockedBy("has_iron_range_upgrade", has(ModItems.IRON_RANGE_UPGRADE.get()))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.NETHERITE_RANGE_UPGRADE.get())
+                .pattern("NRN")
+                .pattern("RXR")
+                .pattern("NRN")
+                .define('R', Items.REDSTONE)
+                .define('X', ModItems.DIAMOND_RANGE_UPGRADE.get())
+                .define('N', Items.NETHERITE_INGOT)
+                .unlockedBy("has_iron_diamond_upgrade", has(ModItems.DIAMOND_RANGE_UPGRADE.get()))
+                .save(recipeOutput);
     }
 }
