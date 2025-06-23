@@ -1,6 +1,7 @@
 package com.blocklogic.realfilingreborn.screen.custom;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
+import com.blocklogic.realfilingreborn.util.FormattingCache;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -9,6 +10,8 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 
 public class FilingIndexScreen extends AbstractContainerScreen<FilingIndexMenu> {
     private static final ResourceLocation GUI_TEXTURE =
@@ -78,6 +81,66 @@ public class FilingIndexScreen extends AbstractContainerScreen<FilingIndexMenu> 
         renderScrollbar(guiGraphics, x, y);
     }
 
+    @Override
+    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        // Render title
+        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
+
+        // Don't render inventory label (inventoryLabelY is set to -1000)
+    }
+
+    @Override
+    protected void renderSlot(GuiGraphics guiGraphics, Slot slot) {
+        int storageStartSlot = 36; // After player inventory
+        int storageEndSlot = storageStartSlot + 96; // 96 storage slots
+        int slotIndex = this.menu.slots.indexOf(slot);
+
+        if (slotIndex >= storageStartSlot && slotIndex < Math.min(storageEndSlot, this.menu.slots.size())) {
+            // Custom rendering for storage slots
+            ItemStack stack = slot.getItem();
+            if (!stack.isEmpty()) {
+                // Render just the item icon with NO decorations at all
+                guiGraphics.renderItem(stack, slot.x, slot.y);
+
+                // Only render our custom count if > 1
+                if (stack.getCount() > 1) {
+                    String countText = FormattingCache.getFormattedItemCount(stack.getCount());
+
+                    // Calculate text width for proper positioning
+                    guiGraphics.pose().pushPose();
+                    guiGraphics.pose().scale(0.6f, 0.6f, 1.0f);
+                    int scaledWidth = (int)(this.font.width(countText) * 0.6f);
+                    guiGraphics.pose().popPose();
+
+                    // Position text at bottom-right of slot
+                    int textX = slot.x + 16 - scaledWidth;
+                    int textY = slot.y + 12;
+
+                    // Render with smaller scale
+                    guiGraphics.pose().pushPose();
+                    guiGraphics.pose().translate(textX, textY, 200);
+                    guiGraphics.pose().scale(0.6f, 0.6f, 1.0f);
+
+                    // Black outline for visibility
+                    guiGraphics.drawString(this.font, countText, 1, 1, 0x000000, false);
+                    guiGraphics.drawString(this.font, countText, -1, 1, 0x000000, false);
+                    guiGraphics.drawString(this.font, countText, 1, -1, 0x000000, false);
+                    guiGraphics.drawString(this.font, countText, -1, -1, 0x000000, false);
+
+                    // White text on top
+                    guiGraphics.drawString(this.font, countText, 0, 0, 0xFFFFFF, false);
+
+                    guiGraphics.pose().popPose();
+                }
+            }
+        } else {
+            // Normal rendering for player inventory slots
+            super.renderSlot(guiGraphics, slot);
+        }
+    }
+
+
+
     private void renderButton(GuiGraphics guiGraphics, int guiX, int guiY, int buttonX, int buttonY,
                               int normalU, int normalV, int hoverU, int hoverV, int mouseX, int mouseY) {
         boolean isHovered = mouseX >= guiX + buttonX && mouseX < guiX + buttonX + BUTTON_SIZE &&
@@ -134,14 +197,6 @@ public class FilingIndexScreen extends AbstractContainerScreen<FilingIndexMenu> 
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
-    }
-
-    @Override
-    protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
-        // Render title
-        guiGraphics.drawString(this.font, this.title, this.titleLabelX, this.titleLabelY, 4210752, false);
-
-        // Don't render inventory label (inventoryLabelY is set to -1000)
     }
 
     private void onSearchChanged(String newText) {
