@@ -26,7 +26,7 @@ public class ModItems {
             () -> new CabinetConversionItem(new Item.Properties()));
 
     public static final DeferredItem<Item> LEDGER = ITEMS.register("ledger",
-            () -> new CabinetConversionItem(new Item.Properties()));
+            () -> new Item(new Item.Properties()));
 
     public static void register (IEventBus eventBus) {
         ITEMS.register(eventBus);
