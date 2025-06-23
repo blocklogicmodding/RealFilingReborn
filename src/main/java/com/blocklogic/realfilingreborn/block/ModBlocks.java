@@ -33,7 +33,7 @@ public class ModBlocks {
             ));
 
     public static final DeferredBlock<Block> FILING_INDEX = registerBlock("filing_index",
-            () -> new FluidCabinetBlock(BlockBehaviour.Properties.of()
+            () -> new Block(BlockBehaviour.Properties.of()
                     .strength(3.0F)
                     .requiresCorrectToolForDrops()
                     .sound(SoundType.STONE)
