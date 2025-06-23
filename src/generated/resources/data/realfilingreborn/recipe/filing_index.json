@@ -1,0 +1,30 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "minecraft:comparator"
+    },
+    "F": {
+      "tag": "realfilingreborn:cabinets"
+    },
+    "Q": {
+      "item": "minecraft:quartz"
+    },
+    "R": {
+      "item": "minecraft:redstone"
+    },
+    "X": {
+      "item": "minecraft:repeater"
+    }
+  },
+  "pattern": [
+    "RQR",
+    "CFX",
+    "RQR"
+  ],
+  "result": {
+    "count": 1,
+    "id": "realfilingreborn:filing_index"
+  }
+}

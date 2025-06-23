@@ -2,6 +2,7 @@ package com.blocklogic.realfilingreborn.datagen;
 
 import com.blocklogic.realfilingreborn.block.ModBlocks;
 import com.blocklogic.realfilingreborn.item.ModItems;
+import com.blocklogic.realfilingreborn.util.RFRTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -10,6 +11,7 @@ import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.common.conditions.IConditionBuilder;
 
@@ -93,6 +95,29 @@ public class RFRRecipeProvider extends RecipeProvider implements IConditionBuild
                 .define('F', ModItems.FLUID_CANISTER.get())
                 .define('I', Items.IRON_BLOCK)
                 .unlockedBy("has_fluid_canister", has(ModItems.FLUID_CANISTER.get()))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FILING_INDEX.get())
+                .pattern("RQR")
+                .pattern("CFX")
+                .pattern("RQR")
+                .define('Q', Items.QUARTZ)
+                .define('F', RFRTags.Items.CABINETS)
+                .define('R', Items.REDSTONE)
+                .define('C', Items.COMPARATOR)
+                .define('X', Items.REPEATER)
+                .unlockedBy("has_cabinet", has(RFRTags.Items.CABINETS))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.INDEX_CABLE_CORE.get())
+                .pattern("IGI")
+                .pattern("CRC")
+                .pattern("IGI")
+                .define('I', Items.IRON_INGOT)
+                .define('G', Tags.Items.GLASS_BLOCKS)
+                .define('R', Items.REDSTONE)
+                .define('C', Items.COPPER_INGOT)
+                .unlockedBy("has_redstone", has(Items.REDSTONE))
                 .save(recipeOutput);
     }
 }

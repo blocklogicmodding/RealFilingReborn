@@ -1,6 +1,7 @@
 package com.blocklogic.realfilingreborn.datagen;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
+import com.blocklogic.realfilingreborn.block.ModBlocks;
 import com.blocklogic.realfilingreborn.item.ModItems;
 import com.blocklogic.realfilingreborn.util.RFRTags;
 import net.minecraft.core.HolderLookup;
@@ -27,5 +28,9 @@ public class RFRItemTagProvider extends ItemTagsProvider {
         tag(RFRTags.Items.ARCHIVE_TOOLS)
                 .add(ModItems.ERASER.get())
                 .add(ModItems.CABINET_CONVERSION_KIT.get());
+
+        tag(RFRTags.Items.CABINETS)
+                .add(ModBlocks.FILING_CABINET.asItem())
+                .add(ModBlocks.FLUID_CABINET.asItem());
     }
 }

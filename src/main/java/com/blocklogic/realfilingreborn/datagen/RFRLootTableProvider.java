@@ -18,6 +18,8 @@ public class RFRLootTableProvider extends BlockLootSubProvider {
     protected void generate() {
         dropSelf(ModBlocks.FILING_CABINET.get());
         dropSelf(ModBlocks.FLUID_CABINET.get());
+        dropSelf(ModBlocks.FILING_INDEX.get());
+        dropSelf(ModBlocks.INDEX_CABLE_CORE.get());
     }
 
     @Override

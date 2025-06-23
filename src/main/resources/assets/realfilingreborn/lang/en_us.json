@@ -12,6 +12,8 @@
   "_comment2": "=== BLOCKS ===",
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
   "block.realfilingreborn.fluid_cabinet": "Fluid Cabinet",
+  "block.realfilingreborn.filing_index": "Filing Index",
+  "block.realfilingreborn.index_cable_core": "Index Cable",
 
   "_comment3": "=== BLOCK ENTITIES ===",
   "blockentity.realfilingreborn.name": "Filing Cabinet",

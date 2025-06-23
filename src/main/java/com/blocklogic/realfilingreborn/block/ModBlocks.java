@@ -1,7 +1,9 @@
 package com.blocklogic.realfilingreborn.block;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
+import com.blocklogic.realfilingreborn.block.custom.IndexCableCoreBlock;
 import com.blocklogic.realfilingreborn.block.custom.FilingCabinetBlock;
+import com.blocklogic.realfilingreborn.block.custom.FilingIndexBlock;
 import com.blocklogic.realfilingreborn.block.custom.FluidCabinetBlock;
 import com.blocklogic.realfilingreborn.item.ModItems;
 import net.minecraft.world.item.BlockItem;
@@ -30,6 +32,21 @@ public class ModBlocks {
                     .strength(3.0F)
                     .requiresCorrectToolForDrops()
                     .sound(SoundType.STONE)
+            ));
+
+    public static final DeferredBlock<Block> FILING_INDEX = registerBlock("filing_index",
+            () -> new FilingIndexBlock(BlockBehaviour.Properties.of()
+                    .strength(3.0F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.STONE)
+            ));
+
+    public static final DeferredBlock<Block> INDEX_CABLE_CORE = registerBlock("index_cable_core",
+            () -> new IndexCableCoreBlock(BlockBehaviour.Properties.of()
+                    .strength(2.0F)
+                    .requiresCorrectToolForDrops()
+                    .sound(SoundType.STONE)
+                    .noOcclusion()
             ));
 
     private static <T extends Block>DeferredBlock<T> registerBlock(String name, Supplier<T> block) {
