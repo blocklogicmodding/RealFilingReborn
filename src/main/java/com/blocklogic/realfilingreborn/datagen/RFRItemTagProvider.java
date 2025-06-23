@@ -28,9 +28,5 @@ public class RFRItemTagProvider extends ItemTagsProvider {
         tag(RFRTags.Items.ARCHIVE_TOOLS)
                 .add(ModItems.ERASER.get())
                 .add(ModItems.CABINET_CONVERSION_KIT.get());
-
-        tag(RFRTags.Items.CABINETS)
-                .add(ModBlocks.FILING_CABINET.asItem())
-                .add(ModBlocks.FLUID_CABINET.asItem());
     }
 }

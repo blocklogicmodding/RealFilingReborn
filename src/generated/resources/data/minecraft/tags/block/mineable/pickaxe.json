@@ -1,8 +1,6 @@
 {
   "values": [
     "realfilingreborn:filing_cabinet",
-    "realfilingreborn:fluid_cabinet",
-    "realfilingreborn:filing_index",
-    "realfilingreborn:index_cable_core"
+    "realfilingreborn:fluid_cabinet"
   ]
 }

@@ -18,9 +18,6 @@ public class ModBlockEntities {
     public static final Supplier<BlockEntityType<FluidCabinetBlockEntity>> FLUID_CABINET_BE = BLOCK_ENTITIES.register("fluid_cabinet_be", () -> BlockEntityType.Builder.of(
             FluidCabinetBlockEntity::new, ModBlocks.FLUID_CABINET.get()).build(null));
 
-    public static final Supplier<BlockEntityType<FilingIndexBlockEntity>> FILING_INDEX_BE = BLOCK_ENTITIES.register("filing_index_be", () -> BlockEntityType.Builder.of(
-            FilingIndexBlockEntity::new, ModBlocks.FILING_INDEX.get()).build(null));
-
     public static void register (IEventBus eventBus) {
         BLOCK_ENTITIES.register(eventBus);
     }

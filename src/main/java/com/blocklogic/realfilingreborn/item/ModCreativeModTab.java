@@ -20,15 +20,12 @@ public class ModCreativeModTab {
                     .displayItems((ItemDisplayParameters, output) -> {
                         output.accept(ModBlocks.FILING_CABINET);
                         output.accept(ModBlocks.FLUID_CABINET);
-                        output.accept(ModBlocks.FILING_INDEX);
 
                         output.accept(ModItems.FILING_FOLDER);
                         output.accept(ModItems.NBT_FILING_FOLDER);
                         output.accept(ModItems.ERASER);
                         output.accept(ModItems.FLUID_CANISTER);
                         output.accept(ModItems.CABINET_CONVERSION_KIT);
-
-                        output.accept(ModBlocks.INDEX_CABLE_CORE);
                     }).build());
 
     public static void register (IEventBus eventBus) {
