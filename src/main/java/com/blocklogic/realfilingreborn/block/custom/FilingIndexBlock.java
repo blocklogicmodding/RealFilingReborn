@@ -20,6 +20,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -29,8 +31,19 @@ public class FilingIndexBlock extends BaseEntityBlock {
     public static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 16, 16);
     public static final MapCodec<FilingCabinetBlock> CODEC = simpleCodec(FilingCabinetBlock::new);
 
+    // ADDED: Connected state property
+    public static final BooleanProperty CONNECTED = BooleanProperty.create("connected");
+
     public FilingIndexBlock(Properties properties) {
         super(properties);
+        // ADDED: Default to not connected
+        this.registerDefaultState(this.stateDefinition.any().setValue(CONNECTED, false));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        // ADDED: Register the connected property
+        builder.add(CONNECTED);
     }
 
     @Override
@@ -52,6 +65,24 @@ public class FilingIndexBlock extends BaseEntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new FilingIndexBlockEntity(blockPos, blockState);
+    }
+
+    // ADDED: Method to update connected state
+    public static void updateConnectedState(Level level, BlockPos pos) {
+        if (level.isClientSide()) return;
+
+        BlockState currentState = level.getBlockState(pos);
+        if (!(currentState.getBlock() instanceof FilingIndexBlock)) return;
+
+        if (level.getBlockEntity(pos) instanceof FilingIndexBlockEntity indexEntity) {
+            boolean hasConnections = indexEntity.getLinkedCabinetCount() > 0;
+            boolean currentlyConnected = currentState.getValue(CONNECTED);
+
+            if (hasConnections != currentlyConnected) {
+                BlockState newState = currentState.setValue(CONNECTED, hasConnections);
+                level.setBlock(pos, newState, Block.UPDATE_ALL);
+            }
+        }
     }
 
     @Override

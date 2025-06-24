@@ -1,5 +1,6 @@
 package com.blocklogic.realfilingreborn.block.entity;
 
+import com.blocklogic.realfilingreborn.block.custom.FilingIndexBlock;
 import com.blocklogic.realfilingreborn.capability.FilingIndexFluidHandler;
 import com.blocklogic.realfilingreborn.capability.FilingIndexItemHandler;
 import com.blocklogic.realfilingreborn.item.custom.DiamondRangeUpgrade;
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -89,6 +91,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
 
         if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+            updateConnectedState();
         }
     }
 
@@ -98,6 +101,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
 
         if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+            updateConnectedState();
         }
     }
 
@@ -107,6 +111,23 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
 
     public int getLinkedCabinetCount() {
         return linkedCabinets.size();
+    }
+
+    public boolean removeCabinetAt(BlockPos cabinetPos) {
+        if (linkedCabinets.remove(cabinetPos)) {
+            if (level != null && !level.isClientSide()) {
+                if (level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
+                    cabinet.clearControllerPos();
+                } else if (level.getBlockEntity(cabinetPos) instanceof FluidCabinetBlockEntity fluidCabinet) {
+                    fluidCabinet.clearControllerPos();
+                }
+                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+                updateConnectedState(); // FIXED: Update connected state here too
+            }
+            setChanged();
+            return true;
+        }
+        return false;
     }
 
     public void clearAllLinkedCabinets() {
@@ -121,6 +142,11 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         }
         linkedCabinets.clear();
         setChanged();
+
+        // FIXED: Update connected state when clearing all cabinets
+        if (level != null && !level.isClientSide()) {
+            updateConnectedState();
+        }
     }
 
     public int getRange() {
@@ -140,20 +166,19 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         return 8; // Fallback
     }
 
-    public boolean removeCabinetAt(BlockPos cabinetPos) {
-        if (linkedCabinets.remove(cabinetPos)) {
-            if (level != null && !level.isClientSide()) {
-                if (level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet) {
-                    cabinet.clearControllerPos();
-                } else if (level.getBlockEntity(cabinetPos) instanceof FluidCabinetBlockEntity fluidCabinet) {
-                    fluidCabinet.clearControllerPos();
-                }
-                level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
-            }
-            setChanged();
-            return true;
+    public void updateConnectedState() {
+        if (level == null || level.isClientSide()) return;
+
+        BlockState currentState = getBlockState();
+        if (!(currentState.getBlock() instanceof FilingIndexBlock)) return;
+
+        boolean hasConnections = linkedCabinets.size() > 0;
+        boolean currentlyConnected = currentState.getValue(FilingIndexBlock.CONNECTED);
+
+        if (hasConnections != currentlyConnected) {
+            BlockState newState = currentState.setValue(FilingIndexBlock.CONNECTED, hasConnections);
+            level.setBlock(getBlockPos(), newState, Block.UPDATE_ALL);
         }
-        return false;
     }
 
     @Override

@@ -5,7 +5,7 @@
     "south": "realfilingreborn:block/filing_index_front_off",
     "east": "realfilingreborn:block/filing_index_front_off",
     "west": "realfilingreborn:block/filing_index_front_off",
-    "up": "realfilingreborn:block/filing_cabinet_top",
+    "up": "realfilingreborn:block/filing_index_front_off",
     "down": "realfilingreborn:block/filing_cabinet_bottom",
     "particle": "realfilingreborn:block/filing_index_front_off"
   }

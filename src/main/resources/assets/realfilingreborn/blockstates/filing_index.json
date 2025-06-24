@@ -1,7 +1,10 @@
 {
   "variants": {
-    "": {
+    "connected=false": {
       "model": "realfilingreborn:block/filing_index"
+    },
+    "connected=true": {
+      "model": "realfilingreborn:block/filing_index_connected"
     }
   }
 }

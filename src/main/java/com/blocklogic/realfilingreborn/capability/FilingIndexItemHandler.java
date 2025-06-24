@@ -10,6 +10,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 
@@ -25,16 +26,20 @@ public class FilingIndexItemHandler implements IItemHandler {
         this.level = indexEntity.getLevel();
     }
 
+    private void notifyUpdate(BlockPos cabinetPos) {
+        if (level != null && !level.isClientSide()) {
+            level.sendBlockUpdated(cabinetPos, level.getBlockState(cabinetPos), level.getBlockState(cabinetPos), Block.UPDATE_CLIENTS);
+        }
+    }
+
     private List<VirtualSlotInfo> getAllVirtualSlots() {
         List<VirtualSlotInfo> virtualSlots = new ArrayList<>();
 
         for (BlockPos cabinetPos : indexEntity.getLinkedCabinets()) {
-            // Check if cabinet is within range
             if (!isInRange(cabinetPos)) {
                 continue;
             }
 
-            // Handle Filing Cabinets
             if (level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet && cabinet.isLinkedToController()) {
                 for (int slot = 0; slot < 5; slot++) {
                     ItemStack folderStack = cabinet.inventory.getStackInSlot(slot);
@@ -50,7 +55,6 @@ public class FilingIndexItemHandler implements IItemHandler {
                     else if (folderStack.getItem() instanceof NBTFilingFolderItem) {
                         NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
                         if (contents != null && contents.storedItemId().isPresent() && !contents.storedItems().isEmpty()) {
-                            // Create virtual slots for each unique NBT item
                             for (int i = 0; i < contents.storedItems().size(); i++) {
                                 NBTFilingFolderItem.SerializedItemStack serializedItem = contents.storedItems().get(i);
                                 virtualSlots.add(new VirtualSlotInfo(cabinetPos, slot, VirtualSlotType.NBT_FOLDER, serializedItem.stack().copy(), i));
@@ -59,7 +63,6 @@ public class FilingIndexItemHandler implements IItemHandler {
                     }
                 }
             }
-            // Handle Fluid Cabinets - REMOVED, fluids handled by separate FluidHandler capability
         }
 
         return virtualSlots;
@@ -72,40 +75,86 @@ public class FilingIndexItemHandler implements IItemHandler {
 
     @Override
     public int getSlots() {
-        return getAllVirtualSlots().size();
+        // FIXED: Return consistent slot count for pipe compatibility
+        int totalSlots = 0;
+        for (BlockPos cabinetPos : indexEntity.getLinkedCabinets()) {
+            if (isInRange(cabinetPos)) {
+                if (level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet && cabinet.isLinkedToController()) {
+                    totalSlots += 5; // 5 slots per cabinet
+                }
+            }
+        }
+        return Math.max(totalSlots, 1); // Always at least 1 slot
     }
 
     @Override
     @NotNull
     public ItemStack getStackInSlot(int slot) {
-        List<VirtualSlotInfo> virtualSlots = getAllVirtualSlots();
-        if (slot < 0 || slot >= virtualSlots.size()) {
-            return ItemStack.EMPTY;
-        }
+        // FIXED: Map slots directly to cabinets
+        int currentSlot = 0;
+        for (BlockPos cabinetPos : indexEntity.getLinkedCabinets()) {
+            if (!isInRange(cabinetPos)) continue;
 
-        VirtualSlotInfo slotInfo = virtualSlots.get(slot);
-        return slotInfo.virtualStack.copy();
+            if (level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet && cabinet.isLinkedToController()) {
+                if (slot >= currentSlot && slot < currentSlot + 5) {
+                    int cabinetSlot = slot - currentSlot;
+                    ItemStack folderStack = cabinet.inventory.getStackInSlot(cabinetSlot);
+
+                    // Return the stored items as virtual stack
+                    if (folderStack.getItem() instanceof FilingFolderItem && !(folderStack.getItem() instanceof NBTFilingFolderItem)) {
+                        FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
+                        if (contents != null && contents.storedItemId().isPresent() && contents.count() > 0) {
+                            Item item = BuiltInRegistries.ITEM.get(contents.storedItemId().get());
+                            return new ItemStack(item, Math.min(contents.count(), item.getDefaultMaxStackSize()));
+                        }
+                    } else if (folderStack.getItem() instanceof NBTFilingFolderItem) {
+                        NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
+                        if (contents != null && !contents.storedItems().isEmpty()) {
+                            return contents.storedItems().get(0).stack().copy();
+                        }
+                    }
+                    return ItemStack.EMPTY;
+                }
+                currentSlot += 5;
+            }
+        }
+        return ItemStack.EMPTY;
     }
 
     @Override
     @NotNull
     public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-        List<VirtualSlotInfo> virtualSlots = getAllVirtualSlots();
-        if (slot < 0 || slot >= virtualSlots.size() || stack.isEmpty()) {
-            return stack;
+        if (stack.isEmpty()) return stack;
+
+        // FIXED: Map slot to specific cabinet and handle insertion directly
+        int currentSlot = 0;
+        for (BlockPos cabinetPos : indexEntity.getLinkedCabinets()) {
+            if (!isInRange(cabinetPos)) continue;
+
+            if (level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet && cabinet.isLinkedToController()) {
+                if (slot >= currentSlot && slot < currentSlot + 5) {
+                    int cabinetSlot = slot - currentSlot;
+                    return insertItemIntoCabinet(cabinet, cabinetSlot, stack, simulate, cabinetPos);
+                }
+                currentSlot += 5;
+            }
         }
 
-        VirtualSlotInfo slotInfo = virtualSlots.get(slot);
+        // If specific slot fails, try any compatible folder
+        boolean hasNBT = NBTFilingFolderItem.hasSignificantNBT(stack);
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
 
-        // Only allow insertion if the item types match
-        if (!ItemStack.isSameItem(stack, slotInfo.virtualStack)) {
-            return stack;
-        }
+        for (BlockPos cabinetPos : indexEntity.getLinkedCabinets()) {
+            if (!isInRange(cabinetPos)) continue;
 
-        if (slotInfo.type == VirtualSlotType.FILING_FOLDER) {
-            return handleFilingFolderInsertion(slotInfo, stack, simulate);
-        } else if (slotInfo.type == VirtualSlotType.NBT_FOLDER) {
-            return handleNBTFolderInsertion(slotInfo, stack, simulate);
+            if (level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet && cabinet.isLinkedToController()) {
+                for (int i = 0; i < 5; i++) {
+                    ItemStack result = tryInsertIntoFolder(cabinet, i, stack, itemId, hasNBT, simulate, cabinetPos);
+                    if (result.getCount() < stack.getCount()) {
+                        return result;
+                    }
+                }
+            }
         }
 
         return stack;
@@ -114,17 +163,132 @@ public class FilingIndexItemHandler implements IItemHandler {
     @Override
     @NotNull
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
-        List<VirtualSlotInfo> virtualSlots = getAllVirtualSlots();
-        if (slot < 0 || slot >= virtualSlots.size() || amount <= 0) {
-            return ItemStack.EMPTY;
+        if (amount <= 0) return ItemStack.EMPTY;
+
+        // FIXED: Map slot directly to cabinet
+        int currentSlot = 0;
+        for (BlockPos cabinetPos : indexEntity.getLinkedCabinets()) {
+            if (!isInRange(cabinetPos)) continue;
+
+            if (level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet && cabinet.isLinkedToController()) {
+                if (slot >= currentSlot && slot < currentSlot + 5) {
+                    int cabinetSlot = slot - currentSlot;
+                    return extractFromCabinet(cabinet, cabinetSlot, amount, simulate, cabinetPos);
+                }
+                currentSlot += 5;
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    private ItemStack insertItemIntoCabinet(FilingCabinetBlockEntity cabinet, int cabinetSlot, ItemStack stack, boolean simulate, BlockPos cabinetPos) {
+        ItemStack folderStack = cabinet.inventory.getStackInSlot(cabinetSlot);
+        if (folderStack.isEmpty()) return stack;
+
+        boolean hasNBT = NBTFilingFolderItem.hasSignificantNBT(stack);
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+
+        return tryInsertIntoFolder(cabinet, cabinetSlot, stack, itemId, hasNBT, simulate, cabinetPos);
+    }
+
+    private ItemStack tryInsertIntoFolder(FilingCabinetBlockEntity cabinet, int cabinetSlot, ItemStack stack, ResourceLocation itemId, boolean hasNBT, boolean simulate, BlockPos cabinetPos) {
+        ItemStack folderStack = cabinet.inventory.getStackInSlot(cabinetSlot);
+        if (folderStack.isEmpty()) return stack;
+
+        if (folderStack.getItem() instanceof FilingFolderItem && !(folderStack.getItem() instanceof NBTFilingFolderItem)) {
+            if (hasNBT) return stack;
+
+            FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
+            if (contents == null) return stack;
+
+            if (contents.storedItemId().isPresent() && contents.storedItemId().get().equals(itemId)) {
+                long newTotal = (long)contents.count() + stack.getCount();
+                int maxAdd = newTotal > Integer.MAX_VALUE ? Integer.MAX_VALUE - contents.count() : stack.getCount();
+
+                if (maxAdd > 0 && !simulate) {
+                    FilingFolderItem.FolderContents newContents = new FilingFolderItem.FolderContents(
+                            contents.storedItemId(), contents.count() + maxAdd);
+                    folderStack.set(FilingFolderItem.FOLDER_CONTENTS.value(), newContents);
+                    cabinet.setChanged();
+                    notifyUpdate(cabinetPos);
+                }
+
+                ItemStack remaining = stack.copy();
+                remaining.shrink(maxAdd);
+                return remaining;
+            }
+        } else if (folderStack.getItem() instanceof NBTFilingFolderItem) {
+            if (!hasNBT) return stack;
+
+            NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
+            if (contents == null) return stack;
+
+            if (contents.storedItemId().isPresent() && contents.storedItemId().get().equals(itemId)) {
+                int space = NBTFilingFolderItem.MAX_NBT_ITEMS - contents.storedItems().size();
+                int canAdd = Math.min(1, space); // NBT folders take 1 at a time
+
+                if (canAdd > 0 && !simulate) {
+                    List<NBTFilingFolderItem.SerializedItemStack> newItems = new ArrayList<>(contents.storedItems());
+                    ItemStack single = stack.copy();
+                    single.setCount(1);
+                    newItems.add(new NBTFilingFolderItem.SerializedItemStack(single));
+
+                    NBTFilingFolderItem.NBTFolderContents newContents = new NBTFilingFolderItem.NBTFolderContents(
+                            contents.storedItemId(), newItems);
+                    folderStack.set(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value(), newContents);
+                    cabinet.setChanged();
+                    notifyUpdate(cabinetPos);
+                }
+
+                ItemStack remaining = stack.copy();
+                remaining.shrink(canAdd);
+                return remaining;
+            }
         }
 
-        VirtualSlotInfo slotInfo = virtualSlots.get(slot);
+        return stack;
+    }
 
-        if (slotInfo.type == VirtualSlotType.FILING_FOLDER) {
-            return handleFilingFolderExtraction(slotInfo, amount, simulate);
-        } else if (slotInfo.type == VirtualSlotType.NBT_FOLDER) {
-            return handleNBTFolderExtraction(slotInfo, amount, simulate);
+    private ItemStack extractFromCabinet(FilingCabinetBlockEntity cabinet, int cabinetSlot, int amount, boolean simulate, BlockPos cabinetPos) {
+        ItemStack folderStack = cabinet.inventory.getStackInSlot(cabinetSlot);
+        if (folderStack.isEmpty()) return ItemStack.EMPTY;
+
+        if (folderStack.getItem() instanceof FilingFolderItem && !(folderStack.getItem() instanceof NBTFilingFolderItem)) {
+            FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
+            if (contents != null && contents.storedItemId().isPresent() && contents.count() > 0) {
+                Item item = BuiltInRegistries.ITEM.get(contents.storedItemId().get());
+                int extractAmount = Math.min(amount, Math.min(contents.count(), item.getDefaultMaxStackSize()));
+
+                if (extractAmount > 0 && !simulate) {
+                    FilingFolderItem.FolderContents newContents = new FilingFolderItem.FolderContents(
+                            contents.storedItemId(), contents.count() - extractAmount);
+                    folderStack.set(FilingFolderItem.FOLDER_CONTENTS.value(), newContents);
+                    cabinet.setChanged();
+                    notifyUpdate(cabinetPos);
+                }
+
+                return new ItemStack(item, extractAmount);
+            }
+        } else if (folderStack.getItem() instanceof NBTFilingFolderItem) {
+            NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
+            if (contents != null && !contents.storedItems().isEmpty()) {
+                int extractAmount = Math.min(amount, 1); // NBT items extract 1 at a time
+
+                if (extractAmount > 0 && !simulate) {
+                    List<NBTFilingFolderItem.SerializedItemStack> newItems = new ArrayList<>(contents.storedItems());
+                    newItems.remove(newItems.size() - 1);
+
+                    NBTFilingFolderItem.NBTFolderContents newContents = new NBTFilingFolderItem.NBTFolderContents(
+                            contents.storedItemId(), newItems);
+                    folderStack.set(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value(), newContents);
+                    cabinet.setChanged();
+                    notifyUpdate(cabinetPos);
+                }
+
+                ItemStack result = contents.storedItems().get(contents.storedItems().size() - 1).stack().copy();
+                result.setCount(extractAmount);
+                return result;
+            }
         }
 
         return ItemStack.EMPTY;
@@ -136,18 +300,20 @@ public class FilingIndexItemHandler implements IItemHandler {
             if (folderStack.getItem() instanceof FilingFolderItem) {
                 FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
                 if (contents != null && contents.storedItemId().isPresent()) {
-                    int maxToAdd = Integer.MAX_VALUE - contents.count();
-                    int toAdd = Math.min(stack.getCount(), maxToAdd);
+                    long newCount = (long)contents.count() + stack.getCount();
+                    int maxToAdd = newCount > Integer.MAX_VALUE ?
+                            Integer.MAX_VALUE - contents.count() : stack.getCount();
 
-                    if (toAdd > 0 && !simulate) {
+                    if (maxToAdd > 0 && !simulate) {
                         FilingFolderItem.FolderContents newContents = new FilingFolderItem.FolderContents(
-                                contents.storedItemId(), contents.count() + toAdd);
+                                contents.storedItemId(), contents.count() + maxToAdd);
                         folderStack.set(FilingFolderItem.FOLDER_CONTENTS.value(), newContents);
                         cabinet.setChanged();
+                        notifyUpdate(slotInfo.cabinetPos);
                     }
 
                     ItemStack remaining = stack.copy();
-                    remaining.shrink(toAdd);
+                    remaining.shrink(maxToAdd);
                     return remaining;
                 }
             }
@@ -172,6 +338,7 @@ public class FilingIndexItemHandler implements IItemHandler {
                                 contents.storedItemId(), contents.count() - extractAmount);
                         folderStack.set(FilingFolderItem.FOLDER_CONTENTS.value(), newContents);
                         cabinet.setChanged();
+                        notifyUpdate(slotInfo.cabinetPos);
                     }
 
                     return new ItemStack(item, extractAmount);
@@ -197,6 +364,7 @@ public class FilingIndexItemHandler implements IItemHandler {
                                 contents.storedItemId(), newItems);
                         folderStack.set(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value(), newContents);
                         cabinet.setChanged();
+                        notifyUpdate(slotInfo.cabinetPos);
                     }
 
                     ItemStack remaining = stack.copy();
@@ -224,6 +392,7 @@ public class FilingIndexItemHandler implements IItemHandler {
                                 contents.storedItemId(), newItems);
                         folderStack.set(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value(), newContents);
                         cabinet.setChanged();
+                        notifyUpdate(slotInfo.cabinetPos);
                     }
 
                     return serializedItem.stack().copy();
@@ -235,28 +404,12 @@ public class FilingIndexItemHandler implements IItemHandler {
 
     @Override
     public int getSlotLimit(int slot) {
-        List<VirtualSlotInfo> virtualSlots = getAllVirtualSlots();
-        if (slot < 0 || slot >= virtualSlots.size()) {
-            return 0;
-        }
-
-        VirtualSlotInfo slotInfo = virtualSlots.get(slot);
-        if (slotInfo.type == VirtualSlotType.NBT_FOLDER) {
-            return 1; // NBT items are stored individually
-        }
-
-        return slotInfo.virtualStack.getMaxStackSize();
+        return 64; // FIXED: Standard stack size for pipe compatibility
     }
 
     @Override
     public boolean isItemValid(int slot, ItemStack stack) {
-        List<VirtualSlotInfo> virtualSlots = getAllVirtualSlots();
-        if (slot < 0 || slot >= virtualSlots.size()) {
-            return false;
-        }
-
-        VirtualSlotInfo slotInfo = virtualSlots.get(slot);
-        return ItemStack.isSameItem(stack, slotInfo.virtualStack);
+        return true; // FIXED: Accept all items for pipe compatibility
     }
 
     private static class VirtualSlotInfo {
@@ -264,7 +417,7 @@ public class FilingIndexItemHandler implements IItemHandler {
         final int slotIndex;
         final VirtualSlotType type;
         final ItemStack virtualStack;
-        final int nbtIndex; // For NBT folders to track which specific item
+        final int nbtIndex;
 
         public VirtualSlotInfo(BlockPos cabinetPos, int slotIndex, VirtualSlotType type, ItemStack virtualStack) {
             this(cabinetPos, slotIndex, type, virtualStack, -1);
