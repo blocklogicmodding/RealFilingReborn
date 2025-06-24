@@ -7,6 +7,7 @@ import com.blocklogic.realfilingreborn.util.FluidHelper;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,6 +18,7 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -167,7 +169,7 @@ public class FluidCabinetBlock extends BaseEntityBlock {
                                 canisterStack.set(FluidCanisterItem.CANISTER_CONTENTS.value(), newContents);
 
                                 heldItem.shrink(1);
-                                ItemStack emptyBucket = new ItemStack(net.minecraft.world.item.Items.BUCKET);
+                                ItemStack emptyBucket = new ItemStack(Items.BUCKET);
                                 if (!player.getInventory().add(emptyBucket)) {
                                     player.drop(emptyBucket, false);
                                 }
@@ -188,7 +190,7 @@ public class FluidCabinetBlock extends BaseEntityBlock {
                                     canisterStack.set(FluidCanisterItem.CANISTER_CONTENTS.value(), newContents);
 
                                     heldItem.shrink(1);
-                                    ItemStack emptyBucket = new ItemStack(net.minecraft.world.item.Items.BUCKET);
+                                    ItemStack emptyBucket = new ItemStack(Items.BUCKET);
                                     if (!player.getInventory().add(emptyBucket)) {
                                         player.drop(emptyBucket, false);
                                     }
@@ -308,9 +310,9 @@ public class FluidCabinetBlock extends BaseEntityBlock {
         }
 
         try {
-            Fluid fluid = net.minecraft.core.registries.BuiltInRegistries.FLUID.get(fluidId);
+            Fluid fluid = BuiltInRegistries.FLUID.get(fluidId);
             if (fluid != null && fluid != Fluids.EMPTY) {
-                for (net.minecraft.world.item.Item item : net.minecraft.core.registries.BuiltInRegistries.ITEM) {
+                for (Item item : BuiltInRegistries.ITEM) {
                     if (item instanceof BucketItem bucketItem && bucketItem.content == fluid) {
                         return new ItemStack(item);
                     }
