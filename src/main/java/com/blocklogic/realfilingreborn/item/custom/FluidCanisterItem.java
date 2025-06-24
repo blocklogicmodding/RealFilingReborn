@@ -102,35 +102,7 @@ public class FluidCanisterItem extends Item {
         ItemStack bucketStack = player.getItemInHand(InteractionHand.OFF_HAND);
 
         if (bucketStack.isEmpty() || !(bucketStack.getItem() instanceof BucketItem)) {
-            CanisterContents contents = canisterStack.get(CANISTER_CONTENTS.value());
-            if (contents == null) {
-                contents = new CanisterContents(Optional.empty(), 0);
-                canisterStack.set(CANISTER_CONTENTS.value(), contents);
-            }
-
-            if (player.isShiftKeyDown() && contents.storedFluidId().isPresent()) {
-                if (canisterStack.getCount() > 1) {
-                    ItemStack singleCanister = canisterStack.copy();
-                    singleCanister.setCount(1);
-
-                    InteractionResultHolder<ItemStack> result = extractFluid(level, player, singleCanister, contents);
-                    ItemStack modifiedCanister = result.getObject();
-
-                    if (result.getResult().consumesAction()) {
-                        canisterStack.shrink(1);
-
-                        if (!player.getInventory().add(modifiedCanister)) {
-                            player.drop(modifiedCanister, false);
-                        }
-
-                        return InteractionResultHolder.success(canisterStack);
-                    }
-                    return result;
-                }
-                return extractFluid(level, player, canisterStack, contents);
-            } else {
-                return InteractionResultHolder.pass(canisterStack);
-            }
+            return InteractionResultHolder.pass(canisterStack);
         }
 
         BucketItem bucketItem = (BucketItem) bucketStack.getItem();

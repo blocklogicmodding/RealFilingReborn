@@ -130,35 +130,7 @@ public class FilingFolderItem extends Item {
                 return InteractionResultHolder.pass(folderStack);
             }
 
-            FolderContents contents = folderStack.get(FOLDER_CONTENTS.value());
-            if (contents == null) {
-                contents = new FolderContents(Optional.empty(), 0);
-                folderStack.set(FOLDER_CONTENTS.value(), contents);
-            }
-
-            if (player.isShiftKeyDown() && contents.storedItemId().isPresent()) {
-                if (folderStack.getCount() > 1) {
-                    ItemStack singleFolder = folderStack.copy();
-                    singleFolder.setCount(1);
-
-                    InteractionResultHolder<ItemStack> result = extractItems(level, player, singleFolder, contents);
-                    ItemStack modifiedFolder = result.getObject();
-
-                    if (result.getResult().consumesAction()) {
-                        folderStack.shrink(1);
-
-                        if (!player.getInventory().add(modifiedFolder)) {
-                            player.drop(modifiedFolder, false);
-                        }
-
-                        return InteractionResultHolder.success(folderStack);
-                    }
-                    return result;
-                }
-                return extractItems(level, player, folderStack, contents);
-            } else {
-                return InteractionResultHolder.pass(folderStack);
-            }
+            return InteractionResultHolder.pass(folderStack);
         }
 
         if (hasSignificantNBT(itemToStore)) {

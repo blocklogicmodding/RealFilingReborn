@@ -38,6 +38,8 @@
   "gui.realfilingreborn.current_fluid_amount": "Currently Stored: %s",
   "gui.realfilingreborn.current_nbt_count": "Currently Stored: %s/%s",
   "gui.realfilingreborn.current_item_count": "Currently Stored: %s",
+  "gui.realfilingreborn.extract_items": "Extract Items",
+  "gui.realfilingreborn.extract_fluid": "Extract Fluid",
 
   "_comment5": "=== FILING FOLDER MESSAGES ===",
   "message.realfilingreborn.folder_erased": "Folder assignment erased",

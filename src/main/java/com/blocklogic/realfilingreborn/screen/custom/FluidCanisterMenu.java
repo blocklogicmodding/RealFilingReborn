@@ -145,6 +145,68 @@ public class FluidCanisterMenu extends AbstractContainerMenu {
         return null;
     }
 
+    public void extractFluid() {
+        if (canisterStack.isEmpty()) return;
+
+        FluidCanisterItem.CanisterContents contents = canisterStack.get(FluidCanisterItem.CANISTER_CONTENTS.value());
+        if (contents == null || contents.storedFluidId().isEmpty() || contents.amount() < 1000) {
+            return;
+        }
+
+        Player player = playerInventory.player;
+
+        // Check if player has empty bucket
+        boolean hasEmptyBucket = false;
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.getItem() == Items.BUCKET) {
+                hasEmptyBucket = true;
+                break;
+            }
+        }
+
+        if (!hasEmptyBucket) {
+            return; // No empty bucket available
+        }
+
+        ResourceLocation fluidId = contents.storedFluidId().get();
+        ItemStack bucketToGive = FluidHelper.getBucketForFluid(fluidId);
+
+        if (bucketToGive.isEmpty()) {
+            return; // No bucket available for this fluid type
+        }
+
+        // Remove empty bucket from inventory
+        boolean bucketRemoved = false;
+        for (int i = 0; i < player.getInventory().getContainerSize() && !bucketRemoved; i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.getItem() == Items.BUCKET) {
+                stack.shrink(1);
+                bucketRemoved = true;
+            }
+        }
+
+        if (!bucketRemoved) {
+            return; // Couldn't remove bucket (shouldn't happen)
+        }
+
+        // Update canister contents
+        int newAmount = contents.amount() - 1000;
+        FluidCanisterItem.CanisterContents newContents = new FluidCanisterItem.CanisterContents(
+                contents.storedFluidId(),
+                Math.max(0, newAmount)
+        );
+        canisterStack.set(FluidCanisterItem.CANISTER_CONTENTS.value(), newContents);
+
+        // Give filled bucket to player
+        if (!player.getInventory().add(bucketToGive)) {
+            // Inventory full, drop the bucket
+            player.drop(bucketToGive, false);
+        }
+
+        this.broadcastChanges();
+    }
+
     @Override
     public boolean stillValid(Player player) {
         return !canisterStack.isEmpty() && canisterStack.getItem() instanceof FluidCanisterItem;

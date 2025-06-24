@@ -129,35 +129,7 @@ public class NBTFilingFolderItem extends Item {
                 return InteractionResultHolder.pass(folderStack);
             }
 
-            NBTFolderContents contents = folderStack.get(NBT_FOLDER_CONTENTS.value());
-            if (contents == null) {
-                contents = new NBTFolderContents(Optional.empty(), new ArrayList<>());
-                folderStack.set(NBT_FOLDER_CONTENTS.value(), contents);
-            }
-
-            if (player.isShiftKeyDown() && contents.storedItemId().isPresent() && !contents.storedItems().isEmpty()) {
-                if (folderStack.getCount() > 1) {
-                    ItemStack singleFolder = folderStack.copy();
-                    singleFolder.setCount(1);
-
-                    InteractionResultHolder<ItemStack> result = extractItem(level, player, singleFolder, contents);
-                    ItemStack modifiedFolder = result.getObject();
-
-                    if (result.getResult().consumesAction()) {
-                        folderStack.shrink(1);
-
-                        if (!player.getInventory().add(modifiedFolder)) {
-                            player.drop(modifiedFolder, false);
-                        }
-
-                        return InteractionResultHolder.success(folderStack);
-                    }
-                    return result;
-                }
-                return extractItem(level, player, folderStack, contents);
-            } else {
-                return InteractionResultHolder.pass(folderStack);
-            }
+            return InteractionResultHolder.pass(folderStack);
         }
 
         if (!hasSignificantNBT(itemToStore)) {

@@ -1,6 +1,7 @@
 package com.blocklogic.realfilingreborn.screen.custom;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
+import com.blocklogic.realfilingreborn.network.ExtractionPacket;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -8,10 +9,15 @@ import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class FluidCanisterScreen extends AbstractContainerScreen<FluidCanisterMenu> {
     private static final ResourceLocation GUI_TEXTURE =
             ResourceLocation.fromNamespaceAndPath(RealFilingReborn.MODID, "textures/gui/assignment_gui.png");
+
+    private static final int EXTRACT_BUTTON_X = 154;
+    private static final int EXTRACT_BUTTON_Y = 45;
+    private static final int EXTRACT_BUTTON_SIZE = 12;
 
     public FluidCanisterScreen(FluidCanisterMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -35,6 +41,54 @@ public class FluidCanisterScreen extends AbstractContainerScreen<FluidCanisterMe
         int y = (height - imageHeight) / 2;
 
         guiGraphics.blit(GUI_TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
+
+        // Render extract button
+        boolean extractHover = isMouseOverButton(mouseX, mouseY,
+                x + EXTRACT_BUTTON_X, y + EXTRACT_BUTTON_Y,
+                EXTRACT_BUTTON_SIZE, EXTRACT_BUTTON_SIZE);
+        renderExtractButton(guiGraphics, x + EXTRACT_BUTTON_X, y + EXTRACT_BUTTON_Y, extractHover);
+    }
+
+    private void renderExtractButton(GuiGraphics guiGraphics, int x, int y, boolean hover) {
+        int u = hover ? 188 : 176;
+        int v = 0;
+        guiGraphics.blit(GUI_TEXTURE, x, y, u, v, EXTRACT_BUTTON_SIZE, EXTRACT_BUTTON_SIZE);
+    }
+
+    private boolean isMouseOverButton(double mouseX, double mouseY, int buttonX, int buttonY, int width, int height) {
+        return mouseX >= buttonX && mouseX < buttonX + width &&
+                mouseY >= buttonY && mouseY < buttonY + height;
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        int x = (this.width - this.imageWidth) / 2;
+        int y = (this.height - this.imageHeight) / 2;
+
+        if (isMouseOverButton(mouseX, mouseY,
+                x + EXTRACT_BUTTON_X, y + EXTRACT_BUTTON_Y,
+                EXTRACT_BUTTON_SIZE, EXTRACT_BUTTON_SIZE)) {
+            // Send packet to server
+            PacketDistributor.sendToServer(new ExtractionPacket(ExtractionPacket.ExtractionType.CANISTER));
+            return true;
+        }
+
+        return super.mouseClicked(mouseX, mouseY, button);
+    }
+
+    @Override
+    protected void renderTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        super.renderTooltip(guiGraphics, mouseX, mouseY);
+
+        int x = (this.width - this.imageWidth) / 2;
+        int y = (this.height - this.imageHeight) / 2;
+
+        if (isMouseOverButton(mouseX, mouseY,
+                x + EXTRACT_BUTTON_X, y + EXTRACT_BUTTON_Y,
+                EXTRACT_BUTTON_SIZE, EXTRACT_BUTTON_SIZE)) {
+            Component tooltip = Component.translatable("gui.realfilingreborn.extract_fluid");
+            guiGraphics.renderTooltip(this.font, tooltip, mouseX, mouseY);
+        }
     }
 
     @Override
