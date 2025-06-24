@@ -8,18 +8,25 @@
   "item.realfilingreborn.eraser": "Eraser",
   "item.realfilingreborn.fluid_canister": "Fluid Canister",
   "item.realfilingreborn.cabinet_conversion_kit": "Cabinet Conversion Kit",
+  "item.realfilingreborn.iron_range_upgrade": "Filing Index Iron Range Upgrade",
+  "item.realfilingreborn.diamond_range_upgrade": "Filing Index Diamond Range Upgrade",
+  "item.realfilingreborn.netherite_range_upgrade": "Filing Index Netherite Range Upgrade",
+  "item.realfilingreborn.ledger": "Ledger",
 
   "_comment2": "=== BLOCKS ===",
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
   "block.realfilingreborn.fluid_cabinet": "Fluid Cabinet",
+  "block.realfilingreborn.filing_index": "Filing Index",
 
   "_comment3": "=== BLOCK ENTITIES ===",
   "blockentity.realfilingreborn.name": "Filing Cabinet",
   "blockentity.realfilingreborn.fluid_cabinet_name": "Fluid Cabinet",
+  "blockentity.realfilingreborn.filing_index_name": "Filing Index",
 
   "_comment4": "=== MENUS/GUIS ===",
   "menu.realfilingreborn.menu_title": "Filing Cabinet",
   "menu.realfilingreborn.fluid_cabinet_menu_title": "Fluid Cabinet",
+  "menu.realfilingreborn.filing_index": "Filing Index",
 
   "_comment5": "=== FILING FOLDER MESSAGES ===",
   "message.realfilingreborn.folder_erased": "Folder assignment erased",

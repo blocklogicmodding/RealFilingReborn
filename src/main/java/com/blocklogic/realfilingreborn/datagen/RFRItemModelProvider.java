@@ -18,5 +18,9 @@ public class RFRItemModelProvider extends ItemModelProvider {
         basicItem(ModItems.FLUID_CANISTER.get());
         basicItem(ModItems.ERASER.get());
         basicItem(ModItems.CABINET_CONVERSION_KIT.get());
+        basicItem(ModItems.LEDGER.get());
+        basicItem(ModItems.IRON_RANGE_UPGRADE.get());
+        basicItem(ModItems.DIAMOND_RANGE_UPGRADE.get());
+        basicItem(ModItems.NETHERITE_RANGE_UPGRADE.get());
     }
 }

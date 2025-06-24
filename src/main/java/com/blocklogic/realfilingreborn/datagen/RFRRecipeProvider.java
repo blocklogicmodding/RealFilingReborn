@@ -77,6 +77,47 @@ public class RFRRecipeProvider extends RecipeProvider implements IConditionBuild
                 .unlockedBy("has_fluid_canister", has(ModItems.FLUID_CANISTER.get()))
                 .save(recipeOutput);
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.LEDGER.get())
+                .pattern("RQR")
+                .pattern("QBQ")
+                .pattern("RQR")
+                .define('R', Items.REDSTONE)
+                .define('B', Items.BOOK)
+                .define('Q', Items.QUARTZ)
+                .unlockedBy("has_quartz", has(Items.QUARTZ))
+                .save(recipeOutput);
+
+        //  Range Upgrades
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.IRON_RANGE_UPGRADE.get())
+                .pattern("IRI")
+                .pattern("RGR")
+                .pattern("IRI")
+                .define('R', Items.REDSTONE)
+                .define('G', Tags.Items.GLASS_BLOCKS)
+                .define('I', Items.IRON_INGOT)
+                .unlockedBy("has_iron", has(Items.IRON_INGOT))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.DIAMOND_RANGE_UPGRADE.get())
+                .pattern("DRD")
+                .pattern("RGR")
+                .pattern("DRD")
+                .define('R', Items.REDSTONE)
+                .define('G', ModItems.IRON_RANGE_UPGRADE.get())
+                .define('D', Items.IRON_INGOT)
+                .unlockedBy("has_iron_upgrade", has(ModItems.IRON_RANGE_UPGRADE.get()))
+                .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.NETHERITE_RANGE_UPGRADE.get())
+                .pattern("NRN")
+                .pattern("RGR")
+                .pattern("NRN")
+                .define('R', Items.REDSTONE)
+                .define('G', ModItems.DIAMOND_RANGE_UPGRADE.get())
+                .define('N', Items.NETHERITE_INGOT)
+                .unlockedBy("has_diamond_upgrade", has(ModItems.DIAMOND_RANGE_UPGRADE.get()))
+                .save(recipeOutput);
+
 
         // Cabinets
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FILING_CABINET.get())

@@ -21,10 +21,14 @@ public class RFRBlockTagProvider extends BlockTagsProvider {
     protected void addTags(HolderLookup.Provider provider) {
         tag(BlockTags.MINEABLE_WITH_PICKAXE)
                 .add(ModBlocks.FILING_CABINET.get())
-                .add(ModBlocks.FLUID_CABINET.get());
+                .add(ModBlocks.FLUID_CABINET.get())
+                .add(ModBlocks.FILING_INDEX.get());
 
         tag(RFRTags.Blocks.CABINETS)
                 .add(ModBlocks.FILING_CABINET.get())
                 .add(ModBlocks.FLUID_CABINET.get());
+
+        tag(RFRTags.Blocks.CONTROLLERS)
+                .add(ModBlocks.FILING_INDEX.get());
     }
 }
