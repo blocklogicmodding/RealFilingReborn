@@ -17,10 +17,23 @@ import org.jetbrains.annotations.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Map;
 
 public class FilingIndexFluidHandler implements IFluidHandler {
     private final FilingIndexBlockEntity indexEntity;
     private final Level level;
+
+    // PERFORMANCE: Cache fluid tanks with invalidation
+    private List<FluidTankInfo> cachedFluidTanks = null;
+    private long lastCacheTime = 0;
+    private static final long CACHE_DURATION_MS = 50; // 50ms cache duration
+    private static final int MAX_FLUID_TANKS_PER_SCAN = 200; // Limit scanning
+
+    // PERFORMANCE: Cache for in-range cabinets
+    private final Map<BlockPos, Boolean> inRangeCache = new ConcurrentHashMap<>();
+    private long lastRangeCacheTime = 0;
+    private static final long RANGE_CACHE_DURATION_MS = 100;
 
     public FilingIndexFluidHandler(FilingIndexBlockEntity indexEntity) {
         this.indexEntity = indexEntity;
@@ -32,19 +45,46 @@ public class FilingIndexFluidHandler implements IFluidHandler {
             level.sendBlockUpdated(cabinetPos, level.getBlockState(cabinetPos), level.getBlockState(cabinetPos), Block.UPDATE_CLIENTS);
             // FIXED: Update index connected state when fluids change
             indexEntity.updateConnectedState();
+            // PERFORMANCE: Invalidate cache when things change
+            invalidateCache();
         }
     }
 
+    private void invalidateCache() {
+        cachedFluidTanks = null;
+        lastCacheTime = 0;
+    }
+
+    private void invalidateRangeCache() {
+        inRangeCache.clear();
+        lastRangeCacheTime = 0;
+    }
+
+    // PERFORMANCE: Optimized fluid tank enumeration with caching and limits
     private List<FluidTankInfo> getAllFluidTanks() {
+        long currentTime = System.currentTimeMillis();
+
+        // Return cached result if still valid
+        if (cachedFluidTanks != null && (currentTime - lastCacheTime) < CACHE_DURATION_MS) {
+            return cachedFluidTanks;
+        }
+
         List<FluidTankInfo> tanks = new ArrayList<>();
+        int tankCount = 0;
 
         for (BlockPos cabinetPos : indexEntity.getLinkedCabinets()) {
-            if (!isInRange(cabinetPos)) {
+            if (tankCount >= MAX_FLUID_TANKS_PER_SCAN) {
+                break; // Prevent excessive scanning
+            }
+
+            if (!isInRangeCached(cabinetPos)) {
                 continue;
             }
 
             if (level.getBlockEntity(cabinetPos) instanceof FluidCabinetBlockEntity fluidCabinet && fluidCabinet.isLinkedToController()) {
                 for (int slot = 0; slot < 4; slot++) {
+                    if (tankCount >= MAX_FLUID_TANKS_PER_SCAN) break;
+
                     ItemStack canisterStack = fluidCabinet.inventory.getStackInSlot(slot);
 
                     if (canisterStack.getItem() instanceof FluidCanisterItem) {
@@ -54,6 +94,7 @@ public class FilingIndexFluidHandler implements IFluidHandler {
                             Fluid fluid = FluidHelper.getFluidFromId(fluidId);
                             if (fluid != null) {
                                 tanks.add(new FluidTankInfo(cabinetPos, slot, new FluidStack(fluid, contents.amount())));
+                                tankCount++;
                             }
                         }
                     }
@@ -61,12 +102,23 @@ public class FilingIndexFluidHandler implements IFluidHandler {
             }
         }
 
+        // Cache the result
+        cachedFluidTanks = tanks;
+        lastCacheTime = currentTime;
         return tanks;
     }
 
-    private boolean isInRange(BlockPos cabinetPos) {
-        double distance = Math.sqrt(indexEntity.getBlockPos().distSqr(cabinetPos));
-        return distance <= indexEntity.getRange();
+    // PERFORMANCE: Cached range checking
+    private boolean isInRangeCached(BlockPos cabinetPos) {
+        long currentTime = System.currentTimeMillis();
+
+        // Clear cache if expired
+        if ((currentTime - lastRangeCacheTime) > RANGE_CACHE_DURATION_MS) {
+            invalidateRangeCache();
+            lastRangeCacheTime = currentTime;
+        }
+
+        return inRangeCache.computeIfAbsent(cabinetPos, pos -> indexEntity.isInRange(pos));
     }
 
     @Override
@@ -146,7 +198,7 @@ public class FilingIndexFluidHandler implements IFluidHandler {
 
         // Try empty canisters
         for (BlockPos cabinetPos : indexEntity.getLinkedCabinets()) {
-            if (!isInRange(cabinetPos)) {
+            if (!isInRangeCached(cabinetPos)) {
                 continue;
             }
 

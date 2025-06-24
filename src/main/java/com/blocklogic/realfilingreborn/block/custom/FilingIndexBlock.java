@@ -7,7 +7,9 @@ import com.blocklogic.realfilingreborn.item.custom.LedgerItem;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.SimpleMenuProvider;
@@ -65,6 +67,14 @@ public class FilingIndexBlock extends BaseEntityBlock {
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new FilingIndexBlockEntity(blockPos, blockState);
+    }
+
+    // PERFORMANCE: Add tick method to handle scheduled updates
+    @Override
+    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        if (level.getBlockEntity(pos) instanceof FilingIndexBlockEntity indexEntity) {
+            indexEntity.performScheduledUpdate();
+        }
     }
 
     // ADDED: Method to update connected state
