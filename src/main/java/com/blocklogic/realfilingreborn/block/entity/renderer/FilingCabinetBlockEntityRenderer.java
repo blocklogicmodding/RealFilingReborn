@@ -22,7 +22,6 @@ import net.minecraft.world.level.block.state.BlockState;
 
 public class FilingCabinetBlockEntityRenderer implements BlockEntityRenderer<FilingCabinetBlockEntity> {
 
-    // Cached instances for performance
     private static final Minecraft MC = Minecraft.getInstance();
     private static final Font FONT = MC.font;
 

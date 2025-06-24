@@ -35,7 +35,6 @@ public class FluidHelper {
         }
 
         return VALID_FLUID_CACHE.computeIfAbsent(fluidId, id -> {
-            // Check if fluid is registered
             if (!BuiltInRegistries.FLUID.containsKey(id)) {
                 return false;
             }

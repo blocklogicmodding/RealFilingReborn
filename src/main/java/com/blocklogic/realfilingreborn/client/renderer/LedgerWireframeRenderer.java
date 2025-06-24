@@ -65,18 +65,15 @@ public class LedgerWireframeRenderer {
         PoseStack poseStack = event.getPoseStack();
         Vec3 cameraPos = event.getCamera().getPosition();
 
-        // Render selected index (green wireframe)
         if (data.selectedController() != null) {
             renderIndexWireframe(poseStack, cameraPos, data.selectedController(), level);
         }
 
-        // Render connected cabinets (white wireframes) and range (yellow wireframe)
         if (data.selectedController() != null && level.getBlockEntity(data.selectedController()) instanceof FilingIndexBlockEntity indexEntity) {
             renderConnectedCabinetsWireframe(poseStack, cameraPos, indexEntity.getLinkedCabinets(), level);
             renderRangeWireframe(poseStack, cameraPos, data.selectedController(), indexEntity.getRange());
         }
 
-        // Render multi-selection preview (white wireframe)
         if (data.firstMultiPos() != null && data.selectionMode() == LedgerData.SelectionMode.MULTI) {
             renderMultiSelectionWireframe(poseStack, cameraPos, data.firstMultiPos(), level, minecraft);
         }
@@ -88,7 +85,7 @@ public class LedgerWireframeRenderer {
         }
 
         AABB aabb = new AABB(indexPos);
-        renderWireframeBox(poseStack, cameraPos, aabb, 0.0f, 1.0f, 0.0f, 0.8f); // Green
+        renderWireframeBox(poseStack, cameraPos, aabb, 0.0f, 1.0f, 0.0f, 0.8f);
     }
 
     private static void renderConnectedCabinetsWireframe(PoseStack poseStack, Vec3 cameraPos, Set<BlockPos> linkedCabinets, Level level) {
@@ -103,7 +100,7 @@ public class LedgerWireframeRenderer {
 
             if (isValidCabinet) {
                 AABB aabb = new AABB(cabinetPos);
-                renderWireframeBox(poseStack, cameraPos, aabb, 1.0f, 1.0f, 1.0f, 0.6f); // White
+                renderWireframeBox(poseStack, cameraPos, aabb, 1.0f, 1.0f, 1.0f, 0.6f);
             }
         }
     }
@@ -117,7 +114,7 @@ public class LedgerWireframeRenderer {
         double maxZ = indexPos.getZ() + range + 1.0;
 
         AABB rangeAABB = new AABB(minX, minY, minZ, maxX, maxY, maxZ);
-        renderWireframeBox(poseStack, cameraPos, rangeAABB, 1.0f, 1.0f, 0.0f, 0.3f); // Yellow
+        renderWireframeBox(poseStack, cameraPos, rangeAABB, 1.0f, 1.0f, 0.0f, 0.3f);
     }
 
     private static void renderMultiSelectionWireframe(PoseStack poseStack, Vec3 cameraPos, BlockPos firstPos, Level level, Minecraft minecraft) {
@@ -141,7 +138,7 @@ public class LedgerWireframeRenderer {
                     maxY + 1.0,
                     maxZ + 1.0
             );
-            renderWireframeBox(poseStack, cameraPos, selectionArea, 1.0f, 1.0f, 1.0f, 0.6f); // White
+            renderWireframeBox(poseStack, cameraPos, selectionArea, 1.0f, 1.0f, 1.0f, 0.6f);
         }
     }
 

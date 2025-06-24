@@ -61,7 +61,6 @@ public class FilingIndexMenu extends AbstractContainerMenu {
         ItemStack copyOfSourceStack = sourceStack.copy();
 
         if (pIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
-            // Check if it's a range upgrade item
             if (sourceStack.getItem() instanceof IronRangeUpgrade ||
                     sourceStack.getItem() instanceof DiamondRangeUpgrade ||
                     sourceStack.getItem() instanceof NetheriteRangeUpgrade) {

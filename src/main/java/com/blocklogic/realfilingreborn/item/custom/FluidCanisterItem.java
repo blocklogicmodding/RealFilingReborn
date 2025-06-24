@@ -108,7 +108,6 @@ public class FluidCanisterItem extends Item {
         BucketItem bucketItem = (BucketItem) bucketStack.getItem();
         Fluid fluid = bucketItem.content;
 
-        // IMPROVED FLUID VALIDATION
         if (!FluidHelper.isValidFluid(fluid)) {
             player.displayClientMessage(Component.translatable("message.realfilingreborn.invalid_fluid"), true);
             return InteractionResultHolder.pass(canisterStack);
@@ -171,7 +170,6 @@ public class FluidCanisterItem extends Item {
 
         ResourceLocation fluidId = contents.storedFluidId().get();
 
-        // IMPROVED BUCKET LOOKUP
         ItemStack bucketToGive = FluidHelper.getBucketForFluid(fluidId);
         if (bucketToGive.isEmpty()) {
             player.displayClientMessage(Component.translatable("message.realfilingreborn.no_bucket_for_fluid"), true);
@@ -243,7 +241,6 @@ public class FluidCanisterItem extends Item {
         } else {
             effectiveFluidId = currentFluidIdOpt.get();
 
-            // IMPROVED FLUID COMPATIBILITY CHECK
             if (!FluidHelper.areFluidsCompatible(effectiveFluidId, newFluidId)) {
                 player.displayClientMessage(Component.translatable(
                         "message.realfilingreborn.wrong_fluid_type",
@@ -283,7 +280,6 @@ public class FluidCanisterItem extends Item {
 
         if (contents != null && contents.storedFluidId().isPresent()) {
             ResourceLocation fluidId = contents.storedFluidId().get();
-            // IMPROVED FLUID NAME DISPLAY
             String fluidName = FluidHelper.getFluidDisplayName(fluidId);
             tooltip.add(Component.translatable("tooltip.realfilingreborn.stored_fluid",
                             Component.literal(fluidName).withStyle(ChatFormatting.AQUA))

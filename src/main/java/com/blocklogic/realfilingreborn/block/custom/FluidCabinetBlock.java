@@ -85,7 +85,6 @@ public class FluidCabinetBlock extends BaseEntityBlock {
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.getBlock() != newState.getBlock()) {
             if (level.getBlockEntity(pos) instanceof FluidCabinetBlockEntity fluidCabinetBlockEntity) {
-                // Notify controller if linked
                 BlockPos controllerPos = fluidCabinetBlockEntity.getControllerPos();
                 if (controllerPos != null) {
                     if (level.getBlockEntity(controllerPos) instanceof FilingIndexBlockEntity indexEntity) {

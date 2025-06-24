@@ -145,5 +145,10 @@
   "item.realfilingreborn.ledger.tooltip.usage.selection": "Right-click: Toggle selection mode",
   "item.realfilingreborn.ledger.tooltip.usage.operation": "Shift+Right-click: Toggle operation mode",
   "item.realfilingreborn.ledger.tooltip.usage.controller": "Shift+Right-click index: Select controller",
-  "item.realfilingreborn.ledger.tooltip.usage.cabinet": "Shift+Right-click cabinet: Link/unlink"
+  "item.realfilingreborn.ledger.tooltip.usage.cabinet": "Shift+Right-click cabinet: Link/unlink",
+
+  "_comment_upgrades": "=== UPGRADE ITEMS TOOLTIPS ===",
+  "item.realfilingreborn.iron_range_upgrade.subtitle": "Extends Filing Index range to 16 blocks (radius)",
+  "item.realfilingreborn.diamond_range_upgrade.subtitle": "Extends Filing Index range to 32 blocks (radius)",
+  "item.realfilingreborn.netherite_range_upgrade.subtitle": "Extends Filing Index range to 64 blocks (radius)"
 }

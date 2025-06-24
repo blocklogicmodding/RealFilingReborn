@@ -33,18 +33,15 @@ public class FilingIndexBlock extends BaseEntityBlock {
     public static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 16, 16);
     public static final MapCodec<FilingCabinetBlock> CODEC = simpleCodec(FilingCabinetBlock::new);
 
-    // ADDED: Connected state property
     public static final BooleanProperty CONNECTED = BooleanProperty.create("connected");
 
     public FilingIndexBlock(Properties properties) {
         super(properties);
-        // ADDED: Default to not connected
         this.registerDefaultState(this.stateDefinition.any().setValue(CONNECTED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        // ADDED: Register the connected property
         builder.add(CONNECTED);
     }
 
@@ -69,7 +66,6 @@ public class FilingIndexBlock extends BaseEntityBlock {
         return new FilingIndexBlockEntity(blockPos, blockState);
     }
 
-    // PERFORMANCE: Add tick method to handle scheduled updates
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (level.getBlockEntity(pos) instanceof FilingIndexBlockEntity indexEntity) {
@@ -77,7 +73,6 @@ public class FilingIndexBlock extends BaseEntityBlock {
         }
     }
 
-    // ADDED: Method to update connected state
     public static void updateConnectedState(Level level, BlockPos pos) {
         if (level.isClientSide()) return;
 
@@ -99,10 +94,8 @@ public class FilingIndexBlock extends BaseEntityBlock {
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.getBlock() != newState.getBlock()) {
             if (level.getBlockEntity(pos) instanceof FilingIndexBlockEntity filingIndexBlockEntity) {
-                // Clear all linked cabinets first
                 filingIndexBlockEntity.clearAllLinkedCabinets();
 
-                // Clear controller from nearby ledgers
                 clearControllerFromNearbyLedgers(level, pos);
 
                 filingIndexBlockEntity.drops();

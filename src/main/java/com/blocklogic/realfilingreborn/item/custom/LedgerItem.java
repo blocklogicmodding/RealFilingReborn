@@ -30,9 +30,8 @@ import java.util.HashMap;
 
 public class LedgerItem extends Item {
 
-    // PERFORMANCE: Limit maximum selection size to prevent DoS
-    private static final int MAX_SELECTION_SIZE = 1000; // Maximum blocks in one selection
-    private static final int MAX_SELECTION_DIMENSION = 32; // Maximum 32x32x32 selection
+    private static final int MAX_SELECTION_SIZE = 1000;
+    private static final int MAX_SELECTION_DIMENSION = 32;
 
     public LedgerItem(Properties properties) {
         super(properties);
@@ -63,13 +62,11 @@ public class LedgerItem extends Item {
 
         LedgerData data = stack.getOrDefault(ModDataComponents.LEDGER_DATA.get(), LedgerData.DEFAULT);
 
-        // Handle Filing Index selection
         if (state.getBlock() instanceof FilingIndexBlock && player.isShiftKeyDown()) {
             selectController(stack, pos, player);
             return InteractionResult.SUCCESS;
         }
 
-        // Handle Cabinet linking
         if ((state.getBlock() instanceof FilingCabinetBlock || state.getBlock() instanceof FluidCabinetBlock) && player.isShiftKeyDown()) {
             if (data.selectionMode() == LedgerData.SelectionMode.SINGLE) {
                 handleSingleCabinetAction(level, pos, stack, player);
@@ -135,21 +132,18 @@ public class LedgerItem extends Item {
             return;
         }
 
-        // Check if controller exists and is in range
         if (!(level.getBlockEntity(data.selectedController()) instanceof FilingIndexBlockEntity indexEntity)) {
             Component message = Component.translatable("item.realfilingreborn.ledger.error.no_controller");
             player.displayClientMessage(message, true);
             return;
         }
 
-        // Check range
         if (!isInRange(data.selectedController(), cabinetPos, indexEntity.getRange())) {
             Component message = Component.translatable("item.realfilingreborn.ledger.cabinet.out_of_range");
             player.displayClientMessage(message, true);
             return;
         }
 
-        // Handle Filing Cabinet
         if (level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinetEntity) {
             if (data.operationMode() == LedgerData.OperationMode.ADD) {
                 cabinetEntity.setControllerPos(data.selectedController());
@@ -169,7 +163,6 @@ public class LedgerItem extends Item {
                 player.displayClientMessage(message, true);
             }
         }
-        // Handle Fluid Cabinet
         else if (level.getBlockEntity(cabinetPos) instanceof FluidCabinetBlockEntity fluidCabinetEntity) {
             if (data.operationMode() == LedgerData.OperationMode.ADD) {
                 fluidCabinetEntity.setControllerPos(data.selectedController());
@@ -209,7 +202,6 @@ public class LedgerItem extends Item {
         }
     }
 
-    // FIXED: Completely rewritten to eliminate O(n³) algorithm
     private void processMultiSelection(Level level, BlockPos pos1, BlockPos pos2, ItemStack stack, Player player) {
         LedgerData data = stack.getOrDefault(ModDataComponents.LEDGER_DATA.get(), LedgerData.DEFAULT);
 
@@ -226,7 +218,6 @@ public class LedgerItem extends Item {
         int minZ = Math.min(pos1.getZ(), pos2.getZ());
         int maxZ = Math.max(pos1.getZ(), pos2.getZ());
 
-        // PERFORMANCE: Enforce limits to prevent DoS attacks
         int sizeX = maxX - minX + 1;
         int sizeY = maxY - minY + 1;
         int sizeZ = maxZ - minZ + 1;
@@ -247,10 +238,8 @@ public class LedgerItem extends Item {
             indexEntity = index;
         }
 
-        // PERFORMANCE: Pre-build controller lookup map for remove operations to eliminate nested loops
         Map<BlockPos, FilingIndexBlockEntity> controllerLookup = new HashMap<>();
         if (data.operationMode() == LedgerData.OperationMode.REMOVE) {
-            // Only scan a reasonable area around the selection for controllers
             int searchRadius = Math.min(64, Math.max(sizeX, Math.max(sizeY, sizeZ)) * 2);
             BlockPos center = new BlockPos(
                     (minX + maxX) / 2,
@@ -258,7 +247,7 @@ public class LedgerItem extends Item {
                     (minZ + maxZ) / 2
             );
 
-            for (int dx = -searchRadius; dx <= searchRadius; dx += 8) { // Step by 8 to reduce iterations
+            for (int dx = -searchRadius; dx <= searchRadius; dx += 8) {
                 for (int dy = -searchRadius; dy <= searchRadius; dy += 8) {
                     for (int dz = -searchRadius; dz <= searchRadius; dz += 8) {
                         BlockPos checkPos = center.offset(dx, dy, dz);
@@ -270,12 +259,10 @@ public class LedgerItem extends Item {
             }
         }
 
-        // PERFORMANCE: Collect cabinets in batches for bulk operations
         Set<BlockPos> cabinetsToAdd = new HashSet<>();
         Set<BlockPos> cabinetsToRemove = new HashSet<>();
         int processedCount = 0;
 
-        // Process selection efficiently
         for (int x = minX; x <= maxX; x++) {
             for (int y = minY; y <= maxY; y++) {
                 for (int z = minZ; z <= maxZ; z++) {
@@ -286,16 +273,14 @@ public class LedgerItem extends Item {
                         continue;
                     }
 
-                    // Check range for ADD operations
                     if (data.operationMode() == LedgerData.OperationMode.ADD && indexEntity != null) {
                         if (!isInRange(data.selectedController(), currentPos, indexEntity.getRange())) {
-                            continue; // Skip out of range cabinets
+                            continue;
                         }
                     }
 
                     boolean processed = false;
 
-                    // Handle Filing Cabinet
                     if (level.getBlockEntity(currentPos) instanceof FilingCabinetBlockEntity cabinetEntity) {
                         if (data.operationMode() == LedgerData.OperationMode.ADD) {
                             cabinetEntity.setControllerPos(data.selectedController());
@@ -304,14 +289,12 @@ public class LedgerItem extends Item {
                             BlockPos oldControllerPos = cabinetEntity.getControllerPos();
                             cabinetEntity.clearControllerPos();
 
-                            // PERFORMANCE: Use pre-built lookup instead of nested loops
                             if (oldControllerPos != null && controllerLookup.containsKey(oldControllerPos)) {
                                 cabinetsToRemove.add(currentPos);
                             }
                         }
                         processed = true;
                     }
-                    // Handle Fluid Cabinet
                     else if (level.getBlockEntity(currentPos) instanceof FluidCabinetBlockEntity fluidCabinetEntity) {
                         if (data.operationMode() == LedgerData.OperationMode.ADD) {
                             fluidCabinetEntity.setControllerPos(data.selectedController());
@@ -320,7 +303,6 @@ public class LedgerItem extends Item {
                             BlockPos oldControllerPos = fluidCabinetEntity.getControllerPos();
                             fluidCabinetEntity.clearControllerPos();
 
-                            // PERFORMANCE: Use pre-built lookup instead of nested loops
                             if (oldControllerPos != null && controllerLookup.containsKey(oldControllerPos)) {
                                 cabinetsToRemove.add(currentPos);
                             }
@@ -335,18 +317,16 @@ public class LedgerItem extends Item {
             }
         }
 
-        // PERFORMANCE: Batch update operations to reduce block state changes
         if (!cabinetsToAdd.isEmpty() && indexEntity != null) {
             indexEntity.addCabinets(cabinetsToAdd);
         }
 
         if (!cabinetsToRemove.isEmpty()) {
-            // PERFORMANCE: Use the controller lookup map for efficient removal
             for (BlockPos cabinetPos : cabinetsToRemove) {
                 for (FilingIndexBlockEntity controller : controllerLookup.values()) {
                     if (controller.getLinkedCabinets().contains(cabinetPos)) {
                         controller.removeCabinet(cabinetPos);
-                        break; // Cabinet can only be linked to one controller
+                        break;
                     }
                 }
             }
@@ -360,7 +340,6 @@ public class LedgerItem extends Item {
     }
 
     private boolean isInRange(BlockPos controllerPos, BlockPos cabinetPos, int range) {
-        // PERFORMANCE: Use squared distance to avoid expensive sqrt
         double distSq = controllerPos.distSqr(cabinetPos);
         double rangeSq = (double) range * range;
         return distSq <= rangeSq;

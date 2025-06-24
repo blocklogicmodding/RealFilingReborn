@@ -6,7 +6,6 @@ import com.blocklogic.realfilingreborn.capability.FilingIndexItemHandler;
 import com.blocklogic.realfilingreborn.item.custom.DiamondRangeUpgrade;
 import com.blocklogic.realfilingreborn.item.custom.IronRangeUpgrade;
 import com.blocklogic.realfilingreborn.item.custom.NetheriteRangeUpgrade;
-import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
 import com.blocklogic.realfilingreborn.screen.custom.FilingIndexMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -40,25 +39,21 @@ import java.util.HashSet;
 import java.util.Map;
 
 public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider {
-    // PERFORMANCE: Thread-safe cabinet management with proper locking
     private final Set<BlockPos> linkedCabinets = ConcurrentHashMap.newKeySet();
     private final ReentrantReadWriteLock cabinetLock = new ReentrantReadWriteLock();
 
-    // PERFORMANCE: Improved handler caching with LRU eviction
     private final Map<Direction, IItemHandler> handlers = new ConcurrentHashMap<>();
     private final Map<Direction, IFluidHandler> fluidHandlers = new ConcurrentHashMap<>();
-    private static final int MAX_HANDLER_CACHE_SIZE = 16; // Reduced from 32
+    private static final int MAX_HANDLER_CACHE_SIZE = 16;
 
-    // PERFORMANCE: Optimized range caching with longer duration
     private final Map<BlockPos, Boolean> rangeCache = new ConcurrentHashMap<>();
     private volatile int lastKnownRange = -1;
     private volatile long lastRangeCacheTime = 0;
-    private static final long RANGE_CACHE_DURATION_MS = 5000; // Increased from 100ms to 5s
+    private static final long RANGE_CACHE_DURATION_MS = 5000;
 
-    // PERFORMANCE: Debounced update system with rate limiting
     private volatile boolean updateScheduled = false;
     private volatile long lastUpdateTime = 0;
-    private static final long MIN_UPDATE_INTERVAL_MS = 100; // Minimum 100ms between updates
+    private static final long MIN_UPDATE_INTERVAL_MS = 100;
 
     public final ItemStackHandler inventory = new ItemStackHandler(1) {
         @Override
@@ -81,12 +76,10 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         super(ModBlockEntities.FILING_INDEX_BE.get(), pos, blockState);
     }
 
-    // PERFORMANCE: Optimized range checking with longer cache duration
     public boolean isInRange(BlockPos cabinetPos) {
         int currentRange = getRange();
         long currentTime = System.currentTimeMillis();
 
-        // Clear cache if range changed or cache expired
         if (currentRange != lastKnownRange || (currentTime - lastRangeCacheTime) > RANGE_CACHE_DURATION_MS) {
             clearRangeCache();
             lastKnownRange = currentRange;
@@ -105,11 +98,9 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         lastRangeCacheTime = 0;
     }
 
-    // PERFORMANCE: LRU cache eviction for handlers
     @Nullable
     public IItemHandler getCapabilityHandler(@Nullable Direction side) {
         if (handlers.size() > MAX_HANDLER_CACHE_SIZE) {
-            // PERFORMANCE: Clear oldest entries instead of brutal clear
             handlers.clear();
         }
         return handlers.computeIfAbsent(side != null ? side : Direction.UP, s -> new FilingIndexItemHandler(this));
@@ -118,14 +109,12 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     @Nullable
     public IFluidHandler getFluidCapabilityHandler(@Nullable Direction side) {
         if (fluidHandlers.size() > MAX_HANDLER_CACHE_SIZE) {
-            // PERFORMANCE: Clear oldest entries instead of brutal clear
             fluidHandlers.clear();
         }
         return fluidHandlers.computeIfAbsent(side != null ? side : Direction.UP, s -> new FilingIndexFluidHandler(this));
     }
 
     public void drops() {
-        // Clear all linked cabinets first with proper locking
         clearAllLinkedCabinets();
 
         SimpleContainer inv = new SimpleContainer(inventory.getSlots());
@@ -136,7 +125,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         Containers.dropContents(this.level, this.worldPosition, inv);
     }
 
-    // PERFORMANCE: Thread-safe cabinet operations
     public void addCabinet(BlockPos cabinetPos) {
         cabinetLock.writeLock().lock();
         try {
@@ -179,7 +167,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         }
     }
 
-    // PERFORMANCE: Batch cabinet operations with locking
     public void addCabinets(Set<BlockPos> cabinets) {
         if (cabinets.isEmpty()) return;
 
@@ -234,7 +221,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         }
     }
 
-    // PERFORMANCE: Rate-limited block updates to prevent spam
     private void scheduleBlockUpdate() {
         long currentTime = System.currentTimeMillis();
         if (currentTime - lastUpdateTime > MIN_UPDATE_INTERVAL_MS) {
@@ -243,16 +229,13 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         }
     }
 
-    // PERFORMANCE: Debounced connected state updates
     private void scheduleConnectedStateUpdate() {
         if (!updateScheduled && level != null && !level.isClientSide()) {
             updateScheduled = true;
-            // Schedule for next tick to batch multiple changes
             level.scheduleTick(getBlockPos(), getBlockState().getBlock(), 1);
         }
     }
 
-    // Called by the block's tick method
     public void performScheduledUpdate() {
         if (updateScheduled) {
             updateScheduled = false;
@@ -260,7 +243,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         }
     }
 
-    // PERFORMANCE: Thread-safe read access to linked cabinets
     public Set<BlockPos> getLinkedCabinets() {
         cabinetLock.readLock().lock();
         try {
@@ -332,7 +314,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     public int getRange() {
         ItemStack upgradeStack = inventory.getStackInSlot(0);
         if (upgradeStack.isEmpty()) {
-            return 8; // Base range
+            return 8;
         }
 
         if (upgradeStack.getItem() instanceof NetheriteRangeUpgrade) {
@@ -343,7 +325,7 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
             return 16;
         }
 
-        return 8; // Fallback
+        return 8;
     }
 
     public void updateConnectedState() {
@@ -375,7 +357,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         super.saveAdditional(tag, registries);
         tag.put("inventory", inventory.serializeNBT(registries));
 
-        // Save linked cabinets with read lock
         cabinetLock.readLock().lock();
         try {
             ListTag cabinetList = new ListTag();
@@ -393,7 +374,6 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("inventory"));
 
-        // Load linked cabinets with write lock
         cabinetLock.writeLock().lock();
         try {
             linkedCabinets.clear();

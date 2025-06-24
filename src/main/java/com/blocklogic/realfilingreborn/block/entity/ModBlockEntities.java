@@ -2,7 +2,6 @@ package com.blocklogic.realfilingreborn.block.entity;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
 import com.blocklogic.realfilingreborn.block.ModBlocks;
-import com.blocklogic.realfilingreborn.block.custom.FilingIndexBlock;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.neoforged.bus.api.IEventBus;

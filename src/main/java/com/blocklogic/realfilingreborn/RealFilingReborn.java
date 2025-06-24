@@ -72,14 +72,12 @@ public class RealFilingReborn
     }
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {
-        // Filing Cabinet capabilities
         event.registerBlockEntity(
                 Capabilities.ItemHandler.BLOCK,
                 ModBlockEntities.FILING_CABINET_BE.get(),
                 (filingCabinetBE, side) -> filingCabinetBE.getCapabilityHandler(side)
         );
 
-        // Fluid Cabinet capabilities
         event.registerBlockEntity(
                 Capabilities.ItemHandler.BLOCK,
                 ModBlockEntities.FLUID_CABINET_BE.get(),
@@ -136,14 +134,12 @@ public class RealFilingReborn
 
         @SubscribeEvent
         public static void registerCapabilities(RegisterCapabilitiesEvent event) {
-            // Filing Cabinet capabilities
             event.registerBlockEntity(
                     Capabilities.ItemHandler.BLOCK,
                     ModBlockEntities.FILING_CABINET_BE.get(),
                     (filingCabinetBE, side) -> filingCabinetBE.getCapabilityHandler(side)
             );
 
-            // Fluid Cabinet capabilities
             event.registerBlockEntity(
                     Capabilities.ItemHandler.BLOCK,
                     ModBlockEntities.FLUID_CABINET_BE.get(),

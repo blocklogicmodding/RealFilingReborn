@@ -24,28 +24,22 @@ public class FilingIndexItemHandler implements IItemHandler {
     private final FilingIndexBlockEntity indexEntity;
     private final Level level;
 
-    // PERFORMANCE: Improved caching system with proper invalidation
     private volatile List<VirtualSlotInfo> cachedVirtualSlots = null;
     private final AtomicLong lastCacheTime = new AtomicLong(0);
     private final AtomicLong cacheVersion = new AtomicLong(0);
-    private static final long CACHE_DURATION_MS = 500; // Increased from 50ms to 500ms
-    private static final int MAX_VIRTUAL_SLOTS_PER_SCAN = 1000; // Increased limit but still bounded
+    private static final long CACHE_DURATION_MS = 500;
+    private static final int MAX_VIRTUAL_SLOTS_PER_SCAN = 1000;
 
-    // PERFORMANCE: Optimized range cache with longer duration
     private final Map<BlockPos, Boolean> inRangeCache = new ConcurrentHashMap<>();
     private volatile long lastRangeCacheTime = 0;
-    private static final long RANGE_CACHE_DURATION_MS = 2000; // Increased from 100ms to 2s
+    private static final long RANGE_CACHE_DURATION_MS = 2000;
 
-    // PERFORMANCE: Rate limiting for update notifications
-    private volatile long lastNotifyTime = 0;
-    private static final long MIN_NOTIFY_INTERVAL_MS = 50; // Minimum 50ms between notifications
 
     public FilingIndexItemHandler(FilingIndexBlockEntity indexEntity) {
         this.indexEntity = indexEntity;
         this.level = indexEntity.getLevel();
     }
 
-    // PERFORMANCE: Rate-limited update notifications
     private void notifyUpdate(BlockPos cabinetPos) {
         if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(cabinetPos, level.getBlockState(cabinetPos), level.getBlockState(cabinetPos), Block.UPDATE_CLIENTS);
@@ -53,7 +47,6 @@ public class FilingIndexItemHandler implements IItemHandler {
         }
     }
 
-    // PERFORMANCE: Explicit cache invalidation
     public void invalidateCache() {
         cachedVirtualSlots = null;
         cacheVersion.incrementAndGet();
@@ -65,12 +58,10 @@ public class FilingIndexItemHandler implements IItemHandler {
         lastRangeCacheTime = 0;
     }
 
-    // PERFORMANCE: Significantly improved virtual slot enumeration
     private List<VirtualSlotInfo> getAllVirtualSlots() {
         long currentTime = System.currentTimeMillis();
         long currentVersion = cacheVersion.get();
 
-        // Return cached result if still valid
         List<VirtualSlotInfo> cached = cachedVirtualSlots;
         if (cached != null && (currentTime - lastCacheTime.get()) < CACHE_DURATION_MS) {
             return cached;
@@ -79,12 +70,11 @@ public class FilingIndexItemHandler implements IItemHandler {
         List<VirtualSlotInfo> virtualSlots = new ArrayList<>();
         int slotCount = 0;
 
-        // PERFORMANCE: Process cabinets in batches to reduce lock contention
         List<BlockPos> cabinets = new ArrayList<>(indexEntity.getLinkedCabinets());
 
         for (BlockPos cabinetPos : cabinets) {
             if (slotCount >= MAX_VIRTUAL_SLOTS_PER_SCAN) {
-                break; // Prevent excessive scanning
+                break;
             }
 
             if (!isInRangeCached(cabinetPos)) {
@@ -92,7 +82,6 @@ public class FilingIndexItemHandler implements IItemHandler {
             }
 
             if (level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet && cabinet.isLinkedToController()) {
-                // PERFORMANCE: Process all 5 slots at once to reduce repeated lookups
                 for (int slot = 0; slot < 5; slot++) {
                     if (slotCount >= MAX_VIRTUAL_SLOTS_PER_SCAN) break;
 
@@ -110,7 +99,6 @@ public class FilingIndexItemHandler implements IItemHandler {
                     else if (folderStack.getItem() instanceof NBTFilingFolderItem) {
                         NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
                         if (contents != null && contents.storedItemId().isPresent() && !contents.storedItems().isEmpty()) {
-                            // PERFORMANCE: Only process first few NBT items to prevent excessive memory usage
                             int itemsToProcess = Math.min(contents.storedItems().size(), 100);
                             for (int i = 0; i < itemsToProcess; i++) {
                                 if (slotCount >= MAX_VIRTUAL_SLOTS_PER_SCAN) break;
@@ -124,8 +112,7 @@ public class FilingIndexItemHandler implements IItemHandler {
             }
         }
 
-        // Cache the result atomically
-        if (currentVersion == cacheVersion.get()) { // Only cache if version hasn't changed
+        if (currentVersion == cacheVersion.get()) {
             cachedVirtualSlots = virtualSlots;
             lastCacheTime.set(currentTime);
         }
@@ -133,11 +120,9 @@ public class FilingIndexItemHandler implements IItemHandler {
         return virtualSlots;
     }
 
-    // PERFORMANCE: Improved range caching with longer duration
     private boolean isInRangeCached(BlockPos cabinetPos) {
         long currentTime = System.currentTimeMillis();
 
-        // Clear cache if expired
         if ((currentTime - lastRangeCacheTime) > RANGE_CACHE_DURATION_MS) {
             invalidateRangeCache();
             lastRangeCacheTime = currentTime;
@@ -148,14 +133,12 @@ public class FilingIndexItemHandler implements IItemHandler {
 
     @Override
     public int getSlots() {
-        // PERFORMANCE: Return predictable slot count based on linked cabinets for better pipe compatibility
         return Math.max(indexEntity.getLinkedCabinetCount() * 5, 1);
     }
 
     @Override
     @NotNull
     public ItemStack getStackInSlot(int slot) {
-        // PERFORMANCE: Optimized slot mapping for better performance
         List<BlockPos> cabinets = new ArrayList<>(indexEntity.getLinkedCabinets());
         int cabinetIndex = slot / 5;
         int cabinetSlot = slot % 5;
@@ -172,7 +155,6 @@ public class FilingIndexItemHandler implements IItemHandler {
         if (level.getBlockEntity(cabinetPos) instanceof FilingCabinetBlockEntity cabinet && cabinet.isLinkedToController()) {
             ItemStack folderStack = cabinet.inventory.getStackInSlot(cabinetSlot);
 
-            // Return the stored items as virtual stack
             if (folderStack.getItem() instanceof FilingFolderItem && !(folderStack.getItem() instanceof NBTFilingFolderItem)) {
                 FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());
                 if (contents != null && contents.storedItemId().isPresent() && contents.count() > 0) {
@@ -195,7 +177,6 @@ public class FilingIndexItemHandler implements IItemHandler {
     public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
         if (stack.isEmpty()) return stack;
 
-        // PERFORMANCE: Try direct slot mapping first for better performance
         List<BlockPos> cabinets = new ArrayList<>(indexEntity.getLinkedCabinets());
         int cabinetIndex = slot / 5;
         int cabinetSlot = slot % 5;
@@ -212,7 +193,6 @@ public class FilingIndexItemHandler implements IItemHandler {
             }
         }
 
-        // If direct slot fails, try compatible folders (existing logic)
         boolean hasNBT = NBTFilingFolderItem.hasSignificantNBT(stack);
         ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
 
@@ -237,7 +217,6 @@ public class FilingIndexItemHandler implements IItemHandler {
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
         if (amount <= 0) return ItemStack.EMPTY;
 
-        // PERFORMANCE: Direct slot mapping for better performance
         List<BlockPos> cabinets = new ArrayList<>(indexEntity.getLinkedCabinets());
         int cabinetIndex = slot / 5;
         int cabinetSlot = slot % 5;
@@ -254,7 +233,6 @@ public class FilingIndexItemHandler implements IItemHandler {
         return ItemStack.EMPTY;
     }
 
-    // PERFORMANCE: Optimized insertion methods (keeping existing logic but with better error handling)
     private ItemStack insertItemIntoCabinet(FilingCabinetBlockEntity cabinet, int cabinetSlot, ItemStack stack, boolean simulate, BlockPos cabinetPos) {
         try {
             ItemStack folderStack = cabinet.inventory.getStackInSlot(cabinetSlot);
@@ -265,7 +243,6 @@ public class FilingIndexItemHandler implements IItemHandler {
 
             return tryInsertIntoFolder(cabinet, cabinetSlot, stack, itemId, hasNBT, simulate, cabinetPos);
         } catch (Exception e) {
-            // PERFORMANCE: Graceful error handling to prevent crashes
             return stack;
         }
     }
@@ -282,9 +259,8 @@ public class FilingIndexItemHandler implements IItemHandler {
                 if (contents == null) return stack;
 
                 if (contents.storedItemId().isPresent() && contents.storedItemId().get().equals(itemId)) {
-                    // PERFORMANCE: Check for overflow before calculation
                     if (contents.count() > Integer.MAX_VALUE - stack.getCount()) {
-                        return stack; // Would overflow
+                        return stack;
                     }
 
                     long newTotal = (long)contents.count() + stack.getCount();
@@ -310,7 +286,7 @@ public class FilingIndexItemHandler implements IItemHandler {
 
                 if (contents.storedItemId().isPresent() && contents.storedItemId().get().equals(itemId)) {
                     int space = NBTFilingFolderItem.MAX_NBT_ITEMS - contents.storedItems().size();
-                    int canAdd = Math.min(1, space); // NBT folders take 1 at a time
+                    int canAdd = Math.min(1, space);
 
                     if (canAdd > 0 && !simulate) {
                         List<NBTFilingFolderItem.SerializedItemStack> newItems = new ArrayList<>(contents.storedItems());
@@ -333,7 +309,6 @@ public class FilingIndexItemHandler implements IItemHandler {
 
             return stack;
         } catch (Exception e) {
-            // PERFORMANCE: Graceful error handling
             return stack;
         }
     }
@@ -362,7 +337,7 @@ public class FilingIndexItemHandler implements IItemHandler {
             } else if (folderStack.getItem() instanceof NBTFilingFolderItem) {
                 NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
                 if (contents != null && !contents.storedItems().isEmpty()) {
-                    int extractAmount = Math.min(amount, 1); // NBT items extract 1 at a time
+                    int extractAmount = Math.min(amount, 1);
 
                     if (extractAmount > 0 && !simulate) {
                         List<NBTFilingFolderItem.SerializedItemStack> newItems = new ArrayList<>(contents.storedItems());
@@ -383,19 +358,18 @@ public class FilingIndexItemHandler implements IItemHandler {
 
             return ItemStack.EMPTY;
         } catch (Exception e) {
-            // PERFORMANCE: Graceful error handling
             return ItemStack.EMPTY;
         }
     }
 
     @Override
     public int getSlotLimit(int slot) {
-        return 64; // Standard stack size for pipe compatibility
+        return 64;
     }
 
     @Override
     public boolean isItemValid(int slot, ItemStack stack) {
-        return true; // Accept all items for pipe compatibility
+        return true;
     }
 
     private static class VirtualSlotInfo {

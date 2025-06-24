@@ -25,28 +25,21 @@ public class FilingIndexFluidHandler implements IFluidHandler {
     private final FilingIndexBlockEntity indexEntity;
     private final Level level;
 
-    // PERFORMANCE: Improved caching system with proper invalidation
     private volatile List<FluidTankInfo> cachedFluidTanks = null;
     private final AtomicLong lastCacheTime = new AtomicLong(0);
     private final AtomicLong cacheVersion = new AtomicLong(0);
-    private static final long CACHE_DURATION_MS = 500; // Increased from 50ms to 500ms
-    private static final int MAX_FLUID_TANKS_PER_SCAN = 500; // Reasonable limit to prevent DoS
+    private static final long CACHE_DURATION_MS = 500;
+    private static final int MAX_FLUID_TANKS_PER_SCAN = 500;
 
-    // PERFORMANCE: Optimized range cache with longer duration
     private final Map<BlockPos, Boolean> inRangeCache = new ConcurrentHashMap<>();
     private volatile long lastRangeCacheTime = 0;
-    private static final long RANGE_CACHE_DURATION_MS = 2000; // Increased from 100ms to 2s
-
-    // PERFORMANCE: Rate limiting for update notifications
-    private volatile long lastNotifyTime = 0;
-    private static final long MIN_NOTIFY_INTERVAL_MS = 50; // Minimum 50ms between notifications
+    private static final long RANGE_CACHE_DURATION_MS = 2000;
 
     public FilingIndexFluidHandler(FilingIndexBlockEntity indexEntity) {
         this.indexEntity = indexEntity;
         this.level = indexEntity.getLevel();
     }
 
-    // PERFORMANCE: Rate-limited update notifications
     private void notifyUpdate(BlockPos cabinetPos) {
         if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(cabinetPos, level.getBlockState(cabinetPos), level.getBlockState(cabinetPos), Block.UPDATE_CLIENTS);
@@ -54,7 +47,6 @@ public class FilingIndexFluidHandler implements IFluidHandler {
         }
     }
 
-    // PERFORMANCE: Explicit cache invalidation
     public void invalidateCache() {
         cachedFluidTanks = null;
         cacheVersion.incrementAndGet();
@@ -66,12 +58,10 @@ public class FilingIndexFluidHandler implements IFluidHandler {
         lastRangeCacheTime = 0;
     }
 
-    // PERFORMANCE: Significantly improved fluid tank enumeration
     private List<FluidTankInfo> getAllFluidTanks() {
         long currentTime = System.currentTimeMillis();
         long currentVersion = cacheVersion.get();
 
-        // Return cached result if still valid
         List<FluidTankInfo> cached = cachedFluidTanks;
         if (cached != null && (currentTime - lastCacheTime.get()) < CACHE_DURATION_MS) {
             return cached;
@@ -80,12 +70,11 @@ public class FilingIndexFluidHandler implements IFluidHandler {
         List<FluidTankInfo> tanks = new ArrayList<>();
         int tankCount = 0;
 
-        // PERFORMANCE: Process cabinets in batches to reduce lock contention
         List<BlockPos> cabinets = new ArrayList<>(indexEntity.getLinkedCabinets());
 
         for (BlockPos cabinetPos : cabinets) {
             if (tankCount >= MAX_FLUID_TANKS_PER_SCAN) {
-                break; // Prevent excessive scanning
+                break;
             }
 
             if (!isInRangeCached(cabinetPos)) {
@@ -94,7 +83,6 @@ public class FilingIndexFluidHandler implements IFluidHandler {
 
             try {
                 if (level.getBlockEntity(cabinetPos) instanceof FluidCabinetBlockEntity fluidCabinet && fluidCabinet.isLinkedToController()) {
-                    // PERFORMANCE: Process all 4 slots at once to reduce repeated lookups
                     for (int slot = 0; slot < 4; slot++) {
                         if (tankCount >= MAX_FLUID_TANKS_PER_SCAN) break;
 
@@ -114,13 +102,11 @@ public class FilingIndexFluidHandler implements IFluidHandler {
                     }
                 }
             } catch (Exception e) {
-                // PERFORMANCE: Graceful error handling to prevent crashes from corrupted data
                 continue;
             }
         }
 
-        // Cache the result atomically
-        if (currentVersion == cacheVersion.get()) { // Only cache if version hasn't changed
+        if (currentVersion == cacheVersion.get()) {
             cachedFluidTanks = tanks;
             lastCacheTime.set(currentTime);
         }
@@ -128,11 +114,9 @@ public class FilingIndexFluidHandler implements IFluidHandler {
         return tanks;
     }
 
-    // PERFORMANCE: Improved range caching with longer duration
     private boolean isInRangeCached(BlockPos cabinetPos) {
         long currentTime = System.currentTimeMillis();
 
-        // Clear cache if expired
         if ((currentTime - lastRangeCacheTime) > RANGE_CACHE_DURATION_MS) {
             invalidateRangeCache();
             lastRangeCacheTime = currentTime;
@@ -142,7 +126,7 @@ public class FilingIndexFluidHandler implements IFluidHandler {
             try {
                 return indexEntity.isInRange(pos);
             } catch (Exception e) {
-                return false; // Safe default
+                return false;
             }
         });
     }
@@ -152,7 +136,7 @@ public class FilingIndexFluidHandler implements IFluidHandler {
         try {
             return getAllFluidTanks().size();
         } catch (Exception e) {
-            return 0; // Safe fallback
+            return 0;
         }
     }
 
@@ -167,7 +151,7 @@ public class FilingIndexFluidHandler implements IFluidHandler {
 
             return tanks.get(tank).fluidStack.copy();
         } catch (Exception e) {
-            return FluidStack.EMPTY; // Safe fallback
+            return FluidStack.EMPTY;
         }
     }
 
@@ -190,7 +174,7 @@ public class FilingIndexFluidHandler implements IFluidHandler {
                     FluidHelper.getFluidId(tankInfo.fluidStack.getFluid())
             );
         } catch (Exception e) {
-            return false; // Safe fallback
+            return false;
         }
     }
 
@@ -203,7 +187,6 @@ public class FilingIndexFluidHandler implements IFluidHandler {
         try {
             ResourceLocation resourceFluidId = FluidHelper.getStillFluid(FluidHelper.getFluidId(resource.getFluid()));
 
-            // Try existing tanks first
             List<FluidTankInfo> tanks = getAllFluidTanks();
             for (FluidTankInfo tankInfo : tanks) {
                 ResourceLocation tankFluidId = FluidHelper.getStillFluid(FluidHelper.getFluidId(tankInfo.fluidStack.getFluid()));
@@ -214,9 +197,8 @@ public class FilingIndexFluidHandler implements IFluidHandler {
                         if (canisterStack.getItem() instanceof FluidCanisterItem) {
                             FluidCanisterItem.CanisterContents contents = canisterStack.get(FluidCanisterItem.CANISTER_CONTENTS.value());
                             if (contents != null) {
-                                // PERFORMANCE: Check for overflow before calculation
                                 if (contents.amount() > Integer.MAX_VALUE - resource.getAmount()) {
-                                    return 0; // Would overflow
+                                    return 0;
                                 }
 
                                 long newAmount = (long)contents.amount() + resource.getAmount();
@@ -240,7 +222,6 @@ public class FilingIndexFluidHandler implements IFluidHandler {
                 }
             }
 
-            // Try empty canisters
             List<BlockPos> cabinets = new ArrayList<>(indexEntity.getLinkedCabinets());
             for (BlockPos cabinetPos : cabinets) {
                 if (!isInRangeCached(cabinetPos)) {
@@ -275,7 +256,7 @@ public class FilingIndexFluidHandler implements IFluidHandler {
 
             return 0;
         } catch (Exception e) {
-            return 0; // Safe fallback
+            return 0;
         }
     }
 
@@ -320,7 +301,7 @@ public class FilingIndexFluidHandler implements IFluidHandler {
 
             return FluidStack.EMPTY;
         } catch (Exception e) {
-            return FluidStack.EMPTY; // Safe fallback
+            return FluidStack.EMPTY;
         }
     }
 
@@ -357,7 +338,7 @@ public class FilingIndexFluidHandler implements IFluidHandler {
 
             return FluidStack.EMPTY;
         } catch (Exception e) {
-            return FluidStack.EMPTY; // Safe fallback
+            return FluidStack.EMPTY;
         }
     }
 

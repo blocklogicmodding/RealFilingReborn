@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -31,13 +32,11 @@ import java.util.Map;
 
 public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<FluidCabinetBlockEntity> {
 
-    // Performance caches
     private static final Map<Fluid, IClientFluidTypeExtensions> FLUID_EXTENSIONS_CACHE = new ConcurrentHashMap<>();
     private static final Map<ResourceLocation, TextureAtlasSprite> SPRITE_CACHE = new ConcurrentHashMap<>();
     private static final Minecraft MC = Minecraft.getInstance();
     private static final Font FONT = MC.font;
 
-    // Pre-calculated positions
     private static final float[][] POSITIONS = {
             {-0.188f, 0.188f},
             {0.188f, 0.188f},
@@ -276,7 +275,7 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
 
     private Fluid getFluidFromId(ResourceLocation fluidId) {
         try {
-            return net.minecraft.core.registries.BuiltInRegistries.FLUID.get(fluidId);
+            return BuiltInRegistries.FLUID.get(fluidId);
         } catch (Exception e) {
             return Fluids.EMPTY;
         }
