@@ -1,4 +1,4 @@
-package com.blocklogic.realfilingreborn.screen.custom;
+package com.blocklogic.realfilingreborn.item.custom;
 
 import net.minecraft.world.item.Item;
 

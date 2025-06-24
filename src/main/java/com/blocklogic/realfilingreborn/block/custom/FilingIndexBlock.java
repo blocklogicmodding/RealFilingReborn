@@ -1,7 +1,9 @@
 package com.blocklogic.realfilingreborn.block.custom;
 
 import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
-import com.blocklogic.realfilingreborn.block.entity.FluidCabinetBlockEntity;
+import com.blocklogic.realfilingreborn.component.LedgerData;
+import com.blocklogic.realfilingreborn.component.ModDataComponents;
+import com.blocklogic.realfilingreborn.item.custom.LedgerItem;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -56,11 +58,61 @@ public class FilingIndexBlock extends BaseEntityBlock {
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.getBlock() != newState.getBlock()) {
             if (level.getBlockEntity(pos) instanceof FilingIndexBlockEntity filingIndexBlockEntity) {
+                // Clear all linked cabinets first
+                filingIndexBlockEntity.clearAllLinkedCabinets();
+
+                // Clear controller from nearby ledgers
+                clearControllerFromNearbyLedgers(level, pos);
+
                 filingIndexBlockEntity.drops();
                 level.updateNeighbourForOutputSignal(pos, this);
             }
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    private void clearControllerFromNearbyLedgers(Level level, BlockPos controllerPos) {
+        if (level.isClientSide()) return;
+
+        level.players().forEach(player -> {
+            if (player.distanceToSqr(controllerPos.getX(), controllerPos.getY(), controllerPos.getZ()) <= 64 * 64) {
+                clearControllerFromPlayerLedgers(player, controllerPos);
+            }
+        });
+    }
+
+    private void clearControllerFromPlayerLedgers(Player player, BlockPos controllerPos) {
+        ItemStack mainHand = player.getMainHandItem();
+        if (mainHand.getItem() instanceof LedgerItem) {
+            clearControllerFromLedger(mainHand, controllerPos, player);
+        }
+
+        ItemStack offHand = player.getOffhandItem();
+        if (offHand.getItem() instanceof LedgerItem) {
+            clearControllerFromLedger(offHand, controllerPos, player);
+        }
+
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.getItem() instanceof LedgerItem) {
+                clearControllerFromLedger(stack, controllerPos, player);
+            }
+        }
+    }
+
+    private void clearControllerFromLedger(ItemStack ledgerStack, BlockPos controllerPos, Player player) {
+        LedgerData data = ledgerStack.getOrDefault(
+                ModDataComponents.LEDGER_DATA.get(),
+                LedgerData.DEFAULT
+        );
+
+        if (data.selectedController() != null && data.selectedController().equals(controllerPos)) {
+            LedgerData newData = data.withSelectedController(null);
+            ledgerStack.set(ModDataComponents.LEDGER_DATA.get(), newData);
+
+            Component message = Component.translatable("item.realfilingreborn.ledger.controller.cleared");
+            player.displayClientMessage(message, true);
+        }
     }
 
     @Override

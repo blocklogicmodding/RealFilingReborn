@@ -1,6 +1,7 @@
 package com.blocklogic.realfilingreborn.block.custom;
 
 import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
+import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
 import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetMenu;
@@ -83,6 +84,14 @@ public class FilingCabinetBlock extends BaseEntityBlock {
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.getBlock() != newState.getBlock()) {
             if (level.getBlockEntity(pos) instanceof FilingCabinetBlockEntity filingCabinetBlockEntity) {
+                // Notify controller if linked
+                BlockPos controllerPos = filingCabinetBlockEntity.getControllerPos();
+                if (controllerPos != null) {
+                    if (level.getBlockEntity(controllerPos) instanceof FilingIndexBlockEntity indexEntity) {
+                        indexEntity.removeCabinet(pos);
+                    }
+                }
+
                 filingCabinetBlockEntity.drops();
                 level.updateNeighbourForOutputSignal(pos, this);
             }

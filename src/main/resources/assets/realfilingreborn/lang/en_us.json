@@ -116,5 +116,34 @@
 
   "_comment22": "=== JADE PLUGIN CONFIGURATION ===",
   "config.jade.plugin_realfilingreborn.filing_cabinet_info": "Filing Cabinet Information",
-  "config.jade.plugin_realfilingreborn.fluid_cabinet_info": "Fluid Cabinet Information"
+  "config.jade.plugin_realfilingreborn.fluid_cabinet_info": "Fluid Cabinet Information",
+
+  "_comment_ledger": "=== LEDGER MESSAGES ===",
+  "item.realfilingreborn.ledger.mode.add": "Ledger: Add Mode",
+  "item.realfilingreborn.ledger.mode.remove": "Ledger: Remove Mode",
+  "item.realfilingreborn.ledger.selection.single": "Ledger: Single Selection",
+  "item.realfilingreborn.ledger.selection.multi": "Ledger: Multi Selection",
+  "item.realfilingreborn.ledger.controller.selected": "Index selected at %s, %s, %s",
+  "item.realfilingreborn.ledger.controller.cleared": "Index selection cleared",
+  "item.realfilingreborn.ledger.error.no_controller": "No index selected! Shift-right-click an index first",
+  "item.realfilingreborn.ledger.cabinet.linked": "Cabinet linked to index",
+  "item.realfilingreborn.ledger.cabinet.unlinked": "Cabinet unlinked from index",
+  "item.realfilingreborn.ledger.cabinet.out_of_range": "Cabinet is out of range of the index",
+  "item.realfilingreborn.ledger.multi.start": "Multi-selection started at %s, %s, %s",
+  "item.realfilingreborn.ledger.multi.linked": "Linked %s cabinets to index",
+  "item.realfilingreborn.ledger.multi.unlinked": "Unlinked %s cabinets from index",
+
+  "_comment_ledger_tooltip": "=== LEDGER TOOLTIPS ===",
+  "item.realfilingreborn.ledger.subtitle": "Filing system linking tool",
+  "item.realfilingreborn.ledger.tooltip.operation.add": "Operation: Add",
+  "item.realfilingreborn.ledger.tooltip.operation.remove": "Operation: Remove",
+  "item.realfilingreborn.ledger.tooltip.selection.single": "Selection: Single",
+  "item.realfilingreborn.ledger.tooltip.selection.multi": "Selection: Multi",
+  "item.realfilingreborn.ledger.tooltip.controller.selected": "Index: %s, %s, %s",
+  "item.realfilingreborn.ledger.tooltip.controller.none": "No index selected",
+  "item.realfilingreborn.ledger.tooltip.multi.active": "Multi-selection active: %s, %s, %s",
+  "item.realfilingreborn.ledger.tooltip.usage.selection": "Right-click: Toggle selection mode",
+  "item.realfilingreborn.ledger.tooltip.usage.operation": "Shift+Right-click: Toggle operation mode",
+  "item.realfilingreborn.ledger.tooltip.usage.controller": "Shift+Right-click index: Select controller",
+  "item.realfilingreborn.ledger.tooltip.usage.cabinet": "Shift+Right-click cabinet: Link/unlink"
 }

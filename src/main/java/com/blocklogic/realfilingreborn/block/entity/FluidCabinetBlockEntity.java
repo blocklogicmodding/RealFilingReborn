@@ -35,6 +35,9 @@ import java.util.*;
 
 public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider {
 
+    @Nullable
+    private BlockPos controllerPos = null;
+
     public final ItemStackHandler inventory = new ItemStackHandler(4) {
         @Override
         protected void onContentsChanged(int slot) {
@@ -84,12 +87,22 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("inventory", inventory.serializeNBT(registries));
+
+        if (controllerPos != null) {
+            tag.putLong("controllerPos", controllerPos.asLong());
+        }
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         inventory.deserializeNBT(registries, tag.getCompound("inventory"));
+
+        if (tag.contains("controllerPos")) {
+            controllerPos = BlockPos.of(tag.getLong("controllerPos"));
+        } else {
+            controllerPos = null;
+        }
     }
 
     @Override
@@ -110,15 +123,29 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
         }
     }
 
-    @Nullable
-    @Override
-    public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
+    public void setControllerPos(BlockPos pos) {
+        this.controllerPos = pos;
+        setChanged();
+        if (level != null && !level.isClientSide()) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        }
     }
 
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
-        return saveWithoutMetadata(pRegistries);
+    public void clearControllerPos() {
+        this.controllerPos = null;
+        setChanged();
+        if (level != null && !level.isClientSide()) {
+            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+        }
+    }
+
+    @Nullable
+    public BlockPos getControllerPos() {
+        return controllerPos;
+    }
+
+    public boolean isLinkedToController() {
+        return controllerPos != null;
     }
 
     private static class FluidCabinetFluidHandler implements IFluidHandler {
@@ -309,5 +336,16 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
         public boolean isItemValid(int slot, ItemStack stack) {
             return false;
         }
+    }
+
+    @Nullable
+    @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider pRegistries) {
+        return saveWithoutMetadata(pRegistries);
     }
 }

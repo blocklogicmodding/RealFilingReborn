@@ -2,9 +2,9 @@ package com.blocklogic.realfilingreborn.item;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
 import com.blocklogic.realfilingreborn.item.custom.*;
-import com.blocklogic.realfilingreborn.screen.custom.DiamondRangeUpgrade;
-import com.blocklogic.realfilingreborn.screen.custom.IronRangeUpgrade;
-import com.blocklogic.realfilingreborn.screen.custom.NetheriteRangeUpgrade;
+import com.blocklogic.realfilingreborn.item.custom.DiamondRangeUpgrade;
+import com.blocklogic.realfilingreborn.item.custom.IronRangeUpgrade;
+import com.blocklogic.realfilingreborn.item.custom.NetheriteRangeUpgrade;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -38,7 +38,7 @@ public class ModItems {
             () -> new NetheriteRangeUpgrade(new Item.Properties()));
 
     public static final DeferredItem<Item> LEDGER = ITEMS.register("ledger",
-            () -> new Item(new Item.Properties()));
+            () -> new LedgerItem(new Item.Properties()));
 
     public static void register (IEventBus eventBus) {
         ITEMS.register(eventBus);

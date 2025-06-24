@@ -1,5 +1,6 @@
 package com.blocklogic.realfilingreborn.block.custom;
 
+import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
 import com.blocklogic.realfilingreborn.block.entity.FluidCabinetBlockEntity;
 import com.blocklogic.realfilingreborn.item.custom.FluidCanisterItem;
 import com.blocklogic.realfilingreborn.screen.custom.FluidCabinetMenu;
@@ -84,6 +85,14 @@ public class FluidCabinetBlock extends BaseEntityBlock {
     public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (state.getBlock() != newState.getBlock()) {
             if (level.getBlockEntity(pos) instanceof FluidCabinetBlockEntity fluidCabinetBlockEntity) {
+                // Notify controller if linked
+                BlockPos controllerPos = fluidCabinetBlockEntity.getControllerPos();
+                if (controllerPos != null) {
+                    if (level.getBlockEntity(controllerPos) instanceof FilingIndexBlockEntity indexEntity) {
+                        indexEntity.removeCabinet(pos);
+                    }
+                }
+
                 fluidCabinetBlockEntity.drops();
                 level.updateNeighbourForOutputSignal(pos, this);
             }

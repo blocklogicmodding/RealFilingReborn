@@ -4,6 +4,7 @@ import com.blocklogic.realfilingreborn.block.ModBlocks;
 import com.blocklogic.realfilingreborn.block.entity.ModBlockEntities;
 import com.blocklogic.realfilingreborn.block.entity.renderer.FilingCabinetBlockEntityRenderer;
 import com.blocklogic.realfilingreborn.block.entity.renderer.FluidCabinetBlockEntityRenderer;
+import com.blocklogic.realfilingreborn.component.ModDataComponents;
 import com.blocklogic.realfilingreborn.item.ModCreativeModTab;
 import com.blocklogic.realfilingreborn.item.ModItems;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
@@ -51,6 +52,7 @@ public class RealFilingReborn
         ModCreativeModTab.register(modEventBus);
         ModBlockEntities.register(modEventBus);
         ModMenuTypes.register(modEventBus);
+        ModDataComponents.register(modEventBus);
 
         FilingFolderItem.DATA_COMPONENTS.register(modEventBus);
         NBTFilingFolderItem.DATA_COMPONENTS.register(modEventBus);
@@ -88,6 +90,18 @@ public class RealFilingReborn
                 Capabilities.FluidHandler.BLOCK,
                 ModBlockEntities.FLUID_CABINET_BE.get(),
                 (fluidCabinetBE, side) -> fluidCabinetBE.getFluidCapabilityHandler(side)
+        );
+
+        event.registerBlockEntity(
+                Capabilities.ItemHandler.BLOCK,
+                ModBlockEntities.FILING_INDEX_BE.get(),
+                (filingIndexBE, side) -> filingIndexBE.getCapabilityHandler(side)
+        );
+
+        event.registerBlockEntity(
+                Capabilities.FluidHandler.BLOCK,
+                ModBlockEntities.FILING_INDEX_BE.get(),
+                (filingIndexBE, side) -> filingIndexBE.getFluidCapabilityHandler(side)
         );
     }
 
@@ -134,6 +148,18 @@ public class RealFilingReborn
                     Capabilities.ItemHandler.BLOCK,
                     ModBlockEntities.FLUID_CABINET_BE.get(),
                     (fluidCabinetBE, side) -> fluidCabinetBE.getCapabilityHandler(side)
+            );
+
+            event.registerBlockEntity(
+                    Capabilities.ItemHandler.BLOCK,
+                    ModBlockEntities.FILING_INDEX_BE.get(),
+                    (filingIndexBE, side) -> filingIndexBE.getCapabilityHandler(side)
+            );
+
+            event.registerBlockEntity(
+                    Capabilities.FluidHandler.BLOCK,
+                    ModBlockEntities.FILING_INDEX_BE.get(),
+                    (filingIndexBE, side) -> filingIndexBE.getFluidCapabilityHandler(side)
             );
         }
     }

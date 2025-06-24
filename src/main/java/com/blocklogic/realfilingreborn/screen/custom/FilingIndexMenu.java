@@ -1,8 +1,10 @@
 package com.blocklogic.realfilingreborn.screen.custom;
 
 import com.blocklogic.realfilingreborn.block.ModBlocks;
-import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
 import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
+import com.blocklogic.realfilingreborn.item.custom.DiamondRangeUpgrade;
+import com.blocklogic.realfilingreborn.item.custom.IronRangeUpgrade;
+import com.blocklogic.realfilingreborn.item.custom.NetheriteRangeUpgrade;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -31,7 +33,14 @@ public class FilingIndexMenu extends AbstractContainerMenu {
         addPlayerInventory(inv);
         addPlayerHotbar(inv);
 
-        this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 0, 80, 23));
+        this.addSlot(new SlotItemHandler(this.blockEntity.inventory, 0, 80, 23) {
+            @Override
+            public boolean mayPlace(ItemStack stack) {
+                return stack.getItem() instanceof IronRangeUpgrade ||
+                        stack.getItem() instanceof DiamondRangeUpgrade ||
+                        stack.getItem() instanceof NetheriteRangeUpgrade;
+            }
+        });
     }
 
     private static final int HOTBAR_SLOT_COUNT = 9;
@@ -52,7 +61,10 @@ public class FilingIndexMenu extends AbstractContainerMenu {
         ItemStack copyOfSourceStack = sourceStack.copy();
 
         if (pIndex < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
-            if (sourceStack.getItem() instanceof IronRangeUpgrade || sourceStack.getItem() instanceof DiamondRangeUpgrade || sourceStack.getItem() instanceof NetheriteRangeUpgrade) {
+            // Check if it's a range upgrade item
+            if (sourceStack.getItem() instanceof IronRangeUpgrade ||
+                    sourceStack.getItem() instanceof DiamondRangeUpgrade ||
+                    sourceStack.getItem() instanceof NetheriteRangeUpgrade) {
                 if (!moveItemStackTo(sourceStack, TE_INVENTORY_FIRST_SLOT_INDEX,
                         TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT, false)) {
                     return ItemStack.EMPTY;
