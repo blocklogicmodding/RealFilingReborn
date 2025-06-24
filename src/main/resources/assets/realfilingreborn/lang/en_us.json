@@ -8,15 +8,10 @@
   "item.realfilingreborn.eraser": "Eraser",
   "item.realfilingreborn.fluid_canister": "Fluid Canister",
   "item.realfilingreborn.cabinet_conversion_kit": "Cabinet Conversion Kit",
-  "item.realfilingreborn.ledger": "Ledger",
-  "item.realfilingreborn.index_range_upgrade_iron": "Iron Range Upgrade",
-  "item.realfilingreborn.index_range_upgrade_diamond": "Diamond Range Upgrade",
-  "item.realfilingreborn.index_range_upgrade_netherite": "Netherite Range Upgrade",
 
   "_comment2": "=== BLOCKS ===",
   "block.realfilingreborn.filing_cabinet": "Filing Cabinet",
   "block.realfilingreborn.fluid_cabinet": "Fluid Cabinet",
-  "block.realfilingreborn.filing_index": "Filing Index",
 
   "_comment3": "=== BLOCK ENTITIES ===",
   "blockentity.realfilingreborn.name": "Filing Cabinet",

@@ -32,13 +32,6 @@ public class ModBlocks {
                     .sound(SoundType.STONE)
             ));
 
-    public static final DeferredBlock<Block> FILING_INDEX = registerBlock("filing_index",
-            () -> new Block(BlockBehaviour.Properties.of()
-                    .strength(3.0F)
-                    .requiresCorrectToolForDrops()
-                    .sound(SoundType.STONE)
-            ));
-
     private static <T extends Block>DeferredBlock<T> registerBlock(String name, Supplier<T> block) {
         DeferredBlock<T> toReturn = BLOCKS.register(name, block);
         registerBlockItem(name, toReturn);

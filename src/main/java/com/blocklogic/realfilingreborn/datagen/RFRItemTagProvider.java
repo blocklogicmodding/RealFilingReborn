@@ -27,16 +27,6 @@ public class RFRItemTagProvider extends ItemTagsProvider {
 
         tag(RFRTags.Items.ARCHIVE_TOOLS)
                 .add(ModItems.ERASER.get())
-                .add(ModItems.CABINET_CONVERSION_KIT.get())
-                .add(ModItems.LEDGER.get());
-
-        tag(RFRTags.Items.RANGE_UPGRADES)
-                .add(ModItems.IRON_RANGE_UPGRADE.get())
-                .add(ModItems.DIAMOND_RANGE_UPGRADE.get())
-                .add(ModItems.NETHERITE_RANGE_UPGRADE.get());
-
-        tag(RFRTags.Items.CABINET_AS_ITEM)
-                .add(ModBlocks.FILING_CABINET.get().asItem())
-                .add(ModBlocks.FLUID_CABINET.get().asItem());
+                .add(ModItems.CABINET_CONVERSION_KIT.get());
     }
 }
