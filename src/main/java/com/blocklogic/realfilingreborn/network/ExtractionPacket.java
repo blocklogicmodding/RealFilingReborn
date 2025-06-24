@@ -37,15 +37,14 @@ public record ExtractionPacket(ExtractionType extractionType) implements CustomP
         return TYPE;
     }
 
+
     public static void handle(ExtractionPacket packet, IPayloadContext context) {
-        context.enqueueWork(() -> {
-            if (context.player() instanceof ServerPlayer serverPlayer) {
-                if (packet.extractionType == ExtractionType.FOLDER && serverPlayer.containerMenu instanceof FilingFolderMenu menu) {
-                    menu.extractItems();
-                } else if (packet.extractionType == ExtractionType.CANISTER && serverPlayer.containerMenu instanceof FluidCanisterMenu menu) {
-                    menu.extractFluid();
-                }
+        if (context.player() instanceof ServerPlayer serverPlayer) {
+            if (packet.extractionType == ExtractionType.FOLDER && serverPlayer.containerMenu instanceof FilingFolderMenu menu) {
+                menu.extractItems();
+            } else if (packet.extractionType == ExtractionType.CANISTER && serverPlayer.containerMenu instanceof FluidCanisterMenu menu) {
+                menu.extractFluid();
             }
-        });
+        }
     }
 }

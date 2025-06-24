@@ -42,7 +42,6 @@ public class FluidCanisterScreen extends AbstractContainerScreen<FluidCanisterMe
 
         guiGraphics.blit(GUI_TEXTURE, x, y, 0, 0, imageWidth, imageHeight);
 
-        // Render extract button
         boolean extractHover = isMouseOverButton(mouseX, mouseY,
                 x + EXTRACT_BUTTON_X, y + EXTRACT_BUTTON_Y,
                 EXTRACT_BUTTON_SIZE, EXTRACT_BUTTON_SIZE);
@@ -68,7 +67,6 @@ public class FluidCanisterScreen extends AbstractContainerScreen<FluidCanisterMe
         if (isMouseOverButton(mouseX, mouseY,
                 x + EXTRACT_BUTTON_X, y + EXTRACT_BUTTON_Y,
                 EXTRACT_BUTTON_SIZE, EXTRACT_BUTTON_SIZE)) {
-            // Send packet to server
             PacketDistributor.sendToServer(new ExtractionPacket(ExtractionPacket.ExtractionType.CANISTER));
             return true;
         }

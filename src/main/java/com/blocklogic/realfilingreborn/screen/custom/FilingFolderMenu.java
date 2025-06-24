@@ -188,10 +188,8 @@ public class FilingFolderMenu extends AbstractContainerMenu {
 
         ItemStack extractedStack = new ItemStack(item, extractAmount);
 
-        // Try to add to player inventory
         Player player = playerInventory.player;
         if (player.getInventory().add(extractedStack)) {
-            // Successfully added, update folder contents
             int newCount = contents.count() - extractAmount;
             FilingFolderItem.FolderContents newContents = new FilingFolderItem.FolderContents(
                     contents.storedItemId(),
@@ -199,10 +197,8 @@ public class FilingFolderMenu extends AbstractContainerMenu {
             );
             folderStack.set(FilingFolderItem.FOLDER_CONTENTS.value(), newContents);
         } else {
-            // Inventory full, drop the items
             player.drop(extractedStack, false);
 
-            // Still update folder contents since items were extracted
             int newCount = contents.count() - extractAmount;
             FilingFolderItem.FolderContents newContents = new FilingFolderItem.FolderContents(
                     contents.storedItemId(),
@@ -224,20 +220,16 @@ public class FilingFolderMenu extends AbstractContainerMenu {
         NBTFilingFolderItem.SerializedItemStack serializedItem = items.remove(items.size() - 1);
         ItemStack extracted = serializedItem.stack().copy();
 
-        // Try to add to player inventory
         Player player = playerInventory.player;
         if (player.getInventory().add(extracted)) {
-            // Successfully added, update folder contents
             NBTFilingFolderItem.NBTFolderContents newContents = new NBTFilingFolderItem.NBTFolderContents(
                     contents.storedItemId(),
                     items
             );
             folderStack.set(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value(), newContents);
         } else {
-            // Inventory full, drop the item
             player.drop(extracted, false);
 
-            // Still update folder contents since item was extracted
             NBTFilingFolderItem.NBTFolderContents newContents = new NBTFilingFolderItem.NBTFolderContents(
                     contents.storedItemId(),
                     items

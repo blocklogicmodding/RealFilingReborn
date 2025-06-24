@@ -95,7 +95,7 @@ public class FluidHelper {
             FLUID_BUCKET_CACHE.clear();
         }
 
-        return FLUID_BUCKET_CACHE.computeIfAbsent(fluidId, id -> {
+        ItemStack cachedStack = FLUID_BUCKET_CACHE.computeIfAbsent(fluidId, id -> {
             if (id.equals(Fluids.WATER.builtInRegistryHolder().key().location())) {
                 return new ItemStack(Items.WATER_BUCKET);
             } else if (id.equals(Fluids.LAVA.builtInRegistryHolder().key().location())) {
@@ -117,6 +117,8 @@ public class FluidHelper {
 
             return ItemStack.EMPTY;
         });
+
+        return cachedStack.copy();
     }
 
     public static String getFluidDisplayName(ResourceLocation fluidId) {

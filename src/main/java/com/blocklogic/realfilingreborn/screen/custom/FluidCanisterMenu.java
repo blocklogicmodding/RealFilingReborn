@@ -155,7 +155,6 @@ public class FluidCanisterMenu extends AbstractContainerMenu {
 
         Player player = playerInventory.player;
 
-        // Check if player has empty bucket
         boolean hasEmptyBucket = false;
         for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
             ItemStack stack = player.getInventory().getItem(i);
@@ -166,17 +165,16 @@ public class FluidCanisterMenu extends AbstractContainerMenu {
         }
 
         if (!hasEmptyBucket) {
-            return; // No empty bucket available
+            return;
         }
 
         ResourceLocation fluidId = contents.storedFluidId().get();
         ItemStack bucketToGive = FluidHelper.getBucketForFluid(fluidId);
 
         if (bucketToGive.isEmpty()) {
-            return; // No bucket available for this fluid type
+            return;
         }
 
-        // Remove empty bucket from inventory
         boolean bucketRemoved = false;
         for (int i = 0; i < player.getInventory().getContainerSize() && !bucketRemoved; i++) {
             ItemStack stack = player.getInventory().getItem(i);
@@ -187,10 +185,9 @@ public class FluidCanisterMenu extends AbstractContainerMenu {
         }
 
         if (!bucketRemoved) {
-            return; // Couldn't remove bucket (shouldn't happen)
+            return;
         }
 
-        // Update canister contents
         int newAmount = contents.amount() - 1000;
         FluidCanisterItem.CanisterContents newContents = new FluidCanisterItem.CanisterContents(
                 contents.storedFluidId(),
@@ -198,9 +195,7 @@ public class FluidCanisterMenu extends AbstractContainerMenu {
         );
         canisterStack.set(FluidCanisterItem.CANISTER_CONTENTS.value(), newContents);
 
-        // Give filled bucket to player
         if (!player.getInventory().add(bucketToGive)) {
-            // Inventory full, drop the bucket
             player.drop(bucketToGive, false);
         }
 
