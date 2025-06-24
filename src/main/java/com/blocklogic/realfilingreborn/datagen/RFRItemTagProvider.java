@@ -34,5 +34,9 @@ public class RFRItemTagProvider extends ItemTagsProvider {
                 .add(ModItems.IRON_RANGE_UPGRADE.get())
                 .add(ModItems.DIAMOND_RANGE_UPGRADE.get())
                 .add(ModItems.NETHERITE_RANGE_UPGRADE.get());
+
+        tag(RFRTags.Items.CABINET_AS_ITEM)
+                .add(ModBlocks.FILING_CABINET.asItem())
+                .add(ModBlocks.FLUID_CABINET.asItem());
     }
 }

@@ -139,5 +139,17 @@ public class RFRRecipeProvider extends RecipeProvider implements IConditionBuild
                 .define('I', Items.IRON_BLOCK)
                 .unlockedBy("has_fluid_canister", has(ModItems.FLUID_CANISTER.get()))
                 .save(recipeOutput);
+
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModBlocks.FILING_INDEX.get())
+                .pattern("IXI")
+                .pattern("RFR")
+                .pattern("ICI")
+                .define('R', Items.REDSTONE)
+                .define('F', RFRTags.Items.CABINET_AS_ITEM)
+                .define('X', Items.REPEATER)
+                .define('C', Items.COMPARATOR)
+                .define('I', Items.COPPER_INGOT)
+                .unlockedBy("has_cabinet", has(RFRTags.Items.CABINET_AS_ITEM))
+                .save(recipeOutput);
     }
 }

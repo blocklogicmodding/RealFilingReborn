@@ -23,6 +23,11 @@ import org.jetbrains.annotations.Nullable;
 public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider {
     public final ItemStackHandler inventory = new ItemStackHandler(1) {
         @Override
+        public int getSlotLimit(int slot) {
+            return 1;
+        }
+
+        @Override
         protected void onContentsChanged(int slot) {
             setChanged();
 

@@ -2,6 +2,7 @@ package com.blocklogic.realfilingreborn.screen.custom;
 
 import com.blocklogic.realfilingreborn.block.ModBlocks;
 import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
+import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
@@ -15,7 +16,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.items.SlotItemHandler;
 
 public class FilingIndexMenu extends AbstractContainerMenu {
-    public final FilingCabinetBlockEntity blockEntity;
+    public final FilingIndexBlockEntity blockEntity;
     private final Level level;
 
     public FilingIndexMenu(int containerId, Inventory inv, FriendlyByteBuf extraData) {
@@ -24,7 +25,7 @@ public class FilingIndexMenu extends AbstractContainerMenu {
 
     public FilingIndexMenu(int containerId, Inventory inv, BlockEntity blockEntity) {
         super(ModMenuTypes.FILING_INDEX_MENU.get(), containerId);
-        this.blockEntity = ((FilingCabinetBlockEntity) blockEntity);
+        this.blockEntity = ((FilingIndexBlockEntity) blockEntity);
         this.level = inv.player.level();
 
         addPlayerInventory(inv);
