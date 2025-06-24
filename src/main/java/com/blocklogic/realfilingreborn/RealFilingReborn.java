@@ -11,9 +11,7 @@ import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.FluidCanisterItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
-import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetScreen;
-import com.blocklogic.realfilingreborn.screen.custom.FilingIndexScreen;
-import com.blocklogic.realfilingreborn.screen.custom.FluidCabinetScreen;
+import com.blocklogic.realfilingreborn.screen.custom.*;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.client.event.EntityRenderersEvent;
@@ -130,6 +128,8 @@ public class RealFilingReborn
             event.register(ModMenuTypes.FILING_CABINET_MENU.get(), FilingCabinetScreen::new);
             event.register(ModMenuTypes.FLUID_CABINET_MENU.get(), FluidCabinetScreen::new);
             event.register(ModMenuTypes.FILING_INDEX_MENU.get(), FilingIndexScreen::new);
+            event.register(ModMenuTypes.FILING_FOLDER_MENU.get(), FilingFolderScreen::new);
+            event.register(ModMenuTypes.FLUID_CANISTER_MENU.get(), FluidCanisterScreen::new);
         }
 
         @SubscribeEvent

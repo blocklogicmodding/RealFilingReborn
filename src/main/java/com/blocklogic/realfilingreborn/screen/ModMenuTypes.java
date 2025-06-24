@@ -1,9 +1,7 @@
 package com.blocklogic.realfilingreborn.screen;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
-import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetMenu;
-import com.blocklogic.realfilingreborn.screen.custom.FilingIndexMenu;
-import com.blocklogic.realfilingreborn.screen.custom.FluidCabinetMenu;
+import com.blocklogic.realfilingreborn.screen.custom.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
@@ -24,6 +22,12 @@ public class ModMenuTypes {
 
     public static final DeferredHolder<MenuType<?>, MenuType<FilingIndexMenu>> FILING_INDEX_MENU =
             registerMenuType("filing_index_menu", FilingIndexMenu::new);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<FilingFolderMenu>> FILING_FOLDER_MENU =
+            registerMenuType("filing_folder_menu", FilingFolderMenu::new);
+
+    public static final DeferredHolder<MenuType<?>, MenuType<FluidCanisterMenu>> FLUID_CANISTER_MENU =
+            registerMenuType("fluid_canister_menu", FluidCanisterMenu::new);
 
     private static <T extends AbstractContainerMenu>DeferredHolder<MenuType<?>, MenuType<T>> registerMenuType(String name, IContainerFactory<T> factory) {
         return MENUS.register(name, () -> IMenuTypeExtension.create(factory));

@@ -1,6 +1,7 @@
 package com.blocklogic.realfilingreborn.item.custom;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
+import com.blocklogic.realfilingreborn.screen.custom.FilingFolderMenu;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import io.netty.buffer.ByteBuf;
@@ -14,8 +15,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -90,6 +93,31 @@ public class NBTFilingFolderItem extends Item {
         ItemStack folderStack = player.getItemInHand(hand);
 
         if (level.isClientSide()) {
+            return InteractionResultHolder.success(folderStack);
+        }
+
+        if (player.isShiftKeyDown()) {
+            if (player instanceof ServerPlayer serverPlayer) {
+                int foundSlotIndex = -1;
+                for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                    if (player.getInventory().getItem(i) == folderStack) {
+                        foundSlotIndex = i;
+                        break;
+                    }
+                }
+
+                final int finalSlotIndex = foundSlotIndex;
+                if (finalSlotIndex != -1) {
+                    Component title = Component.translatable("gui.realfilingreborn.nbt_folder.title");
+
+                    serverPlayer.openMenu(new SimpleMenuProvider(
+                            (containerId, inventory, playerEntity) -> new FilingFolderMenu(containerId, inventory, finalSlotIndex),
+                            title
+                    ), buf -> buf.writeInt(finalSlotIndex));
+
+                    return InteractionResultHolder.success(folderStack);
+                }
+            }
             return InteractionResultHolder.success(folderStack);
         }
 
@@ -303,6 +331,9 @@ public class NBTFilingFolderItem extends Item {
 
         tooltip.add(Component.translatable("tooltip.realfilingreborn.nbt_standard_folder_info")
                 .withStyle(ChatFormatting.RED, ChatFormatting.ITALIC));
+
+        tooltip.add(Component.translatable("tooltip.realfilingreborn.folder_gui_hint")
+                .withStyle(ChatFormatting.AQUA, ChatFormatting.ITALIC));
 
         super.appendHoverText(stack, context, tooltip, flag);
     }

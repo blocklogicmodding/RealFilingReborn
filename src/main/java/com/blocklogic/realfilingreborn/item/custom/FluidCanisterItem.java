@@ -1,6 +1,7 @@
 package com.blocklogic.realfilingreborn.item.custom;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
+import com.blocklogic.realfilingreborn.screen.custom.FluidCanisterMenu;
 import com.blocklogic.realfilingreborn.util.FluidHelper;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -12,8 +13,10 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
@@ -68,6 +71,31 @@ public class FluidCanisterItem extends Item {
         ItemStack canisterStack = player.getItemInHand(hand);
 
         if (level.isClientSide()) {
+            return InteractionResultHolder.success(canisterStack);
+        }
+
+        if (player.isShiftKeyDown()) {
+            if (player instanceof ServerPlayer serverPlayer) {
+                int foundSlotIndex = -1;
+                for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+                    if (player.getInventory().getItem(i) == canisterStack) {
+                        foundSlotIndex = i;
+                        break;
+                    }
+                }
+
+                final int finalSlotIndex = foundSlotIndex;
+                if (finalSlotIndex != -1) {
+                    Component title = Component.translatable("gui.realfilingreborn.canister.title");
+
+                    serverPlayer.openMenu(new SimpleMenuProvider(
+                            (containerId, inventory, playerEntity) -> new FluidCanisterMenu(containerId, inventory, finalSlotIndex),
+                            title
+                    ), buf -> buf.writeInt(finalSlotIndex));
+
+                    return InteractionResultHolder.success(canisterStack);
+                }
+            }
             return InteractionResultHolder.success(canisterStack);
         }
 
@@ -306,6 +334,9 @@ public class FluidCanisterItem extends Item {
         }
 
         tooltip.add(Component.translatable("tooltip.realfilingreborn.canister_info")
+                .withStyle(ChatFormatting.AQUA, ChatFormatting.ITALIC));
+
+        tooltip.add(Component.translatable("tooltip.realfilingreborn.canister_gui_hint")
                 .withStyle(ChatFormatting.AQUA, ChatFormatting.ITALIC));
 
         super.appendHoverText(stack, context, tooltip, flag);

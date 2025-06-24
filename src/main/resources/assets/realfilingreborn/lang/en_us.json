@@ -28,6 +28,17 @@
   "menu.realfilingreborn.fluid_cabinet_menu_title": "Fluid Cabinet",
   "menu.realfilingreborn.filing_index": "Filing Index",
 
+  "_comment4_new": "=== NEW GUI MESSAGES ===",
+  "gui.realfilingreborn.folder.instruction": "Place item to assign folder",
+  "gui.realfilingreborn.nbt_folder.instruction": "Place NBT item to assign folder",
+  "gui.realfilingreborn.canister.instruction": "Place fluid bucket to assign canister",
+  "gui.realfilingreborn.folder.title": "Folder Assignment",
+  "gui.realfilingreborn.nbt_folder.title": "NBT Folder Assignment",
+  "gui.realfilingreborn.canister.title": "Canister Assignment",
+  "gui.realfilingreborn.current_fluid_amount": "Currently Stored: %s",
+  "gui.realfilingreborn.current_nbt_count": "Currently Stored: %s/%s",
+  "gui.realfilingreborn.current_item_count": "Currently Stored: %s",
+
   "_comment5": "=== FILING FOLDER MESSAGES ===",
   "message.realfilingreborn.folder_erased": "Folder assignment erased",
   "message.realfilingreborn.folder_not_empty": "Folder must be empty to erase assignment",
@@ -82,6 +93,9 @@
   "tooltip.realfilingreborn.unregistered_folder": "Folder is unassigned. Add items to assign it",
   "tooltip.realfilingreborn.standard_folder_info": "Can only store normal items (no NBT)",
 
+  "_comment14_new": "=== NEW FILING FOLDER TOOLTIPS ===",
+  "tooltip.realfilingreborn.folder_gui_hint": "Shift+Right-click to open assignment GUI",
+
   "_comment15": "=== NBT FOLDER TOOLTIPS ===",
   "tooltip.realfilingreborn.nbt_standard_folder_info": "Can only store items with unique properties (NBT)",
   "tooltip.realfilingreborn.nbt_item_count": "Unique Items: %s/%s",
@@ -96,6 +110,9 @@
   "tooltip.realfilingreborn.empty_canister": "Canister is empty",
   "tooltip.realfilingreborn.unregistered_canister": "Canister is unassigned. Add fluid to assign it",
   "message.realfilingreborn.invalid_fluid": "This fluid cannot be stored in canisters",
+
+  "_comment16_new": "=== NEW FLUID CANISTER TOOLTIPS ===",
+  "tooltip.realfilingreborn.canister_gui_hint": "Shift+Right-click to open assignment GUI",
 
   "_comment17": "=== CABINET CONVERSION KIT TOOLTIPS ===",
   "tooltip.realfilingreborn.cabinet_conversion_kit_info": "Item used to convert a Filing Cabinet into a Fluid Cabinet. Consumed on use",
