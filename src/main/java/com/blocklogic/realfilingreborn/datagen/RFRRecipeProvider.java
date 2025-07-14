@@ -5,10 +5,7 @@ import com.blocklogic.realfilingreborn.item.ModItems;
 import com.blocklogic.realfilingreborn.util.RFRTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.data.PackOutput;
-import net.minecraft.data.recipes.RecipeCategory;
-import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.data.recipes.RecipeProvider;
-import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.data.recipes.*;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -150,6 +147,200 @@ public class RFRRecipeProvider extends RecipeProvider implements IConditionBuild
                 .define('C', Items.COMPARATOR)
                 .define('I', Items.COPPER_INGOT)
                 .unlockedBy("has_cabinet", has(RFRTags.Items.CABINET_AS_ITEM))
+                .save(recipeOutput);
+
+        // Dyed Folders
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.WHITE_FILING_FOLDER.get())
+                .requires(ModItems.FILING_FOLDER.get())
+                .requires(Items.WHITE_DYE)
+                .unlockedBy("has_filing_folder", has(ModItems.FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.ORANGE_FILING_FOLDER.get())
+                .requires(ModItems.FILING_FOLDER.get())
+                .requires(Items.ORANGE_DYE)
+                .unlockedBy("has_filing_folder", has(ModItems.FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.MAGENTA_FILING_FOLDER.get())
+                .requires(ModItems.FILING_FOLDER.get())
+                .requires(Items.MAGENTA_DYE)
+                .unlockedBy("has_filing_folder", has(ModItems.FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.LIGHT_BLUE_FILING_FOLDER.get())
+                .requires(ModItems.FILING_FOLDER.get())
+                .requires(Items.LIGHT_BLUE_DYE)
+                .unlockedBy("has_filing_folder", has(ModItems.FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.YELLOW_FILING_FOLDER.get())
+                .requires(ModItems.FILING_FOLDER.get())
+                .requires(Items.YELLOW_DYE)
+                .unlockedBy("has_filing_folder", has(ModItems.FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.LIME_FILING_FOLDER.get())
+                .requires(ModItems.FILING_FOLDER.get())
+                .requires(Items.LIME_DYE)
+                .unlockedBy("has_filing_folder", has(ModItems.FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.PINK_FILING_FOLDER.get())
+                .requires(ModItems.FILING_FOLDER.get())
+                .requires(Items.PINK_DYE)
+                .unlockedBy("has_filing_folder", has(ModItems.FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.GRAY_FILING_FOLDER.get())
+                .requires(ModItems.FILING_FOLDER.get())
+                .requires(Items.GRAY_DYE)
+                .unlockedBy("has_filing_folder", has(ModItems.FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.LIGHT_GRAY_FILING_FOLDER.get())
+                .requires(ModItems.FILING_FOLDER.get())
+                .requires(Items.LIGHT_GRAY_DYE)
+                .unlockedBy("has_filing_folder", has(ModItems.FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.CYAN_FILING_FOLDER.get())
+                .requires(ModItems.FILING_FOLDER.get())
+                .requires(Items.CYAN_DYE)
+                .unlockedBy("has_filing_folder", has(ModItems.FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.PURPLE_FILING_FOLDER.get())
+                .requires(ModItems.FILING_FOLDER.get())
+                .requires(Items.PURPLE_DYE)
+                .unlockedBy("has_filing_folder", has(ModItems.FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.BLUE_FILING_FOLDER.get())
+                .requires(ModItems.FILING_FOLDER.get())
+                .requires(Items.BLUE_DYE)
+                .unlockedBy("has_filing_folder", has(ModItems.FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.BROWN_FILING_FOLDER.get())
+                .requires(ModItems.FILING_FOLDER.get())
+                .requires(Items.BROWN_DYE)
+                .unlockedBy("has_filing_folder", has(ModItems.FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.GREEN_FILING_FOLDER.get())
+                .requires(ModItems.FILING_FOLDER.get())
+                .requires(Items.GREEN_DYE)
+                .unlockedBy("has_filing_folder", has(ModItems.FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.RED_FILING_FOLDER.get())
+                .requires(ModItems.FILING_FOLDER.get())
+                .requires(Items.RED_DYE)
+                .unlockedBy("has_filing_folder", has(ModItems.FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.BLACK_FILING_FOLDER.get())
+                .requires(ModItems.FILING_FOLDER.get())
+                .requires(Items.BLACK_DYE)
+                .unlockedBy("has_filing_folder", has(ModItems.FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        // Dyed NBT Folders
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.WHITE_NBT_FILING_FOLDER.get())
+                .requires(ModItems.NBT_FILING_FOLDER.get())
+                .requires(Items.WHITE_DYE)
+                .unlockedBy("has_nbt_filing_folder", has(ModItems.NBT_FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.ORANGE_NBT_FILING_FOLDER.get())
+                .requires(ModItems.NBT_FILING_FOLDER.get())
+                .requires(Items.ORANGE_DYE)
+                .unlockedBy("has_nbt_filing_folder", has(ModItems.NBT_FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.MAGENTA_NBT_FILING_FOLDER.get())
+                .requires(ModItems.NBT_FILING_FOLDER.get())
+                .requires(Items.MAGENTA_DYE)
+                .unlockedBy("has_nbt_filing_folder", has(ModItems.NBT_FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.LIGHT_BLUE_NBT_FILING_FOLDER.get())
+                .requires(ModItems.NBT_FILING_FOLDER.get())
+                .requires(Items.LIGHT_BLUE_DYE)
+                .unlockedBy("has_nbt_filing_folder", has(ModItems.NBT_FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.YELLOW_NBT_FILING_FOLDER.get())
+                .requires(ModItems.NBT_FILING_FOLDER.get())
+                .requires(Items.YELLOW_DYE)
+                .unlockedBy("has_nbt_filing_folder", has(ModItems.NBT_FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.LIME_NBT_FILING_FOLDER.get())
+                .requires(ModItems.NBT_FILING_FOLDER.get())
+                .requires(Items.LIME_DYE)
+                .unlockedBy("has_nbt_filing_folder", has(ModItems.NBT_FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.PINK_NBT_FILING_FOLDER.get())
+                .requires(ModItems.NBT_FILING_FOLDER.get())
+                .requires(Items.PINK_DYE)
+                .unlockedBy("has_nbt_filing_folder", has(ModItems.NBT_FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.GRAY_NBT_FILING_FOLDER.get())
+                .requires(ModItems.NBT_FILING_FOLDER.get())
+                .requires(Items.GRAY_DYE)
+                .unlockedBy("has_nbt_filing_folder", has(ModItems.NBT_FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.LIGHT_GRAY_NBT_FILING_FOLDER.get())
+                .requires(ModItems.NBT_FILING_FOLDER.get())
+                .requires(Items.LIGHT_GRAY_DYE)
+                .unlockedBy("has_nbt_filing_folder", has(ModItems.NBT_FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.CYAN_NBT_FILING_FOLDER.get())
+                .requires(ModItems.NBT_FILING_FOLDER.get())
+                .requires(Items.CYAN_DYE)
+                .unlockedBy("has_nbt_filing_folder", has(ModItems.NBT_FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.PURPLE_NBT_FILING_FOLDER.get())
+                .requires(ModItems.NBT_FILING_FOLDER.get())
+                .requires(Items.PURPLE_DYE)
+                .unlockedBy("has_nbt_filing_folder", has(ModItems.NBT_FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.BLUE_NBT_FILING_FOLDER.get())
+                .requires(ModItems.NBT_FILING_FOLDER.get())
+                .requires(Items.BLUE_DYE)
+                .unlockedBy("has_nbt_filing_folder", has(ModItems.NBT_FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.BROWN_NBT_FILING_FOLDER.get())
+                .requires(ModItems.NBT_FILING_FOLDER.get())
+                .requires(Items.BROWN_DYE)
+                .unlockedBy("has_nbt_filing_folder", has(ModItems.NBT_FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.GREEN_NBT_FILING_FOLDER.get())
+                .requires(ModItems.NBT_FILING_FOLDER.get())
+                .requires(Items.GREEN_DYE)
+                .unlockedBy("has_nbt_filing_folder", has(ModItems.NBT_FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.RED_NBT_FILING_FOLDER.get())
+                .requires(ModItems.NBT_FILING_FOLDER.get())
+                .requires(Items.RED_DYE)
+                .unlockedBy("has_nbt_filing_folder", has(ModItems.NBT_FILING_FOLDER.get()))
+                .save(recipeOutput);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModItems.BLACK_NBT_FILING_FOLDER.get())
+                .requires(ModItems.NBT_FILING_FOLDER.get())
+                .requires(Items.BLACK_DYE)
+                .unlockedBy("has_nbt_filing_folder", has(ModItems.NBT_FILING_FOLDER.get()))
                 .save(recipeOutput);
     }
 }

@@ -72,17 +72,17 @@ public class FluidCabinetBlockEntityRenderer implements BlockEntityRenderer<Flui
         poseStack.mulPose(Axis.YP.rotationDegrees(180));
 
         switch (facing) {
-            case NORTH -> poseStack.translate(0, 0, 0.535);
+            case NORTH -> poseStack.translate(0, 0, 0.475);
             case EAST -> {
-                poseStack.translate(-0.535, 0, 0);
+                poseStack.translate(-0.475, 0, 0);
                 poseStack.mulPose(Axis.YP.rotationDegrees(-90));
             }
             case SOUTH -> {
-                poseStack.translate(0, 0, -0.535);
+                poseStack.translate(0, 0, -0.475);
                 poseStack.mulPose(Axis.YP.rotationDegrees(180));
             }
             case WEST -> {
-                poseStack.translate(0.535, 0, 0);
+                poseStack.translate(0.475, 0, 0);
                 poseStack.mulPose(Axis.YP.rotationDegrees(90));
             }
         }

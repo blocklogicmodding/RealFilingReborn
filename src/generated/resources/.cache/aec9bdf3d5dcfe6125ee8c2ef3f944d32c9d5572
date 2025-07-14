@@ -1,5 +1,6 @@
-// 1.21.1	2025-06-24T11:30:21.0653434	Tags for minecraft:item mod id realfilingreborn
+// 1.21.1	2025-07-13T21:31:41.7985046	Tags for minecraft:item mod id realfilingreborn
 7c7dac35629f30e219e4c8c0c3a52ddf905c624e data/realfilingreborn/tags/item/archive_tools.json
 8acc4c00fe3fc9f8a64d7a3515421f9bcf165037 data/realfilingreborn/tags/item/cabinet_as_item.json
-d7fb8091254cbfe37cdf34b07b77897ae73e07b8 data/realfilingreborn/tags/item/folders.json
+dc7a140ffac4f208029e2c9f98e0bf7972db2d15 data/realfilingreborn/tags/item/dyed_folders.json
+4bb4d9ea5803f9f841b5de32ffc597f30847b7bd data/realfilingreborn/tags/item/folders.json
 71bf3f71d278cafecab5660b41b5c32c648d850c data/realfilingreborn/tags/item/range_upgrades.json
