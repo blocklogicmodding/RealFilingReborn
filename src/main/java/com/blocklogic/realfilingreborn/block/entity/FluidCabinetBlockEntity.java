@@ -1,6 +1,7 @@
 package com.blocklogic.realfilingreborn.block.entity;
 
 import com.blocklogic.realfilingreborn.block.custom.FluidCabinetBlock;
+import com.blocklogic.realfilingreborn.config.Config;
 import com.blocklogic.realfilingreborn.item.custom.FluidCanisterItem;
 import com.blocklogic.realfilingreborn.screen.custom.FluidCabinetMenu;
 import com.blocklogic.realfilingreborn.util.FluidHelper;
@@ -182,7 +183,7 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
 
         @Override
         public int getTankCapacity(int tank) {
-            return Integer.MAX_VALUE;
+            return Config.getMaxCanisterStorage();
         }
 
         @Override
@@ -206,7 +207,7 @@ public class FluidCabinetBlockEntity extends BlockEntity implements MenuProvider
                         if (contents.storedFluidId().isEmpty() ||
                                 FluidHelper.areFluidsCompatible(contents.storedFluidId().get(), fluidId)) {
 
-                            int maxToAdd = Integer.MAX_VALUE - contents.amount();
+                            int maxToAdd = Config.getMaxCanisterStorage() - contents.amount();
                             int toAdd = Math.min(resource.getAmount(), maxToAdd);
 
                             if (toAdd > 0 && action.execute()) {

@@ -2,6 +2,7 @@ package com.blocklogic.realfilingreborn.capability;
 
 import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
 import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
+import com.blocklogic.realfilingreborn.config.Config;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
 import net.minecraft.core.BlockPos;
@@ -285,7 +286,7 @@ public class FilingIndexItemHandler implements IItemHandler {
                 if (contents == null) return stack;
 
                 if (contents.storedItemId().isPresent() && contents.storedItemId().get().equals(itemId)) {
-                    int space = NBTFilingFolderItem.MAX_NBT_ITEMS - contents.storedItems().size();
+                    int space = Config.getMaxNBTFolderStorage() - contents.storedItems().size();
                     int canAdd = Math.min(1, space);
 
                     if (canAdd > 0 && !simulate) {

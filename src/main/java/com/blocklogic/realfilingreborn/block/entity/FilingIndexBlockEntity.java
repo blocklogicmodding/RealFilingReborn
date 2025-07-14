@@ -3,6 +3,7 @@ package com.blocklogic.realfilingreborn.block.entity;
 import com.blocklogic.realfilingreborn.block.custom.FilingIndexBlock;
 import com.blocklogic.realfilingreborn.capability.FilingIndexFluidHandler;
 import com.blocklogic.realfilingreborn.capability.FilingIndexItemHandler;
+import com.blocklogic.realfilingreborn.config.Config;
 import com.blocklogic.realfilingreborn.item.custom.DiamondRangeUpgrade;
 import com.blocklogic.realfilingreborn.item.custom.IronRangeUpgrade;
 import com.blocklogic.realfilingreborn.item.custom.NetheriteRangeUpgrade;
@@ -314,18 +315,18 @@ public class FilingIndexBlockEntity extends BlockEntity implements MenuProvider 
     public int getRange() {
         ItemStack upgradeStack = inventory.getStackInSlot(0);
         if (upgradeStack.isEmpty()) {
-            return 8;
+            return Config.getFilingIndexBaseRange();
         }
 
         if (upgradeStack.getItem() instanceof NetheriteRangeUpgrade) {
-            return 64;
+            return Config.getNetheriteRangeUpgrade();
         } else if (upgradeStack.getItem() instanceof DiamondRangeUpgrade) {
-            return 32;
+            return Config.getDiamondRangeUpgrade();
         } else if (upgradeStack.getItem() instanceof IronRangeUpgrade) {
-            return 16;
+            return Config.getIronRangeUpgrade();
         }
 
-        return 8;
+        return Config.getFilingIndexBaseRange();
     }
 
     public void updateConnectedState() {

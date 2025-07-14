@@ -2,6 +2,7 @@ package com.blocklogic.realfilingreborn.block.custom;
 
 import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
 import com.blocklogic.realfilingreborn.block.entity.FilingIndexBlockEntity;
+import com.blocklogic.realfilingreborn.config.Config;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
 import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetMenu;
@@ -201,7 +202,7 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                             filingCabinetBlockEntity.setChanged();
                             return ItemInteractionResult.SUCCESS;
                         } else if (contents.storedItemId().get().equals(itemId)) {
-                            int maxToAdd = Integer.MAX_VALUE - contents.count();
+                            int maxToAdd = Config.getMaxFolderStorage() - contents.count();
                             int toAdd = Math.min(heldItem.getCount(), maxToAdd);
 
                             if (toAdd > 0) {
@@ -224,7 +225,7 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                     if (contents != null) {
                         if (contents.storedItemId().isEmpty()) {
                             List<NBTFilingFolderItem.SerializedItemStack> newItems = new ArrayList<>();
-                            int toAdd = Math.min(heldItem.getCount(), NBTFilingFolderItem.MAX_NBT_ITEMS);
+                            int toAdd = Math.min(heldItem.getCount(), Config.getMaxNBTFolderStorage());
                             for (int count = 0; count < toAdd; count++) {
                                 ItemStack singleItem = heldItem.copy();
                                 singleItem.setCount(1);
@@ -241,9 +242,9 @@ public class FilingCabinetBlock extends BaseEntityBlock {
                             filingCabinetBlockEntity.setChanged();
                             return ItemInteractionResult.SUCCESS;
                         } else if (contents.storedItemId().get().equals(itemId)) {
-                            if (contents.storedItems().size() < NBTFilingFolderItem.MAX_NBT_ITEMS) {
+                            if (contents.storedItems().size() < Config.getMaxNBTFolderStorage()) {
                                 List<NBTFilingFolderItem.SerializedItemStack> newItems = new ArrayList<>(contents.storedItems());
-                                int availableSpace = NBTFilingFolderItem.MAX_NBT_ITEMS - newItems.size();
+                                int availableSpace = Config.getMaxNBTFolderStorage() - newItems.size();
                                 int toAdd = Math.min(heldItem.getCount(), availableSpace);
 
                                 for (int count = 0; count < toAdd; count++) {

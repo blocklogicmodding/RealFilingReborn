@@ -5,6 +5,7 @@ import com.blocklogic.realfilingreborn.block.entity.ModBlockEntities;
 import com.blocklogic.realfilingreborn.block.entity.renderer.FilingCabinetBlockEntityRenderer;
 import com.blocklogic.realfilingreborn.block.entity.renderer.FluidCabinetBlockEntityRenderer;
 import com.blocklogic.realfilingreborn.component.ModDataComponents;
+import com.blocklogic.realfilingreborn.config.Config;
 import com.blocklogic.realfilingreborn.item.ModCreativeModTab;
 import com.blocklogic.realfilingreborn.item.ModItems;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
@@ -55,6 +56,8 @@ public class RealFilingReborn
         FilingFolderItem.DATA_COMPONENTS.register(modEventBus);
         NBTFilingFolderItem.DATA_COMPONENTS.register(modEventBus);
         FluidCanisterItem.DATA_COMPONENTS.register(modEventBus);
+
+        Config.register(modContainer);
 
         modEventBus.addListener(this::addCreative);
         modEventBus.addListener(this::registerCapabilities);

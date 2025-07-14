@@ -1,6 +1,7 @@
 package com.blocklogic.realfilingreborn.item.custom;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
+import com.blocklogic.realfilingreborn.config.Config;
 import com.blocklogic.realfilingreborn.screen.custom.FilingFolderMenu;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -242,7 +243,7 @@ public class FilingFolderItem extends Item {
             }
         }
 
-        int maxToAdd = Integer.MAX_VALUE - contents.count();
+        int maxToAdd = Config.getMaxFolderStorage() - contents.count();
         int toAdd = Math.min(itemToStore.getCount(), maxToAdd);
 
         if (toAdd <= 0) {

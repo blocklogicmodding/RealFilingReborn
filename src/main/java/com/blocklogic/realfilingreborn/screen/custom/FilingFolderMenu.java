@@ -1,5 +1,6 @@
 package com.blocklogic.realfilingreborn.screen.custom;
 
+import com.blocklogic.realfilingreborn.config.Config;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
 import com.blocklogic.realfilingreborn.screen.ModMenuTypes;
@@ -150,7 +151,7 @@ public class FilingFolderMenu extends AbstractContainerMenu {
             NBTFilingFolderItem.NBTFolderContents contents = folderStack.get(NBTFilingFolderItem.NBT_FOLDER_CONTENTS.value());
             if (contents != null && contents.storedItemId().isPresent()) {
                 int count = contents.storedItems().size();
-                return Component.translatable("gui.realfilingreborn.current_nbt_count", count, NBTFilingFolderItem.MAX_NBT_ITEMS);
+                return Component.translatable("gui.realfilingreborn.current_nbt_count", count, Config.getMaxNBTFolderStorage());
             }
         } else {
             FilingFolderItem.FolderContents contents = folderStack.get(FilingFolderItem.FOLDER_CONTENTS.value());

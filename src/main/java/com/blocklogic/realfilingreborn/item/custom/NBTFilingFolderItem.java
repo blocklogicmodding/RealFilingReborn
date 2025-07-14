@@ -1,6 +1,7 @@
 package com.blocklogic.realfilingreborn.item.custom;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
+import com.blocklogic.realfilingreborn.config.Config;
 import com.blocklogic.realfilingreborn.screen.custom.FilingFolderMenu;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -37,7 +38,6 @@ import java.util.Optional;
 public class NBTFilingFolderItem extends Item {
 
     public record SerializedItemStack(ItemStack stack) {}
-    public static final int MAX_NBT_ITEMS = 128;
 
     public record NBTFolderContents(
             Optional<ResourceLocation> storedItemId,
@@ -233,7 +233,7 @@ public class NBTFilingFolderItem extends Item {
         }
 
         List<SerializedItemStack> currentItems = contents.storedItems() != null ? contents.storedItems() : new ArrayList<>();
-        if (currentItems.size() >= MAX_NBT_ITEMS) {
+        if (currentItems.size() >= Config.getMaxNBTFolderStorage()) {
             player.displayClientMessage(Component.translatable("message.realfilingreborn.nbt_folder_full"), true);
             return InteractionResultHolder.fail(folderStack);
         }
@@ -270,7 +270,7 @@ public class NBTFilingFolderItem extends Item {
             if (contents.storedItems() != null && !contents.storedItems().isEmpty()) {
                 tooltip.add(Component.translatable("tooltip.realfilingreborn.nbt_item_count",
                                 Component.literal(String.valueOf(contents.storedItems().size())).withStyle(ChatFormatting.GREEN),
-                                Component.literal(String.valueOf(MAX_NBT_ITEMS)).withStyle(ChatFormatting.GREEN))
+                                Component.literal(String.valueOf(Config.getMaxNBTFolderStorage())).withStyle(ChatFormatting.GREEN))
                         .withStyle(ChatFormatting.GRAY));
 
                 if (flag.isAdvanced() && !contents.storedItems().isEmpty()) {

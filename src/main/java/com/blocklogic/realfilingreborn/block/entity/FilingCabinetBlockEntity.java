@@ -1,6 +1,7 @@
 package com.blocklogic.realfilingreborn.block.entity;
 
 import com.blocklogic.realfilingreborn.block.custom.FilingCabinetBlock;
+import com.blocklogic.realfilingreborn.config.Config;
 import com.blocklogic.realfilingreborn.item.custom.*;
 import com.blocklogic.realfilingreborn.screen.custom.FilingCabinetMenu;
 import net.minecraft.core.BlockPos;
@@ -222,7 +223,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                                 continue;
                             }
 
-                            int maxToAdd = Integer.MAX_VALUE - contents.count();
+                            int maxToAdd = Config.getMaxFolderStorage() - contents.count();
                             int toAdd = Math.min(stack.getCount(), maxToAdd);
 
                             if (toAdd <= 0) {
@@ -266,7 +267,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
                             if (hasNBT) {
                                 if (contents.storedItems() != null &&
-                                        contents.storedItems().size() >= NBTFilingFolderItem.MAX_NBT_ITEMS) {
+                                        contents.storedItems().size() >= Config.getMaxNBTFolderStorage()) {
                                     return stack;
                                 }
 
@@ -274,7 +275,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                                     List<NBTFilingFolderItem.SerializedItemStack> newItems =
                                             new ArrayList<>(contents.storedItems() != null ? contents.storedItems() : new ArrayList<>());
 
-                                    int availableSpace = NBTFilingFolderItem.MAX_NBT_ITEMS - newItems.size();
+                                    int availableSpace = Config.getMaxNBTFolderStorage() - newItems.size();
                                     int itemsToAdd = Math.min(stack.getCount(), availableSpace);
 
                                     for (int count = 0; count < itemsToAdd; count++) {
@@ -326,7 +327,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     ResourceLocation newItemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
 
                     if (!simulate) {
-                        int toAdd = Math.min(stack.getCount(), Integer.MAX_VALUE);
+                        int toAdd = Math.min(stack.getCount(), Config.getMaxFolderStorage());
                         FilingFolderItem.FolderContents newContents = new FilingFolderItem.FolderContents(
                                 Optional.of(newItemId),
                                 toAdd
@@ -348,10 +349,10 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                 }
 
                 int maxToAdd;
-                if (contents.count() > Integer.MAX_VALUE - 1000) {
+                if (contents.count() > Config.getMaxFolderStorage() - 1000) {
                     return stack;
                 }
-                maxToAdd = Integer.MAX_VALUE - contents.count();
+                maxToAdd = Config.getMaxFolderStorage() - contents.count();
                 int toAdd = Math.min(stack.getCount(), maxToAdd);
 
                 if (toAdd <= 0) {
@@ -378,7 +379,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                 }
 
                 if (contents.storedItems() != null &&
-                        contents.storedItems().size() >= NBTFilingFolderItem.MAX_NBT_ITEMS) {
+                        contents.storedItems().size() >= Config.getMaxNBTFolderStorage()) {
                     return stack;
                 }
 
@@ -392,7 +393,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     if (!simulate) {
                         List<NBTFilingFolderItem.SerializedItemStack> newItems = new ArrayList<>();
 
-                        int availableSpace = NBTFilingFolderItem.MAX_NBT_ITEMS;
+                        int availableSpace = Config.getMaxNBTFolderStorage();
                         int itemsToAdd = Math.min(stack.getCount(), availableSpace);
 
                         for (int count = 0; count < itemsToAdd; count++) {
@@ -433,7 +434,7 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
                     List<NBTFilingFolderItem.SerializedItemStack> newItems =
                             new ArrayList<>(contents.storedItems() != null ? contents.storedItems() : new ArrayList<>());
 
-                    int availableSpace = NBTFilingFolderItem.MAX_NBT_ITEMS - newItems.size();
+                    int availableSpace = Config.getMaxNBTFolderStorage() - newItems.size();
                     int itemsToAdd = Math.min(stack.getCount(), availableSpace);
 
                     for (int count = 0; count < itemsToAdd; count++) {
@@ -565,7 +566,11 @@ public class FilingCabinetBlockEntity extends BlockEntity implements MenuProvide
 
         @Override
         public int getSlotLimit(int slot) {
-            return Integer.MAX_VALUE;
+            ItemStack folderStack = cabinet.inventory.getStackInSlot(slot);
+            if (folderStack.getItem() instanceof NBTFilingFolderItem) {
+                return Config.getMaxNBTFolderStorage();
+            }
+            return Config.getMaxFolderStorage();
         }
 
         @Override

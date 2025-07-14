@@ -1,6 +1,7 @@
 package com.blocklogic.realfilingreborn.item.custom;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
+import com.blocklogic.realfilingreborn.config.Config;
 import com.blocklogic.realfilingreborn.screen.custom.FluidCanisterMenu;
 import com.blocklogic.realfilingreborn.util.FluidHelper;
 import com.mojang.serialization.Codec;
@@ -250,7 +251,7 @@ public class FluidCanisterItem extends Item {
             }
         }
 
-        int maxToAdd = Integer.MAX_VALUE - contents.amount();
+        int maxToAdd = Config.getMaxCanisterStorage() - contents.amount();
         int toAdd = Math.min(1000, maxToAdd);
 
         if (toAdd <= 0) {

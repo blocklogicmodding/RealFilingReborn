@@ -3,6 +3,7 @@ package com.blocklogic.realfilingreborn.compat.jade;
 
 import com.blocklogic.realfilingreborn.RealFilingReborn;
 import com.blocklogic.realfilingreborn.block.entity.FilingCabinetBlockEntity;
+import com.blocklogic.realfilingreborn.config.Config;
 import com.blocklogic.realfilingreborn.item.custom.FilingFolderItem;
 import com.blocklogic.realfilingreborn.item.custom.NBTFilingFolderItem;
 import net.minecraft.ChatFormatting;
@@ -54,7 +55,7 @@ public enum FilingCabinetProvider implements IBlockComponentProvider, IServerDat
                 } else {
                     int count = folderTag.getInt("count");
                     String formattedCount = NumberFormat.getNumberInstance(Locale.US).format(count);
-                    double fillPercentage = ((double) count / Integer.MAX_VALUE) * 100.0;
+                    double fillPercentage = ((double) count / Config.getMaxFolderStorage()) * 100.0;
                     String percentText = String.format("%.2f%%", fillPercentage);
 
                     tooltip.add(Component.literal("Folder " + (slot + 1) + ": " + itemName + " (" + formattedCount + ", " + percentText + ")")
