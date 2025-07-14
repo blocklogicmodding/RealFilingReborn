@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_filing_folder": {
+      "conditions": {
+        "items": [
+          {
+            "items": "realfilingreborn:filing_folder"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "realfilingreborn:gray_filing_folder"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_filing_folder"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "realfilingreborn:gray_filing_folder"
+    ]
+  }
+}

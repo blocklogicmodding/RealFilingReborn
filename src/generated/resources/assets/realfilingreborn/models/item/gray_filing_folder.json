@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "realfilingreborn:item/gray_filing_folder"
+  }
+}
